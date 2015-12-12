@@ -1,0 +1,26 @@
+#N canvas 110 616 280 256 10;
+#X obj 228 37 bng 15 250 50 0 \$1-\$3-get empty Get 17 7 0 10 -4034
+-1 -1;
+#X floatatom 140 37 8 -32768 32767 1 Speed #1-#3-speedn-rcv #1-#3-speedn-snd
+;
+#X obj 10 37 hsl 128 15 0 32767 0 0 \$1-\$3-speed-snd \$1-\$3-speed-rcv
+empty -2 -8 0 10 -262144 -1 -1 0 1;
+#X floatatom 141 54 8 0 32767 1 Accel #1-#3-acceln-rcv #1-#3-acceln-snd
+;
+#X obj 10 54 hsl 128 15 50 32767 1 0 \$1-\$3-accel-snd \$1-\$3-accel-rcv
+empty -2 -8 0 10 -262144 -1 -1 0 1;
+#X floatatom 142 92 8 -32768 32767 1 Dest #1-#3-destn-rcv #1-#3-destn-snd
+;
+#X obj 10 92 hsl 128 15 -32768 32767 0 0 \$1-\$3-dest-snd \$1-\$3-dest-rcv
+empty 0 8 0 10 -257985 -1 -1 0 1;
+#X floatatom 141 71 8 0 32767 1 Decel #1-#3-deceln-rcv #1-#3-deceln-snd
+;
+#X obj 10 71 hsl 128 15 50 32767 1 0 \$1-\$3-decel-snd \$1-\$3-decel-rcv
+empty -2 -8 0 10 -262144 -1 -1 0 1;
+#X text 3 2 FRamp fruitname rampaddress(decimal) rampname;
+#X obj 11 153 fruit/param \$1-\$3 speed 0 i;
+#X obj 14 123 fruit/subModule \$1 \$2 \$3;
+#X obj 13 173 fruit/param \$1-\$3 accel 1 i;
+#X obj 13 192 fruit/param \$1-\$3 decel 2 i;
+#X obj 13 211 fruit/param \$1-\$3 dest 10 i;
+#X coords 0 -1 1 1 260 90 1 5 20;

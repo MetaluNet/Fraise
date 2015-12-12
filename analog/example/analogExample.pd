@@ -1,0 +1,22 @@
+#N canvas 532 360 426 403 10;
+#X declare -lib motex -lib hcs -lib maxlib -lib ggee -lib zexy -lib
+list-abs;
+#X declare -lib moonlib -lib iemlib;
+#X declare -lib moonlib;
+#X obj 21 38 pied/pied 0 41424;
+#X obj 22 237 analog/parse;
+#X obj 22 262 route 0 1 2 3;
+#X floatatom 22 371 8 0 0 0 - - -;
+#X floatatom 40 345 8 0 0 0 - - -;
+#X floatatom 59 319 8 0 0 0 - - -;
+#X floatatom 78 293 8 0 0 0 - - -;
+#X text 114 235 Analog capture on connector K1 \, K2 \, K3 and K4.
+;
+#X obj 22 207 fruit/receive fruit1;
+#X obj 19 141 fruit/fruit 1 fruit1 10 example;
+#X connect 1 0 2 0;
+#X connect 2 0 3 0;
+#X connect 2 1 4 0;
+#X connect 2 2 5 0;
+#X connect 2 3 6 0;
+#X connect 8 0 1 0;

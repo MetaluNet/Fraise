@@ -1,0 +1,2 @@
+SYSFS{idVendor}=="04d8", SYSFS{idProduct}=="0033",MODE="0660", GROUP="plugdev"
+

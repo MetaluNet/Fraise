@@ -1,0 +1,13 @@
+carte vue pour que "PIC18F2455(...)" (sur empreinte du pic) soit à l'endroit.
+
+pas d'opto (OK1/OK2)
+pas de BC557 sur Q1
+seules resistances : R1/R2 à 22k
+seule diode : D1
+
+alim 12V: conn JP4/JP5
+report 5V : pas de 78L05 sur U2 / conn bas-gauche de OK1 sur haut-droit de U2
+rx: conn haut de R7 sur bas de R11
+tx: haut R13 sur pin6 de OK1
+drv: haut R12 sur haut Q1 (pin carrée)
+

@@ -1,0 +1,23 @@
+_____________________
+|                   |
+| Fraise Bootloader |
+|___________________|
+
+2012 Antoine Rousseau
+
+
+to build bootloader MyBoard.hex, configure boards/MyBoard files, and run:
+export BOARD=MyBoard ; make
+or:
+./compile.sh MyBoard
+
+to program with pickit2:
+
+pk2cmd -P -M -FMyCard.hex
+
+
+-----------
+
+or :
+make -f Makefile.MyCard progpk2
+

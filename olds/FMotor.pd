@@ -1,0 +1,52 @@
+#N canvas 636 328 600 327 10;
+#X floatatom 493 86 5 0 1023 1 MaxVoltage #0-voltn-rcv #0-voltn-snd
+;
+#X obj 361 87 hsl 128 15 0 1023 0 0 \$0-volt-snd \$0-volt-rcv empty
+-2 -8 0 10 -262144 -1 -1 0 1;
+#X floatatom 493 69 5 0 1023 1 Courant #0-currentn-rcv #0-currentn-snd
+;
+#X obj 7 24 tgl 15 0 \$0-rev-snd \$0-rev-rcv reversed 17 7 0 10 -262144
+-1 -1 0 1;
+#X floatatom 493 107 8 -32768 32767 1 Speed #0-speedn-rcv #0-speedn-snd
+;
+#X obj 361 108 hsl 128 15 0 32767 0 0 \$0-speed-snd \$0-speed-rcv empty
+-2 -8 0 10 -262144 -1 -1 0 1;
+#X floatatom 493 124 8 0 32767 1 Accel #0-acceln-rcv #0-acceln-snd
+;
+#X obj 361 125 hsl 128 15 50 32767 1 0 \$0-accel-snd \$0-accel-rcv
+empty -2 -8 0 10 -262144 -1 -1 0 1;
+#X obj 361 70 hsl 128 15 0 1023 0 0 \$0-current-snd \$0-current-rcv
+empty -2 -8 0 10 -262144 -1 -1 0 1;
+#X floatatom 287 73 5 0 255 1 GainP #0-gainP-rcv #0-gainP-snd;
+#X floatatom 287 90 5 0 255 1 GainI #0-gainI-rcv #0-gainI-snd;
+#X floatatom 287 107 5 0 255 1 GainD #0-gainD-rcv #0-gainD-snd;
+#X floatatom 287 124 5 0 255 1 GainT #0-gainT-rcv #0-gainT-snd;
+#X obj 148 25 bng 15 250 50 0 \$0-get empty Get 17 7 0 10 -4034 -1
+-1;
+#X obj 329 24 l paramn \$0 current 0 i;
+#X obj 320 48 l paramn \$0 analog 9 c;
+#X obj 279 146 l paramn \$0 speed 1 i;
+#X obj 279 166 l paramn \$0 accel 2 i;
+#X obj 279 186 l paramn \$0 gainP 3 c;
+#X obj 279 204 l paramn \$0 gainI 4 c;
+#X obj 279 222 l paramn \$0 gainD 5 c;
+#X obj 279 239 l paramn \$0 gainT 6 c;
+#X obj 279 260 l paramn \$0 volt 7 i;
+#X obj 99 51 paramn \$0 rev 8 c;
+#X obj 13 74 inlet;
+#X obj 10 187 r \$0-todevice;
+#X obj 9 166 s \$0-fromdevice;
+#X obj 54 97 s \$0-params;
+#X obj 54 75 r \$1-\$3-rcv;
+#X obj 9 121 FruitReceive \$1;
+#X obj 9 144 route \$2;
+#X obj 10 212 list prepend c \$2;
+#X obj 10 235 FruitSend \$1;
+#X text 8 -11 FSMotor fruitname motoraddress(decimal) motorname;
+#X connect 24 0 27 0;
+#X connect 25 0 31 0;
+#X connect 28 0 27 0;
+#X connect 29 0 30 0;
+#X connect 30 0 26 0;
+#X connect 31 0 32 0;
+#X coords 0 -1 1 1 200 40 1 5 5;

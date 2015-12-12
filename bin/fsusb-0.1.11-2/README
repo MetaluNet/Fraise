@@ -1,0 +1,50 @@
+fsusb: Software to control the bootloader that comes factory-loaded on
+the "PICDEM Full Speed USB" demo board.
+
+Rick Luddy (GPG 1024D/98AA0510) <rickluddy@gmail.com>
+
+
+
+Usage:
+
+fsusb <file>             program board with <file> and verify
+fsusb --program <file>   program board with <file> and verify
+fsusb --verify <file>    verify board against <file>
+fsusb --read <file>      read board, saving result in <file>
+
+
+
+Building:
+
+Just "make" ought to build it, assuming you have libusb and the
+associated headers installed.
+
+
+
+Caveats:
+
+I have been a bit sloppy with endianness.  It works on my x86 system,
+but may run into some problems on an opposite system.
+
+I haven't tested the ability to write config memory.  I don't have a
+programmer to turn off the factory-set write protection (as if I did,
+I probably wouldn't need this program in the first place!).  It is
+implemented (just uncomment a few lines in program_file() in main.c)
+and should /probably/ work or at least come close, but no promises.
+
+I haven't implemented a way to read or write the EEPROM.  I'm not sure
+how it would be represented in the hex file.
+
+It must be either run as root or set suid root to function because of
+the way it uses the USB.  This means if I made a mistake and have a
+buffer overflow somewhere, the software is a local root vulnerability.
+I think I haven't made any such mistakes.
+
+
+
+Special thanks:
+
+Parts of the USB code and the Makefile were cribbed from usb_pickit by
+Orion Sky Lawlor <olawlor@acm.org>.  Most of the figuring out the
+protocol was done by working backwards from the firmware bootloader
+code by Rawin Rojvanit at Microchip.

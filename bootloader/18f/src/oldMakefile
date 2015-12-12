@@ -1,0 +1,129 @@
+#
+#  Makefile for Microchip sdcc project
+#
+
+#$(warning Startup $(MAKECMDGOALS) )
+
+#CHIP=18f2455
+#PROJ= 18f2455
+#UART_PORT=1
+#APP_START='0x800'
+#BLD_START=`echo print "0x6000-(20*64)" | python`
+
+#PROJ=$(1)
+
+#PROJMAKEFILE=$(Makefile.truc:%.truc=%.$(PROJ))
+
+PROJMAKEFILE=Makefile.$(PROJ)
+#PROJMAKEFILE=Makefile.$(MAKECMDGOALS)
+
+#ifneq "$(MAKECMDGOALS)" "clean"
+#  include $(PROJMAKEFILE)
+#endif
+
+BLD_START=`echo print "$(MEM_SIZE)-(30*64)" | python` 
+
+#include $(PROJMAKEFILE)
+
+# make /usr if you want released tools:
+MY_BASE=/usr/
+
+SDCC_HOME=$(MY_BASE)/share/sdcc
+SDCC=$(MY_BASE)/bin/sdcc
+CC=$(SDCC)
+
+SRCS= ./src/fbld.c $(PROJ)config.c
+#config.c
+#HDRS= main.h
+
+OBJS =	$(SRCS:%.c=%.o)
+ASMS =	$(SRCS:%.c=%.asm)
+LSTS =	$(SRCS:%.c=%.lst)
+
+#CRT = crt0iz-rloc
+#CRT = ./lib/crt0i
+#fraisebld
+
+DIS = gpdasm
+FSUSB = fsusb
+PICP=picp
+#OPTS= --use-crt=$(CRT).o 
+#OPTS= --no-crt
+#OPTS= --no-peep --fstack 
+#OPTS = --ivt-loc=0x0800
+OPTS = --ivt-loc=$(BLD_START) --no-crt
+#--model-small --vc --denable-peeps --optimize-goto --optimize-cmp --optimize-df --obanksel=9 --opt-code-size --fommit-frame-pointer --std-sdcc99
+CFLAGS= -I. -I./lib -I$(SDCC_HOME)/include/pic16 $(OPTS) -mpic16 -pp$(CHIP)  \
+		--model-small --vc --denable-peeps  --optimize-cmp --optimize-df --obanksel=2 \
+		--opt-code-speed --fommit-frame-pointer
+MACROS= -DFOSC=$(FOSC) -DBLD_START=$(BLD_START) -DAPP_START=$(APP_START) \
+		-DUART_PORT=$(UART_PORT) -DSERDRV_PIN=$(SERDRV_PIN) -DSERDRV_TRI=$(SERDRV_TRI) -DSERDRV_POL=$(SERDRV_POL)
+		
+#		-DFBLDCONF0=$(FBLDCONF0) -DFBLDCONF1=$(FBLDCONF1) -DFBLDCONF2=$(FBLDCONF2) -DFBLDCONF3=$(FBLDCONF3) \
+#		-DFBLDCONF4=$(FBLDCONF4) -DFBLDCONF5=$(FBLDCONF5) -DFBLDCONF6=$(FBLDCONF6) -DFBLDCONF7=$(FBLDCONF7) \
+#		-DFBLDCONF8=$(FBLDCONF8) -DFBLDCONF9=$(FBLDCONF9) -DFBLDCONF10=$(FBLDCONF10) -DFBLDCONF11=$(FBLDCONF11)
+
+
+#--optimize-goto
+#LINKER_SCRIPT= $(CHIP).lkr
+#LIBS= libsdcc.lib libc18f.lib libio$(CHIP).lib pic$(CHIP).lib
+LIBS= libsdcc.lib libc18f.lib 
+#libio$(CHIP).lib libdev$(CHIP).lib
+# .SUFFIXES: .c .asm .o .hex
+
+all: $(PROJ).hex
+	
+$(PROJ): all
+
+#$@ : all
+
+#$$1: $(PROJ).hex
+
+
+$(OBJS): %.o: %.c  Makefile $(PROJMAKEFILE) src/eeprom.c
+	@echo ---- Compile $@ ----
+	$(CC) $(CFLAGS) $(MACROS) -c $< -o $@
+
+#$(PROJ).hex:	$(OBJS)  ./src/fbld.c
+#	$(CC) $(CFLAGS) -L $(SDCC_HOME)/lib/pic16  -o $(PROJ) $(OBJS) $(LIBS)
+
+#$(PROJ)config.o:	%.o: %.c  Makefile
+#	$(CC) $(CFLAGS) $(MACROS) -c $< -o $@
+
+$(PROJ).hex: ./src/fbld.c $(PROJ)config.o $(OBJS) $(PROJMAKEFILE) Makefile
+	@echo ---- Linking and building $@ ----
+	$(CC) $(CFLAGS) $(MACROS) -L $(SDCC_HOME)/lib/pic16  -o $(PROJ).hex $(OBJS) $(LIBS)
+	
+#$(LINKER_SCRIPT)  $(CRT)
+#-Wl,"-m -w -s $(LINKER_SCRIPT)"
+
+disass:
+	$(DIS) -p p$(CHIP) $(PROJ).hex > $(PROJ).lis
+
+prog: all
+#	su root -c " $(FSUSB) --program $(PROJ).hex "
+	$(FSUSB) --program $(PROJ).hex
+#	$(PICP) /dev/ttyUSB0 $(CHIP) -ef -wp $(PROJ).hex -wc 0x0e20 0x001a 0x0500 0x0080 0xc00f 0xe00f 0x400f
+#									   0x0400=CCP2 on RB3; 0x0500 on RC1
+#							     0x0e24=quartz20MHz 0x0e20=4MHz
+
+clean:
+	rm -f *.o *.asm *.lst .depend depend *.cod src/*.o src/*.asm src/*.lst src/*.cod
+
+#$(CRT).o:	%.o: %.c
+#	$(CC) $(CFLAGS) -c $< -o $@
+
+#config.hex: config.c
+#	$(CC) $(CFLAGS) --no-crt -o config config.c 
+
+#depend .depend dep:
+#	for file in $(SRCS); do DIR=`dirname $$file`; echo -n $$DIR/ >> $@; $(CC) $(CFLAGS) -M $$file >> $@; done
+
+#archive:
+#	cd ..; find D_143 -depth -not -type d -not -lname "*" -not -path "*~"  > /tmp/backup3.files.txt; tar -c -j --files-from=/tmp/backup3.files.txt --file=$(HOME)/in/D_143.sdcc.$(VERSION).tar.bz2
+
+#dummy:
+# include a dependency file if one exists
+#ifeq (.depend,$(wildcard .depend))
+#include .depend
+#endif

@@ -1,0 +1,9 @@
+To burn bootloader to a 18fUSB : 
+
+-with a picstart+ (with a modified version of picp):
+make progpicp
+
+-with a pickit2:
+make progpk2
+
+

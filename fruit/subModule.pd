@@ -1,0 +1,12 @@
+#N canvas 139 324 342 196 10;
+#X obj 48 55 route \$2;
+#X obj 48 78 s Fraise-\$1-\$3-snd;
+#X obj 48 115 r Fraise-\$1-\$3-rcv;
+#X obj 48 137 list prepend \$2;
+#X obj 48 159 s Fraise-\$1-rcv;
+#X obj 48 32 fruit/receive \$1;
+#X text 5 7 subModule fruitname moduleadress(decimal) modulename;
+#X connect 0 0 1 0;
+#X connect 2 0 3 0;
+#X connect 3 0 4 0;
+#X connect 5 0 0 0;

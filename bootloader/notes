@@ -1,0 +1,12 @@
+fbl exits when receives a bit9 on, or after 4 secs
+jumps to 4 bytes before bld boundary.
+it knows its boundary and app start point (normally 0, 0x800 for 18f usb) ;
+then it can deal itself with vectors reallocation.
+
+full hex decode in fruit
+to start "Fruit" bootloader : send "!FFruit" to pied 
+-pied stops polling devices and sending data
+-verifies name ("VFruit" -> answers "V") or get "rename" command ("RENAME:Apple" and "PREFIX:")
+-get hex line - verifiy address validity /fix vectors
+-erase / write
+-add the goto read from app start point
