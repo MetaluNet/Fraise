@@ -114,34 +114,33 @@
 #X restore 22 232 pd assign;
 #X obj 46 47 bng 15 250 50 0 \$0-showutils-snd \$0-showutils-rcv utils
 17 7 0 10 -4034 -1 -1;
-#N canvas 193 143 327 117 \$0-utils 1;
-#X obj 1 2 cnv 15 320 100 empty empty empty 20 12 0 14 -57730 -66577
+#N canvas 91 651 322 115 \$0-utils 1;
+#X obj 1 1 cnv 15 320 100 empty empty empty 20 12 0 14 -57730 -66577
 0;
-#X obj 179 39 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:10
+#X obj 179 38 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:10
 -15 20 1 10 -4034 -1 -4034;
-#X obj 179 10 bng 15 250 50 0 \$0-rename \$0-rename-rcv RENAME:fruit1
+#X obj 179 9 bng 15 250 50 0 \$0-rename \$0-rename-rcv RENAME:fruit1
 -15 20 1 10 -258113 -1 -258113;
-#X obj 116 83 cnv 10 120 15 \$0-progressbg-snd \$0-progressbg-rcv empty
+#X obj 116 82 cnv 10 120 15 \$0-progressbg-snd \$0-progressbg-rcv empty
 30 -10 0 10 -83269 -257985 0;
-#X obj 136 83 cnv 5 100 15 \$0-progressfg-snd \$0-progressfg-rcv empty
+#X obj 136 82 cnv 5 100 15 \$0-progressfg-snd \$0-progressfg-rcv empty
 105 8 0 10 -241291 -241291 0;
-#X obj 118 83 bng 15 250 50 0 \$0-program \$0-program-rcv PROGRAM:exampleFruit.hex
+#X obj 118 82 bng 15 250 50 0 \$0-program \$0-program-rcv PROGRAM:exampleFruit.hex
 0 -8 1 10 -241291 -1 -241291;
-#X obj 21 8 bng 15 250 50 0 \$0-progboot empty PROG_BOOTLOADER -15
+#X obj 21 7 bng 15 250 50 0 \$0-progboot empty PROG_BOOTLOADER -15
 20 1 10 -159808 -1 -159808;
-#X obj 4 38 cnv 15 100 60 empty empty empty 20 12 0 14 -99865 -66577
+#X obj 4 37 cnv 15 100 60 empty empty empty 20 12 0 14 -99865 -66577
 0;
-#X obj 8 42 bng 15 250 50 0 \$0-make empty MAKE 17 8 1 10 -4032 -1
+#X obj 8 41 bng 15 250 50 0 \$0-make empty MAKE 17 8 1 10 -4032 -1
 -4032;
-#X obj 10 61 hsl 90 15 0 127 0 0 \$0-make-rambg-snd \$0-make-rambg-rcv
+#X obj 10 60 hsl 90 15 0 127 0 0 \$0-make-rambg-snd \$0-make-rambg-rcv
 empty -2 8 0 10 -191407 -191407 -1 0 1;
-#X obj 10 61 hsl 90 15 0 127 0 0 \$0-make-ram-snd \$0-make-ram-rcv
+#X obj 10 60 hsl 90 15 0 127 0 0 \$0-make-ram-snd \$0-make-ram-rcv
 empty -2 8 0 10 -2816 -2816 -1 0 1;
-#X obj 10 79 hsl 90 15 0 127 0 0 \$0-make-rombg-snd \$0-make-rombg-rcv
+#X obj 10 78 hsl 90 15 0 127 0 0 \$0-make-rombg-snd \$0-make-rombg-rcv
 empty -2 8 0 10 -191407 -191407 -1 0 1;
-#X obj 10 79 hsl 90 15 0 127 0 0 \$0-make-rom-snd \$0-make-rom-rcv
+#X obj 10 78 hsl 90 15 0 127 0 0 \$0-make-rom-snd \$0-make-rom-rcv
 empty -2 8 0 10 -1984 -1984 -1 0 1;
-#X obj 146 27 image fraise.gif 0;
 #X restore 22 180 pd \$0-utils;
 #N canvas 595 556 473 361 Fr2_interface 0;
 #X obj 25 11 r Fr2;
