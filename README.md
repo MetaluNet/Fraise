@@ -9,13 +9,13 @@
 
 -	a protocol for communication between microcontrollers
 -	some conventions about the communication physical layer and associated connectors 
--	a integrated development and runtime environment hosted by Pure Data (www.puredata.org)	
+-	a multiplatform integrated development and runtime environment hosted by Pure Data (www.puredata.org)	
 
 --------------------------------
 
 ##dependencies :
 
- PureData + externals :
+PureData + externals :
 
 -	zexy
 -	moonlib 
@@ -23,13 +23,14 @@
 -	ggee 
 -	comport
 
+
 ##installation :
 
 Install Pd + externals (or pd-extended).
 
-Download and extract Fraise on Github (<https://github.com/MetaluNet/Fraise/archive/master.zip>).
+Download latest Fraise version from Github :<https://github.com/MetaluNet/Fraise/archive/master.zip>.
 
-Declare Fraise path in Pd preferences.
+Extract the archive somewhere, declare this path into Pd preferences.
 
 
 ##try :
@@ -40,10 +41,7 @@ Open `fruit/example/exampleFruit.pd` with Pd.
 
 ...will come progressively.
 
-For now, look at:
-
--	<http://metalu.net/ressources-techniques/fraise>
--	<http://fraise.cc>
+For now, look at <http://metalu.net/ressources-techniques/fraise>
 
 Of course any help is welcome !
 
