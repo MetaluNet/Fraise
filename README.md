@@ -2,12 +2,16 @@
 
 **FRAISE** : **FRA**mework for **I**nterfacing **S**oftware and **E**lectronics
 
+--------------------------------
+
 **Fraise** is :
 
 
 -	a protocol for communication between microcontrollers
 -	some conventions about the communication physical layer and associated connectors 
 -	a integrated development and runtime environment hosted by Pure Data (www.puredata.org)	
+
+--------------------------------
 
 ##dependencies :
 
@@ -42,3 +46,7 @@ For now, look at:
 -	<http://fraise.cc>
 
 Of course any help is welcome !
+
+--------------------------------
+	Antoine Rousseau 2007-2015
+license : GNU GPL (see [LICENSE.txt](LICENSE.txt) )
