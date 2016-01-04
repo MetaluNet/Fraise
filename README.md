@@ -28,6 +28,10 @@ PureData + externals :
 -	ggee 
 -	comport
 
+For 64 bit linux, you also have to install 32 bit compatibility libraries.
+On Ubuntu14.04-64bit do :   
+`sudo apt-get install libc6-i386`   
+`sudo apt-get install lib32stdc++6`
 
 ##installation :
 
