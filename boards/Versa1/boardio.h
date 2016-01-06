@@ -15,7 +15,6 @@
 
 #define K4PORT	A
 #define K4BIT 	4
-#define K4AN	4
 
 #define K5PORT	C
 #define K5BIT 	3
