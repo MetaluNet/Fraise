@@ -39,8 +39,8 @@ __code char __at __CONFIG3H _conf4 = _CCP2MX_PORTB3_3H	// CCP2 input/output is m
 								//&	_T3CMX_PORTC0_3H		// T3CKI is on RC0
 								&	_P2BMX_PORTC0_3H		// P2B is on RC0
 								//&	_P2BMX_PORTB5_3H	// P2B is on RB5
-								&	_MCLRE_INTMCLR_3H;	// RE3 input pin enabled; MCLR disabled
-								//&	_MCLRE_EXTMCLR_3H		// MCLR pin enabled, RE3 input pin disabled
+								//&	_MCLRE_INTMCLR_3H;	// RE3 input pin enabled; MCLR disabled
+								&	_MCLRE_EXTMCLR_3H;		// MCLR pin enabled, RE3 input pin disabled
 
 #endif //BOOTLOADER
 
