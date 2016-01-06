@@ -9,10 +9,10 @@
 
 -	a protocol for communication between microcontrollers
 -	some conventions about the communication physical layers and associated connectors 
--	a multi-platform integrated development and runtime environment hosted by Pure Data (www.puredata.info) for microcontroller boards
+-	a multi-platform integrated development and runtime environment hosted by [Pure Data](www.puredata.info) for microcontroller boards
 
 Fraise boards are currently powered by Microchip's PIC18F26K22 8-bit microcontrollers, which have similar capabilities to Arduino's ATmega328.  
-Compilation of the firmware is done with [SDCC](http://sdcc.sourceforge.net); Fraise ships binaries of SDCC for Linux-x86, Windows and OSX (Linux-arm to come), and automates from Pd all the compilation and upload processes.
+Compilation of the firmware is done with [SDCC](http://sdcc.sourceforge.net) and [gputils](http://gputils.sourceforge.net); Fraise ships with the compiler's binaries for Linux-x86, Windows and OSX (Linux-arm to come), and automates from Pd all the compilation and upload processes.
 
 ![fruit-utils](http://metalu.net/local/cache-vignettes/L321xH101/fruit_utils-30b1e.png)
 
@@ -30,7 +30,7 @@ PureData + externals :
 
 On Linux, you may need to add your user to the dialout group, 
 to have read/write permissions on the USB device /dev/ttyACM0. Just do :   
-`sudo adduser \[username\] dialout`   
+`sudo adduser [your_username] dialout`   
 then logout and re-login.
 
 For 64 bit linux, you also have to install 32 bit compatibility libraries.
