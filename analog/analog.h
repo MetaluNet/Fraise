@@ -32,6 +32,10 @@
 #include <fraisedevice.h>
 #include <eeparams.h>*/
 
+#ifndef ANALOG_MAX_CHANNELS
+#define ANALOG_MAX_CHANNELS 16
+#endif
+
 #ifndef ANALOG_FILTER
 #define ANALOG_FILTER 3
 #endif

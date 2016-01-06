@@ -26,18 +26,17 @@
 */
 #include "analog.h"
 
-#define MAX_CHANNELS 8
-#define CHANNELS_GROUPS ((MAX_CHANNELS+7)/8)
+#define CHANNELS_GROUPS ((ANALOG_MAX_CHANNELS+7)/8)
 
-static int Value[MAX_CHANNELS];
-static int oldValue[MAX_CHANNELS];
-static int inValue[MAX_CHANNELS]; // input values
-static int Max[MAX_CHANNELS];
-static int Min[MAX_CHANNELS];
-static int Dist[MAX_CHANNELS]; // distance of oldValue from inValue
+static int Value[ANALOG_MAX_CHANNELS];
+static int oldValue[ANALOG_MAX_CHANNELS];
+static int inValue[ANALOG_MAX_CHANNELS]; // input values
+static int Max[ANALOG_MAX_CHANNELS];
+static int Min[ANALOG_MAX_CHANNELS];
+static int Dist[ANALOG_MAX_CHANNELS]; // distance of oldValue from inValue
 static unsigned char Scaling=0; // 1 when scaling
 static unsigned char Selected[CHANNELS_GROUPS];
-static unsigned char HWChan[MAX_CHANNELS];
+static unsigned char HWChan[ANALOG_MAX_CHANNELS];
 static int Threshold=ANALOG_THRESHOLD;
 
 #define MINMAX_MARGIN ANALOG_MINMAX_MARGIN
@@ -56,7 +55,7 @@ void analogInit()
 		Selected[i]=0;
 	}
 	
-	for(i=0;i<MAX_CHANNELS;i++) {
+	for(i=0;i<ANALOG_MAX_CHANNELS;i++) {
 		Value[i]=0;
 		inValue[i]=0;
 		oldValue[i]=0;
@@ -103,7 +102,7 @@ void analogService(void)
 	}
 	
 	chan++;
-	if(chan >= MAX_CHANNELS) chan = 0;
+	if(chan >= ANALOG_MAX_CHANNELS) chan = 0;
 	
 	if(isSelected(chan))	{
 		ADCON0=(HWChan[chan] << 2) + 1;
@@ -121,7 +120,7 @@ char analogSend(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=
 	
 	while(count < 4) {
 		chan++;
-		if(chan >= MAX_CHANNELS) {
+		if(chan >= ANALOG_MAX_CHANNELS) {
 			chan = 0;
 		}
 		if(! isSelected(chan)) continue;
@@ -208,7 +207,7 @@ void analogScaling(unsigned char scaling) // when scaling, min and max are updat
 	unsigned char i;
 	
 	if(scaling==1) {
-		for(i=0;i<MAX_CHANNELS;i++) {
+		for(i=0;i<ANALOG_MAX_CHANNELS;i++) {
 			Min[i]=0x7FFF;
 			Max[i]=0;
 		}
