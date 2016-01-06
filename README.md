@@ -28,6 +28,11 @@ PureData + externals :
 -	ggee 
 -	comport
 
+On Linux, you may need to add your user to the dialout group, 
+to have read/write permissions on the USB device /dev/ttyACM0. Just do :   
+`sudo adduser \[username\] dialout`   
+then logout and re-login.
+
 For 64 bit linux, you also have to install 32 bit compatibility libraries.
 On Ubuntu14.04-64bit do :   
 `sudo apt-get install libc6-i386`   
