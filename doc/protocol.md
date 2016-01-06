@@ -141,7 +141,7 @@ Master is USB connected to the host computer.
 `"0100\n" -> *0x01 0x01 0x00 0xFE` : send 0 to device ID 1.  
 `"81Hi\n" -> *0x01 0x82 0x48 0x69 0xCC` : send "Hi" to device ID 1.
 
-Master answers to host "sTnn\n" if device nn didn’t answer (timeout), or "sann\n" if it refused to acknowledge the packet (packet error or device buffer full).
+Master answers to host `"sTnn\n"` if device nn didn’t answer (timeout), or `"sann\n"` if it refused to acknowledge the packet (packet error or device buffer full).
 
 
 ### broadcast output :
@@ -157,10 +157,10 @@ Master answers to host "sTnn\n" if device nn didn’t answer (timeout), or "sann
 
 polling: with 0xmm = (0xnn | 0x80), periodically send *0xmm 0xmm, then wait for answer from device nn.
 
-When device nn answers for the first time, print to usb : "sCnn\n" (device nn is connected).
-When device nn stops answering, print to usb : "scnn\n".
+When device nn answers for the first time, print to usb : `"sCnn\n"` (device nn is connected).
+When device nn stops answering, print to usb : `"scnn\n"`.
 
-If master received a corrupted packet from device nn (checksum error), it signals this error by "sxnn\n".
+If master received a corrupted packet from device nn (checksum error), it signals this error by `"sxnn\n"`.
 
 When master receives a packet from device nn, it transmits it to host prefixed with "NN", where NN equals to nn plus 0x80 if message is a character string.
 
