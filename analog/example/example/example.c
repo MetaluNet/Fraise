@@ -1,7 +1,7 @@
 /*********************************************************************
  *
  *               analog example for Versa1.0
- *	Analog capture on connectors K1, K2, K3 and K4. 
+ *	Analog capture on connectors K1, K2, K3 and K5. 
  *
  *********************************************************************
  * Author               Date        Comment
@@ -54,7 +54,7 @@ void main(void)
 	analogSelect(0,K1);
 	analogSelect(1,K2);
 	analogSelect(2,K3);
-	analogSelect(3,K4);
+	analogSelect(3,K5);
 
 // ---------- Main loop ------------
 
