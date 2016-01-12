@@ -82,9 +82,5 @@ void analogScaling(unsigned char scaling); // when scaling, min and max are upda
 
 void analogDeclareEE();
 
-void analogPrintMin();
-void analogPrintMax();
-
-
 
 #endif //

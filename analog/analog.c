@@ -213,34 +213,36 @@ void analogScaling(unsigned char scaling) // when scaling, min and max are updat
 	Scaling=scaling;
 }
 
+#define EEDECLARE(x) \
+	EEdeclareInt(&Max[x]); \
+	EEdeclareInt(&Min[x])
+
 void analogDeclareEE()
 {
-	EEdeclareInt(&Max[0]);
-	EEdeclareInt(&Max[1]);
-	EEdeclareInt(&Max[2]);
-	EEdeclareInt(&Max[3]);
-	EEdeclareInt(&Max[4]);
-	EEdeclareInt(&Max[5]);
-	EEdeclareInt(&Max[6]);
-	EEdeclareInt(&Max[7]);
-
-	EEdeclareInt(&Min[0]);
-	EEdeclareInt(&Min[1]);
-	EEdeclareInt(&Min[2]);
-	EEdeclareInt(&Min[3]);
-	EEdeclareInt(&Min[4]);
-	EEdeclareInt(&Min[5]);
-	EEdeclareInt(&Min[6]);
-	EEdeclareInt(&Min[7]);
-}
-
-void analogPrintMin()
-{
-	printf("C asm %d %d %d %d %d\n",Min[0],Min[1],Min[2],Min[3],Min[4]);
-}
-
-void analogPrintMax()
-{
-	printf("C asM %d %d %d %d %d\n",Max[0],Max[1],Max[2],Max[3],Max[4]);
+#if ANALOG_MAX_CHANNELS > 0
+	EEDECLARE(0);
+	EEDECLARE(1);
+	EEDECLARE(2);
+	EEDECLARE(3);
+#endif
+#if ANALOG_MAX_CHANNELS > 4
+	EEDECLARE(4);
+	EEDECLARE(5);
+	EEDECLARE(6);
+	EEDECLARE(7);
+#endif
+#if ANALOG_MAX_CHANNELS > 8
+	EEDECLARE(8);
+	EEDECLARE(9);
+	EEDECLARE(10);
+	EEDECLARE(11);
+#endif
+#if ANALOG_MAX_CHANNELS > 12
+	EEDECLARE(12);
+	EEDECLARE(13);
+	EEDECLARE(14);
+	EEDECLARE(15);
+#endif
+	
 }
 
