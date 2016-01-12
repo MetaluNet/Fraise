@@ -1,0 +1,68 @@
+#N canvas 518 114 563 425 10;
+#X declare -stdpath moonlib;
+#X declare -stdpath hcs;
+#X declare -stdpath ggee;
+#X declare -stdpath zexy;
+#X declare -lib zexy;
+#X declare -stdpath moonlib;
+#X obj 23 263 l2s;
+#X symbolatom 23 287 20 0 0 0 - - -;
+#X text 229 235 set period;
+#X msg 227 258 4;
+#X floatatom 254 287 5 0 255 0 - - -;
+#X msg 254 258 10;
+#X msg 284 257 20;
+#X obj 23 308 bng 15 100 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 23 350 timer;
+#X floatatom 23 374 5 0 0 0 - - -;
+#X obj 23 327 t b b;
+#X text 288 287 x 5ms;
+#X msg 359 345 L\$1;
+#X obj 359 322 tgl 15 0 empty empty set_LED 18 7 0 10 -4034 -1 -1 1
+1;
+#X obj 359 272 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X msg 410 247 20;
+#X floatatom 410 269 5 2 1000 0 - - -;
+#X msg 440 246 100;
+#X obj 359 291 metro 100;
+#X msg 198 259 1;
+#X obj 21 38 pied/pied 0 41424;
+#X obj 23 234 fruit/receive fruit1;
+#X obj 19 141 fruit/fruit 1 fruit1 10 exampleFruit;
+#X obj 254 371 fruit/send2 fruit1;
+#X text -1 16 pied/pied num_serial_device unique_network_port;
+#X text -5 122 fruit/fruit piedid fruitname fruitid firmware;
+#X msg 254 307 c 1 c \$1;
+#X text 48 212 RECEIVE :;
+#X text 303 215 SEND :;
+#X text 179 49 CAUTION : never open an example Fraise patch while another
+is opened (because only one pied with given settings must exist at
+a given moment);
+#X msg 313 257 200;
+#X text 284 136 1 : open fruit's "utils" patch;
+#X text 284 147 2 : rename your fruit;
+#X text 284 158 3 : program your fruit;
+#X text 284 169 4 : assign your fruit;
+#X connect 0 0 1 0;
+#X connect 1 0 7 0;
+#X connect 3 0 4 0;
+#X connect 4 0 26 0;
+#X connect 5 0 4 0;
+#X connect 6 0 4 0;
+#X connect 7 0 10 0;
+#X connect 8 0 9 0;
+#X connect 10 0 8 0;
+#X connect 10 1 8 1;
+#X connect 12 0 23 1;
+#X connect 13 0 12 0;
+#X connect 14 0 18 0;
+#X connect 15 0 16 0;
+#X connect 16 0 18 1;
+#X connect 17 0 16 0;
+#X connect 18 0 13 0;
+#X connect 19 0 4 0;
+#X connect 21 0 0 0;
+#X connect 26 0 23 0;
+#X connect 30 0 4 0;

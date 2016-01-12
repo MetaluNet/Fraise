@@ -1,4 +1,4 @@
-#N canvas 533 358 426 403 10;
+#N canvas 534 356 426 403 10;
 #X declare -stdpath moonlib;
 #X declare -stdpath hcs;
 #X declare -stdpath ggee;
@@ -13,10 +13,11 @@
 #X floatatom 59 319 8 0 0 0 - - -;
 #X floatatom 78 293 8 0 0 0 - - -;
 #X obj 22 207 fruit/receive fruit1;
-#X obj 19 141 fruit/fruit 1 fruit1 10 example;
 #X text 114 235 Analog capture on connector K1 \, K2 \, K3 and K5.
 ;
-#X text 131 248 (K4 \, K11 and K12 cannot be analog inputs);
+#X obj 19 141 fruit/fruit 1 fruit1 10 example1;
+#X text 109 250 (K4 \, K11 and K12 cannot be analog inputs on Versa1)
+;
 #X connect 1 0 2 0;
 #X connect 2 0 3 0;
 #X connect 2 1 4 0;
