@@ -27,29 +27,27 @@
 #ifndef _SWITCH__H_
 #define _SWITCH__H_
 
-void Switch_Init();
+#include <fruit.h>
 
-void Switch_Select(unsigned char channel, unsigned char *port, unsigned char bit); // assign a port/bit to a channel
-//ATTENTION : bit is litteral (0-7)
+void switchInit();
 
-void Switch_Deselect(unsigned char channel); // deselect a channel
+void switchSelectHW(unsigned char channel, unsigned char *port, unsigned char bit); // assign a port/bit to a channel ; bit is decimal (0-7)
 
-void Switch_Service(void); // call often
+void switchDeselect(unsigned char channel); // deselect a channel
 
-char Switch_Send(void); // call at the maximum rate you want to report switches
-						// return number of channels sent
+void switchService(void); // call often
 
-void Switch_Input(/*unsigned char fraddress*/);
+char switchSend(void); 	// call at the maximum rate you want to report switches
+			// return number of channels sent
 
-char Switch_Get(unsigned char chan);
+char switchGet(unsigned char chan);
 
 #define SWITCH_SELECT_(num,connport,connbit) \
-	do {  \
-	Switch_Select(num,&PORT##connport,connbit); } while(0)
+	do { switchSelectHW(num,&PORT##connport,connbit); } while(0)
 
-//TRIS##connport##bits.TRIS##connport##connbit = 1; /*configure Kconn pin as an input*/	
-
-// use next macro like this : SERVO_SET_PORT(0,K2); to assign Switch_0 to K2 connector.
-#define SWITCH_SELECT(num,conn) CALL_FUN3(SWITCH_SELECT_,num,KPORT(conn),KBIT(conn))
+// use next macro like this : SERVO_SET_PORT(0,K2); to assign switch_0 to K2 connector.
+#define switchSelect(num,conn) do { \
+	pinModeDigitalIn(conn); \
+	CALL_FUN3(SWITCH_SELECT_,num,KPORT(conn),KBIT(conn)); } while(0)
 
 #endif //

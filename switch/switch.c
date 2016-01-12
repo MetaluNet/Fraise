@@ -24,12 +24,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA  02110-1301, USA.
 */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <core.h>
-#include <fraisedevice.h>
-#include <eeparams.h>
 
 #include <config.h>
 #include <switch.h>
@@ -50,7 +44,7 @@ static unsigned char oldStates[CHANNELS_GROUPS];
 #define OLDCHANCLR(num)  (bitclr(oldStates[num>>3],num&7))
 #define OLDCHANSET(num) (bitset(oldStates[num>>3],num&7))
 
-void Switch_Init()
+void switchInit()
 {
 	unsigned char i;
 		
@@ -63,24 +57,17 @@ void Switch_Init()
 	}
 }
 
-void Switch_Select(unsigned char channel, unsigned char *port, unsigned char bit)
+void switchSelectHW(unsigned char channel, unsigned char *port, unsigned char bit)
 {
-	//if(port!=&PORTE) {
-		
-	//}
-	bitset(*(__data unsigned char*)((int)port+(int)&TRISA-(int)&PORTA),bit);
-//#ifdef ANSELA
-	bitclr(*(__data unsigned char*)((int)port+(int)&ANSELA-(int)&PORTA),bit);
-//#endif
 	Pins[channel]=(((unsigned int)(port-&PORTA)&7)<<4) + (bit&7);
 }
 
-void Switch_Deselect(unsigned char channel)
+void switchDeselect(unsigned char channel)
 {
 	Pins[channel]=0;
 }
 
-void Switch_Service(void)
+void switchService(void)
 {
 	unsigned char i,pin;
 	
@@ -93,7 +80,7 @@ void Switch_Service(void)
 	}	
 }
 
-char Switch_Send(void)
+char switchSend(void)
 {
 	static unsigned char chan=0;
 	unsigned char count=0,pin,set;
@@ -118,14 +105,9 @@ char Switch_Send(void)
 	return count;
 }
 
-char Switch_Get(unsigned char chan)
+char switchGet(unsigned char chan)
 {
 	return CHANISSET(chan);
 }
-
-void Switch_Input(/*unsigned char fraddress*/)
-{	
-}
-
 
 
