@@ -1,4 +1,4 @@
-#N canvas 981 255 372 334 10;
+#N canvas 982 281 372 334 10;
 #X declare -stdpath moonlib;
 #X obj 21 39 cnv 15 150 25 empty \$0-stastocan-rcv empty 20 12 0 14
 -166441 -1 0;
@@ -7,7 +7,6 @@
 #X obj 100 43 cnv 15 70 20 empty \$0-pied_can-rcv pied_inactif 2 12
 1 12 -166441 -1 0;
 #X obj 121 167 r \$0-fruitpresent;
-#X obj 240 167 r Fraise-\$2-snd;
 #N canvas 927 242 450 543 rename 0;
 #X obj 76 149 s \$0-2Fr2;
 #X obj 76 102 symbol \$2;
@@ -44,7 +43,7 @@
 -1 -1;
 #X obj 238 297 b;
 #X obj 193 336 del 4000;
-#X floatatom 10 273 5 0 0 0 - - -, f 5;
+#X floatatom 10 273 5 0 0 0 - - -;
 #X obj 16 427 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X msg 145 401 5;
@@ -114,10 +113,10 @@
 #X restore 22 232 pd assign;
 #X obj 46 47 bng 15 250 50 0 \$0-showutils-snd \$0-showutils-rcv utils
 17 7 0 10 -4034 -1 -1;
-#N canvas 91 651 322 115 \$0-utils 1;
+#N canvas 91 651 322 115 \$0-utils 0;
 #X obj 1 1 cnv 15 320 100 empty empty empty 20 12 0 14 -57730 -66577
 0;
-#X obj 179 38 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:10
+#X obj 179 38 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:0
 -15 20 1 10 -4034 -1 -4034;
 #X obj 179 9 bng 15 250 50 0 \$0-rename \$0-rename-rcv RENAME:fruit1
 -15 20 1 10 -258113 -1 -258113;
@@ -249,8 +248,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 12 0 13 0;
 #X connect 13 0 9 0;
 #X restore 22 133 pd tochild;
-#X obj 121 140 s Fraise-\$2-rcv;
-#N canvas 964 128 425 323 UI 0;
+#N canvas 965 126 425 323 UI 0;
 #N canvas 63 347 394 241 canvascolor 0;
 #X obj 15 13 inlet;
 #X obj 15 103 s \$0-stastocan-rcv;
@@ -445,9 +443,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 27 0 17 0;
 #X restore 22 158 pd UI;
 #X obj 121 187 outlet on;
-#X obj 240 189 outlet data;
-#X obj 121 120 inlet data;
-#N canvas 4 85 450 300 select 0;
+#N canvas 5 83 450 300 select 0;
 #X obj 44 18 r \$0-piedactif;
 #X obj 44 228 s \$0-2Fr2;
 #X obj 44 178 f \$3;
@@ -567,8 +563,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 10 0 6 0;
 #X restore 75 280 pd progbootloader;
 #X obj 181 54 declare -stdpath moonlib;
-#X obj 209 28 l import moonlib;
-#X connect 3 0 15 0;
-#X connect 4 0 16 0;
-#X connect 17 0 13 0;
+#X obj 26 19 inlet on;
+#X connect 3 0 13 0;
+#X connect 19 0 1 0;
 #X coords 0 -1 1 1 152 45 1 20 20;
