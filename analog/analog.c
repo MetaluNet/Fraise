@@ -92,8 +92,8 @@ void analogService(void)
 	
 	if(conv) {
 		v = Value[chan];
-		//Value[chan]= v - (v>>3) + ADRESL+(ADRESH<<8); // v = oldv-oldv/8+adres = ((adres*8)+oldv*7)/8 : v = lowpass(adres*8)
-		Value[chan] = v - (v>>ANALOG_FILTER) + ADRESL+(ADRESH<<8); // v = oldv-oldv/N+adres = ((adres*N)+oldv*(N-1))/N : v = lowpass[N](adres*N) N=2^ANALOG_FILTER
+// v = oldv-oldv/N+ADres = ((ADres*N)+oldv*(N-1))/N : v = N*lowpass[N](ADres) N=2^ANALOG_FILTER
+		Value[chan] = v - (v>>ANALOG_FILTER) + ADRESL+(ADRESH<<8); 
 		if(Scaling == 1) {
 			v = Value[chan];
 			if(v < (Min[chan]-MINMAX_MARGIN)) Min[chan] = v+MINMAX_MARGIN;
@@ -130,10 +130,13 @@ char analogSend()
 		if(Mode & AMODE_SCALE) { // scale :
 			if(v < Min[chan]) v = 0;
 			else if(v > Max[chan]) v = ANALOG_SCALED_MAX;
-			else v = (unsigned int)( ( (ANALOG_SCALED_MAX+1UL) * (v - Min[chan])) / (Max[chan] - Min[chan]) );
+			else v = (unsigned int)( 
+				((ANALOG_SCALED_MAX+1UL) * (v - Min[chan])) / 
+				(Max[chan] - Min[chan]) );
 
 			if(v <= Threshold ) v = 0;
-			else if(v >= (ANALOG_SCALED_MAX - Threshold)) v = ANALOG_SCALED_MAX;
+			else if(v >= (ANALOG_SCALED_MAX - Threshold)) 
+				v = ANALOG_SCALED_MAX;
 		} 
 		d = v - oldValue[chan];
 		if(d < 0) d = -d;
@@ -172,7 +175,7 @@ char analogSend()
 	return count;		
 }
 
-char analogSetMode(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=text_off) ; bit2 = cross_inval
+void analogSetMode(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=text_off) ; bit2 = cross_inval
 {
 	Mode = mode;
 }

@@ -8,11 +8,8 @@
 #include <fruit.h>
 #include <analog.h>
 
-unsigned char period = 200; // number of 5 ms time slices between prints of "Hello"
-
 void main(void)
 {	
-	unsigned char t = 0, t2 = 0;
 	t_delay mainDelay;
 	
 //----------- Setup ----------------
@@ -37,14 +34,6 @@ void main(void)
 		if(delayFinished(mainDelay)) // when mainDelay triggers :
 		{
 			analogSend();		// send analog channels that changed
-
-			delayStart(mainDelay, 5000); 	// re-init mainDelay
-			t = t + 1;			// increment period counter	
-			if(t >= period){		// if counter overflows :
-				t = 0;				 // clear counter
-				t2 = t2 + 1;			 // increment aux counter 
-				printf("Cs Hello ! t2=%d\n", t2);// print Hello + aux counter value
-			}
 		}
 	}
 }
@@ -69,16 +58,7 @@ void fraiseReceiveChar() // receive text
 }
 
 void fraiseReceive() // receive raw bytes
-{
-	unsigned char c;
-	
-	c=fraiseGetChar();	// get the first byte
-
-	switch(c) {
-		PARAM_CHAR(1,period); break; 	// if the first byte is 1 then set period 
-						//to the value of the next byte
-	}
-}
+{}
 
 void fraiseReceiveCharBroadcast(){} // receive broadcast text
 void fraiseReceiveBroadcast(){} // receive broadcast raw bytes

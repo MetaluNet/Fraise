@@ -28,9 +28,6 @@
 #define _ANALOG__H_
 
 #include <fruit.h>
-/*#include <core.h>
-#include <fraisedevice.h>
-#include <eeparams.h>*/
 
 #ifndef ANALOG_MAX_CHANNELS
 #define ANALOG_MAX_CHANNELS 16
@@ -61,7 +58,7 @@
 
 void analogInit();
 
-void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardware channel to a channel
+void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardware channel to an analog channel
 #define analogSelect(num,conn) do { pinModeAnalogIn(conn); CALL_FUN2(analogSelectAdc,num,KAN(conn)); } while(0)
 
 void analogDeselect(unsigned char chan); // deselect a channel
@@ -71,7 +68,7 @@ void analogService(void); // call often
 char analogSend(void); 	// call at the maximum rate you want to report analog ; 
 					// return number of channels sent (max 4)
 
-char analogSetMode(unsigned char mode); // configure the way analog values are sent; 
+void analogSetMode(unsigned char mode); // configure the way analog values are sent; 
 
 void analogSet(unsigned char chan, int val);
 int analogGet(unsigned char chan);
