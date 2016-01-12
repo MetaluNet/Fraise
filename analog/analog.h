@@ -68,10 +68,10 @@ void analogDeselect(unsigned char chan); // deselect a channel
 
 void analogService(void); // call often
 
-char analogSend(unsigned char mode); 	// call at the maximum rate you want to report analog ; 
+char analogSend(void); 	// call at the maximum rate you want to report analog ; 
 					// return number of channels sent (max 4)
 
-//void analogInput();
+char analogSetMode(unsigned char mode); // configure the way analog values are sent; 
 
 void analogSet(unsigned char chan, int val);
 int analogGet(unsigned char chan);

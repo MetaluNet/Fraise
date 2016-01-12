@@ -38,6 +38,7 @@ static unsigned char Scaling=0; // 1 when scaling
 static unsigned char Selected[CHANNELS_GROUPS];
 static unsigned char HWChan[ANALOG_MAX_CHANNELS];
 static int Threshold=ANALOG_THRESHOLD;
+static char Mode = AMODE_NUM;
 
 #define MINMAX_MARGIN ANALOG_MINMAX_MARGIN
 
@@ -111,7 +112,7 @@ void analogService(void)
 	}
 }
 
-char analogSend(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=text_off) ; bit2 = cross_inval
+char analogSend()
 {
 	static unsigned char chan = 0;
 	unsigned char count = 0, len = 0;
@@ -126,7 +127,7 @@ char analogSend(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=
 		if(! isSelected(chan)) continue;
 
 		v = Value[chan];
-		if(mode & AMODE_SCALE) { // scale :
+		if(Mode & AMODE_SCALE) { // scale :
 			if(v < Min[chan]) v = 0;
 			else if(v > Max[chan]) v = ANALOG_SCALED_MAX;
 			else v = (unsigned int)( ( (ANALOG_SCALED_MAX+1UL) * (v - Min[chan])) / (Max[chan] - Min[chan]) );
@@ -140,15 +141,10 @@ char analogSend(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=
 		count++;
 		
 		if(d <= Threshold) continue;
-		//if(d > Threshold) {
-			/*if(scale & 1) {
-				if(v <= Threshold ) v = 0;
-				else if(v >= (4095 - Threshold)) v = 4095;
-			}*/
+
 		oldValue[chan] = v;
-		//count++;
 		
-		if(mode & AMODE_CROSS) {
+		if(Mode & AMODE_CROSS) {
 			if(Dist[chan] != 0) {
 				d = v - inValue[chan];
 				if((d != 0) && ((d > 0) == (Dist[chan] > 0))) { 
@@ -159,7 +155,7 @@ char analogSend(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=
 			}
 		}
 		
-		if(mode & AMODE_NUM) {
+		if(Mode & AMODE_NUM) {
 			if( !len ) buf[len++] = 'B';
 			buf[len++] = chan + 100;
 			buf[len++] = v >> 8;
@@ -168,12 +164,17 @@ char analogSend(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=
 		else printf("C A %d %d\n",chan,v);
 	}
 	
-	if((len != 0) && (mode & AMODE_NUM)) {
+	if((len != 0) && (Mode & AMODE_NUM)) {
 		buf[len++] = '\n';
 		fraiseSend(buf,len);
 	}
 	
 	return count;		
+}
+
+char analogSetMode(unsigned char mode) // scale : bit0 = scale_on ; bit1 = num_on(=text_off) ; bit2 = cross_inval
+{
+	Mode = mode;
 }
 
 void analogSet(unsigned char chan, int val)
@@ -196,10 +197,6 @@ int analogGet(unsigned char chan)
 int analogGetDistance(unsigned char chan)
 {
 	return Dist[chan];
-}
-
-void analogInput()
-{
 }
 
 void analogScaling(unsigned char scaling) // when scaling, min and max are updated each sample
