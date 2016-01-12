@@ -10,7 +10,7 @@ export FRAISEOS=$3
 	FRAISEH=`dirname $0`/../
 	FRAISE=`readlink -f $FRAISEH`
 	PROJ=`basename $1`
-	BOARDLINE=`grep BOARD $1/$PROJ.c`
+	BOARDLINE=`grep BOARD $1/main.c`
 	BOARD=${BOARDLINE##*BOARD}
 	BOARD=${BOARD##* }
 
