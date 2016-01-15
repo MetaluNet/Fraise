@@ -124,4 +124,100 @@ typedef  unsigned long t_delay;
 #define delayStart(delay, micros) delay = time() +  microToTime(micros)
 #define delayFinished(delay) (elapsed(delay) < 0x3FFFFFFF)
 
+//----------------------- fake port Z ---------------
+typedef union
+  {
+  struct
+    {
+    unsigned RZ0                : 1;
+    unsigned RZ1                : 1;
+    unsigned RZ2                : 1;
+    unsigned RZ3                : 1;
+    unsigned RZ4                : 1;
+    unsigned RZ5                : 1;
+    unsigned RZ6                : 1;
+    unsigned RZ7                : 1;
+    };
+  } __PORTZbits_t;
+
+typedef union
+  {
+  struct
+    {
+    unsigned LATZ0              : 1;
+    unsigned LATZ1              : 1;
+    unsigned LATZ2              : 1;
+    unsigned LATZ3              : 1;
+    unsigned LATZ4              : 1;
+    unsigned LATZ5              : 1;
+    unsigned LATZ6              : 1;
+    unsigned LATZ7              : 1;
+    };
+  } __LATZbits_t;
+
+typedef union
+  {
+  struct
+    {
+    unsigned TRISZ0             : 1;
+    unsigned TRISZ1             : 1;
+    unsigned TRISZ2             : 1;
+    unsigned TRISZ3             : 1;
+    unsigned TRISZ4             : 1;
+    unsigned TRISZ5             : 1;
+    unsigned TRISZ6             : 1;
+    unsigned TRISZ7             : 1;
+    };
+
+  struct
+    {
+    unsigned RZ0                : 1;
+    unsigned RZ1                : 1;
+    unsigned RZ2                : 1;
+    unsigned RZ3                : 1;
+    unsigned RZ4                : 1;
+    unsigned RZ5                : 1;
+    unsigned RZ6                : 1;
+    unsigned RZ7                : 1;
+    };
+  } __TRISZbits_t;
+
+#define _PORTZ_ADDR 0x0480
+#define _PORT_TO_LAT 0x09
+#define _PORT_TO_TRIS 0x12
+extern __at(_PORTZ_ADDR) volatile unsigned char PORTZ;
+extern __at(_PORTZ_ADDR) volatile __PORTZbits_t PORTZbits;
+
+extern __at(_PORTZ_ADDR + _PORT_TO_LAT) volatile unsigned char LATZ;
+extern __at(_PORTZ_ADDR + _PORT_TO_LAT) volatile __LATZbits_t LATZbits;
+
+extern __at(_PORTZ_ADDR + _PORT_TO_TRIS) volatile unsigned char TRICZ;
+extern __at(_PORTZ_ADDR + _PORT_TO_TRIS) volatile __TRISZbits_t TRISZbits;
+
+//----------------------- fake port Z connectors ---------------
+
+#define KZ0PORT Z	// PORTZ0 & LATZ0 are initialized to 0 
+#define KZ0BIT 	0
+
+#define KZ1PORT Z	// PORTZ1 & LATZ1 are initialized to 1 
+#define KZ1BIT 	1
+
+#define KZ2PORT Z
+#define KZ2BIT 	2
+
+#define KZ3PORT Z
+#define KZ3BIT 	3
+
+#define KZ4PORT Z
+#define KZ4BIT 	4
+
+#define KZ5PORT Z
+#define KZ5BIT 	5
+
+#define KZ6PORT Z
+#define KZ6BIT 	6
+
+#define KZ7PORT Z
+#define KZ7BIT 	7
+
 #endif //FRAISE_H

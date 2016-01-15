@@ -77,7 +77,11 @@ void coreInit(void)
 #if CONFIG_SETUP==1
 	Setup();
 #endif	
-	
+
+	// Fake port init :
+	PORTZ = LATZ = 0;
+	PORTZbits.RZ1 = LATZbits.LATZ1 = 1;	
+
 	T0CONbits.TMR0ON = 1;
 	T0CONbits.T08BIT = 0;	// 16 bit timer
 	T0CONbits.T0CS = 0;		// Use internal clock
@@ -161,5 +165,16 @@ unsigned unsigned long int time()
 		
 	return now._dword;
 }
+
+//------------- fake port Z -------------------------------------
+
+__at(_PORTZ_ADDR) volatile unsigned char PORTZ;
+__at(_PORTZ_ADDR) volatile __PORTZbits_t PORTZbits;
+
+__at(_PORTZ_ADDR + _PORT_TO_LAT) volatile unsigned char LATZ;
+__at(_PORTZ_ADDR + _PORT_TO_LAT) volatile __LATZbits_t LATZbits;
+
+__at(_PORTZ_ADDR + _PORT_TO_TRIS) volatile unsigned char TRICZ;
+__at(_PORTZ_ADDR + _PORT_TO_TRIS) volatile __TRISZbits_t TRISZbits;
 
 
