@@ -1,9 +1,8 @@
-#N canvas 571 78 563 239 10;
+#N canvas 569 83 563 239 10;
 #X obj 10 35 tgl 15 0 \$1-\$3-rev-snd \$1-\$3-rev-rcv reversed 17 7
 0 10 -262144 -1 -1 0 1;
 #X obj 82 35 bng 15 250 50 0 \$1-\$3-get empty Get 17 7 0 10 -4034
 -1 -1;
-#X text 10 -11 FSMotor fruitname motoraddress(decimal) motorname;
 #X obj 133 36 tgl 15 0 \$1-\$3-homed-snd \$1-\$3-homed-rcv homed 17
 7 0 10 -262144 -1 -1 0 1;
 #X obj 8 62 ramp/ramp \$1-\$3 0 ramp;
@@ -12,4 +11,6 @@
 #X obj 29 163 fruit/subModule \$1 \$2 \$3;
 #X obj 194 164 fruit/param \$1-\$3 rev 5 c;
 #X obj 195 184 fruit/param \$1-\$3 homed 6 c;
+#X text 10 -11 dcmotor/motor fruitname motoraddress(decimal) motorname
+;
 #X coords 0 -1 1 1 540 150 1 5 5;
