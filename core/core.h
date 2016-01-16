@@ -182,9 +182,24 @@ typedef union
     };
   } __TRISZbits_t;
 
+
+typedef struct
+  {
+  unsigned ANSZ0                : 1;
+  unsigned ANSZ1                : 1;
+  unsigned ANSZ2                : 1;
+  unsigned ANSZ3                : 1;
+  unsigned ANSZ4                : 1;
+  unsigned ANSZ5                : 1;
+  unsigned ANSZ6                : 1;
+  unsigned ANSZ7                : 1;
+  } __ANSELZbits_t;
+
 #define _PORTZ_ADDR 0x0480
 #define _PORT_TO_LAT 0x09
 #define _PORT_TO_TRIS 0x12
+#define _PORT_TO_ANSEL (-0x48)
+
 extern __at(_PORTZ_ADDR) volatile unsigned char PORTZ;
 extern __at(_PORTZ_ADDR) volatile __PORTZbits_t PORTZbits;
 
@@ -193,6 +208,9 @@ extern __at(_PORTZ_ADDR + _PORT_TO_LAT) volatile __LATZbits_t LATZbits;
 
 extern __at(_PORTZ_ADDR + _PORT_TO_TRIS) volatile unsigned char TRICZ;
 extern __at(_PORTZ_ADDR + _PORT_TO_TRIS) volatile __TRISZbits_t TRISZbits;
+
+extern __at(_PORTZ_ADDR + _PORT_TO_ANSEL) volatile unsigned char ANSELZ;
+extern __at(_PORTZ_ADDR + _PORT_TO_ANSEL) volatile __ANSELZbits_t ANSELZbits;
 
 //----------------------- fake port Z connectors ---------------
 

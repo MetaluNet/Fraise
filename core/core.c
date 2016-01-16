@@ -177,4 +177,7 @@ __at(_PORTZ_ADDR + _PORT_TO_LAT) volatile __LATZbits_t LATZbits;
 __at(_PORTZ_ADDR + _PORT_TO_TRIS) volatile unsigned char TRICZ;
 __at(_PORTZ_ADDR + _PORT_TO_TRIS) volatile __TRISZbits_t TRISZbits;
 
+__at(_PORTZ_ADDR + _PORT_TO_ANSEL) volatile unsigned char ANSELZ;
+__at(_PORTZ_ADDR + _PORT_TO_ANSEL) volatile __ANSELZbits_t ANSELZbits;
+
 
