@@ -1,4 +1,4 @@
-/*********************************************************************
+/* *******************************************************************
  *
  *                Fraise device firmware v2.1
  *
@@ -19,17 +19,33 @@
 
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Copyright (c) Antoine Rousseau   nov 2015
- ********************************************************************/
+ ****************************************************************** */
 
 #ifndef FRUIT_H
 #define FRUIT_H
 
+/** @file */
+
+/** @defgroup fruit Fruit module.
+ *  Fruit module implements core, fraisedevice and eeparams modules.
+ *  @{
+ */
+
+
 #include <fraisedevice.h>
 #include <eeparams.h>
 
+/** @brief Init fruit module. */
+/** Init core, configure serial port as a fraise device.
+*/
 void fruitInit(void);
 
+/** @brief Fruit module service routine. */
+/** Check for input data from Fraise.
+*/
 #define fruitService() fraiseService()
 
+/** @} 
+*/
 #endif //FRUIT_H
 

@@ -1,4 +1,4 @@
-/*********************************************************************
+/* ********************************************************************
  *
  *                Fraise core
  *
@@ -19,14 +19,14 @@
 
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Copyright (c) Antoine Rousseau   nov 2011 
- ********************************************************************/
+ ******************************************************************* */
 
 #ifndef CORE_H
 #define CORE_H
 
-/** E X T E R N S ************************************************************/
+/* E X T E R N S *********************************************************** */
 
-/** P U B L I C  P R O T O T Y P E S *****************************************/
+/* P U B L I C  P R O T O T Y P E S **************************************** */
 #include <config.h>
 #include <pic18fregs.h>
 #include <boardconfig.h>
@@ -36,12 +36,25 @@
 #include <string.h>
 #include <typedefs.h>
 
+/** @defgroup core Core module.
+ *  Core module implements eeprom, pins and time.
+ *  @{
+ */
+
+/** @brief Init core module. */
+/** Init processor, configure TIMER0 for time() use.
+* Normally coreInit() is called by fruitInit() (see module fruit), so you don't have to call it by yourself.
+*/
 void coreInit();
-//User defined main interrupt routines :
+
+/** @brief User defined high priority interrupt routine. */
 void highInterrupts();
+/** @brief User defined low priority interrupt routine. */
 void lowInterrupts();
 
+/** @brief Write to eeprom. */
 void eeWriteByte(unsigned char address, unsigned char value);
+/** @brief Write to eeprom. */
 unsigned char eeReadByte(unsigned char address);
 
 
@@ -59,6 +72,8 @@ unsigned char eeReadByte(unsigned char address);
 
 //----- Digital Read :
 #define DIGITALREAD_(connport,connbit) (PORT##connport##bits.R##connport##connbit)
+
+/** @brief Digital read from pin. */
 #define digitalRead(conn) CALL_FUN2(DIGITALREAD_,KPORT(conn),KBIT(conn))
 
 //----- Digital Write :
@@ -237,5 +252,8 @@ extern __at(_PORTZ_ADDR + _PORT_TO_ANSEL) volatile __ANSELZbits_t ANSELZbits;
 
 #define KZ7PORT Z
 #define KZ7BIT 	7
+
+/** @} 
+*/
 
 #endif //FRAISE_H

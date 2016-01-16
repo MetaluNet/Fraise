@@ -25,9 +25,21 @@
 #define FRAISEDEV_H
 #include <core.h>
 
+/** @file */
+
+/** @defgroup fraisedevice Fraise device module.
+ *  Implements Fraise device protocol on the serial device.
+ *  @{
+ */
+
+
 //-------------- SYSTEM -------------
 
 void fraiseInit(void);
+
+/** @brief Fruit module service routine. */
+/** Check for input data from Fraise.
+*/
 void fraiseService(void); // to be called by the main loop.
 void fraiseSetID(unsigned char id); // normally you don't have to use this.
 void fraiseISR(); //to be called by low priority interrupt.
@@ -35,6 +47,7 @@ void fraiseSetInterruptEnable(char enable); //fraiseInit automatically enables i
 char fraiseGetInterruptEnable(void);
 
 //-------------- OUT ----------------
+
 /* fraiseSend :
 	send buf,len to Fraise TX ring buffer.
 	return 0 if success,-1 if overload, -2 if format error.
@@ -69,6 +82,9 @@ void fraiseSendCopy(); // copy the RX buffer to TX buffer, in char mode, from fi
 
 // Return the value of a parameter :
 #define GETPARAM(n, p, i) case n: i = p; break
+
+/** @} 
+*/
 
 #endif //FRAISEDEV_H
 
