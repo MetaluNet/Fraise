@@ -17,7 +17,7 @@
   along with this program; if not, write to the Free Software Foundation,
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
- *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*********************************************************************
  * Copyright (c) Antoine Rousseau   nov 2011 
  ******************************************************************* */
 
@@ -70,74 +70,116 @@ unsigned char eeReadByte(unsigned char address);
 #define KBIT(k)  k##BIT
 #define KAN(k)  k##AN
 
+// PIN ROUTINES 
 //----- Digital Read :
 #define DIGITALREAD_(connport,connbit) (PORT##connport##bits.R##connport##connbit)
-
-/** @brief Digital read from pin. */
-#define digitalRead(conn) CALL_FUN2(DIGITALREAD_,KPORT(conn),KBIT(conn))
-
 //----- Digital Write :
 #define DIGITALWRITE_(connport,connbit,val) do{ \
 	if((val) != 0) LAT##connport##bits.LAT##connport##connbit = 1; \
 	else LAT##connport##bits.LAT##connport##connbit = 0; \
 }while(0)
-#define digitalWrite(conn,val) CALL_FUN3(DIGITALWRITE_,KPORT(conn),KBIT(conn),val)
-
 #define DIGITALCLEAR_(connport,connbit) do{ LAT##connport##bits.LAT##connport##connbit = 0; }while(0)
-#define digitalClear(conn) CALL_FUN2(DIGITALCLEAR_,KPORT(conn),KBIT(conn))
-
 #define DIGITALSET_(connport,connbit) do{ LAT##connport##bits.LAT##connport##connbit = 1; }while(0)
-#define digitalSet(conn) CALL_FUN2(DIGITALSET_,KPORT(conn),KBIT(conn))
-
 //----- Pin Mode :
 #define PIN_MODE_DIGITAL_IN_(connport,connbit) do{\
 	TRIS##connport##bits.TRIS##connport##connbit=1;\
 	bitclr(*(__data unsigned char*)((int)&PORT##connport + (int)&ANSELA-(int)&PORTA),connbit);\
  } while(0)
-#define pinModeDigitalIn(conn) CALL_FUN2(PIN_MODE_DIGITAL_IN_,KPORT(conn),KBIT(conn))
-
 #define PIN_MODE_ANALOGIN_(connport,connbit) do{\
 	TRIS##connport##bits.TRIS##connport##connbit=1;\
 	bitset(*(__data unsigned char*)((int)&PORT##connport + (int)&ANSELA-(int)&PORTA),connbit);\
  } while(0)
-#define pinModeAnalogIn(conn) CALL_FUN2(PIN_MODE_ANALOGIN_,KPORT(conn),KBIT(conn))
-
 #define PIN_MODE_DIGITAL_OUT_(connport,connbit) do{\
 	TRIS##connport##bits.TRIS##connport##connbit=0;\
  } while(0)
+
+/** \name Pin routines */
+//@{
+
+/** @brief Digital read from pin. 
+	Get the voltage (0/1) seen from the pin.
+    @param conn Symbol of the pin (example : K1 for connector 1)
+    @return 0 if voltage was LOW	
+    @return 1 if voltage was HIGH	
+*/
+#define digitalRead(conn) CALL_FUN2(DIGITALREAD_,KPORT(conn),KBIT(conn))
+
+/** @brief Digital write to pin. 
+	Set the pin output voltage to LOW or HIGH.
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+    @param val 0 or 1
+*/
+#define digitalWrite(conn,val) CALL_FUN3(DIGITALWRITE_,KPORT(conn),KBIT(conn),val)
+
+/** @brief Digital clear pin. 
+	Clear the pin output voltage.
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
+#define digitalClear(conn) CALL_FUN2(DIGITALCLEAR_,KPORT(conn),KBIT(conn))
+
+/** @brief Digital set pin. 
+	Set the pin output voltage ot HIGH.
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
+#define digitalSet(conn) CALL_FUN2(DIGITALSET_,KPORT(conn),KBIT(conn))
+
+/** @brief Set pin to Digital Input. 
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
+#define pinModeDigitalIn(conn) CALL_FUN2(PIN_MODE_DIGITAL_IN_,KPORT(conn),KBIT(conn))
+
+/** @brief Set pin to Analog Input. 
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
+#define pinModeAnalogIn(conn) CALL_FUN2(PIN_MODE_ANALOGIN_,KPORT(conn),KBIT(conn))
+
+/** @brief Set pin to Digital Output. 
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
 #define pinModeDigitalOut(conn) CALL_FUN2(PIN_MODE_DIGITAL_OUT_,KPORT(conn),KBIT(conn))
 
-/*#define SET_PIN_ANSEL_(connport,connbit,val) do{ \
-		ANSEL##connport##bits.ANS##connport##connbit=((val)!=0);\
-	} while(0)
-		
 #define setPinAnsel(conn,val) CALL_FUN3(SET_PIN_ANSEL_,KPORT(conn),KBIT(conn),(val)!=0)*/
+//@}
 
-// bit macros: 
+/** \name Bit macro */
+//@{
+#define BIT_COPY(dest,src) do{ if((src)!=0) dest = 1 ; else dest = 0 ; } while(0) ///< Copy bit **src** to **dest**.
 
-#define BIT_COPY(dest,src) do{ if((src)!=0) dest = 1 ; else dest = 0 ; } while(0)
-
-#define bitset(var,bitno) ((var) |= (1 << (bitno)))
-#define bitclr(var,bitno) ((var) &= ~(1 << (bitno)))
-#define bittst(var,bitno) (unsigned char)((var & (1 << (bitno)))!=0)
-
-
-//------------------------- Time : ----------------
-unsigned unsigned long int time(void); // in 64/FOSC steps (1us @ 64MHz, 8us @ 8MHz)
-extern volatile DWORD Now; 	       // time at last high interrupt
-#define timeISR() (Now._dword)
-#define elapsed(since) ((time()-(unsigned long)(since))&0x7FFFFFFF) // in time cycles
-#define	microToTime(T) (((unsigned long)T*(FOSC/64000UL))/1000) //microseconds to time cycles
-#define	timeToMicro(T) (((unsigned long)T*(FOSC/64000UL))/1000) //time cycles to microseconds
-
+#define bitset(var,bitno) ((var) |= (1 << (bitno))) ///< Set bit **bitno** in variable **var**.
+#define bitclr(var,bitno) ((var) &= ~(1 << (bitno))) ///< Clear bit **bitno** in variable **var**.
+#define bittst(var,bitno) (unsigned char)((var & (1 << (bitno)))!=0) ///< Get value of bit **bitno** in variable **var**.
+//@}
 
 #ifndef abs
 #define abs(x) ((x)<0?-(x):(x))
 #endif
 
+//------------------------- Time : ----------------
+extern volatile DWORD Now; 	       // time at last high interrupt
+#define elapsed(since) ((time()-(unsigned long)(since))&0x7FFFFFFF) // in time cycles
+#define	microToTime(T) (((unsigned long)T*(FOSC/64000UL))/1000) //microseconds to time cycles
+#define	timeToMicro(T) (((unsigned long)T*(FOSC/64000UL))/1000) //time cycles to microseconds
+
+/** \name Time functions */
+//@{
+unsigned unsigned long int time(void); ///< Get time since bootup in 64/FOSC steps (1us @ 64MHz, 8us @ 8MHz).
+
+#define timeISR() (Now._dword) ///< time() equivalent to be used inside of interrupts routines.
+
+/// Delay type
 typedef  unsigned long t_delay;
+
+/// @brief Start delay
+/// @param delay Delay to start (use t_delay type)
+/// @param micros Timeout in microseconds
 #define delayStart(delay, micros) delay = time() +  microToTime(micros)
+
+/// @brief Test delay timeout 
+/// @param delay Delay to test (use t_delay type)
+/// @return TRUE if timeout
 #define delayFinished(delay) (elapsed(delay) < 0x3FFFFFFF)
+
+//@}
 
 //----------------------- fake port Z ---------------
 typedef union

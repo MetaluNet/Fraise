@@ -17,15 +17,13 @@
   along with this program; if not, write to the Free Software Foundation,
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
- *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*********************************************************************
  * Copyright (c) Antoine Rousseau   2009 - 2015
  ********************************************************************/
 
 #ifndef FRAISEDEV_H
 #define FRAISEDEV_H
 #include <core.h>
-
-/** @file */
 
 /** @defgroup fraisedevice Fraise device module.
  *  Implements Fraise device protocol on the serial device.
@@ -37,8 +35,9 @@
 
 void fraiseInit(void);
 
-/** @brief Fruit module service routine. */
-/** Check for input data from Fraise.
+/** @brief Fraise device service routine. */
+/** Check for input data from Fraise. Main loop should call this function peridically.
+ This function will call input functions when the device receives a message from Fraise.
 */
 void fraiseService(void); // to be called by the main loop.
 void fraiseSetID(unsigned char id); // normally you don't have to use this.
@@ -48,40 +47,56 @@ char fraiseGetInterruptEnable(void);
 
 //-------------- OUT ----------------
 
-/* fraiseSend :
-	send buf,len to Fraise TX ring buffer.
-	return 0 if success,-1 if overload, -2 if format error.
-	First character must be 'B' for bytes or 'C' for characters.
+/** @brief Put a message into the Fraise TX queue
+    @param buf Address of the bytes buffer
+    @param len Number of bytes in the buffer 
+    @return 0 : success 
+    @return -1 : TX queue overload
+    @return -2 : TX buffer format error
 */
 char fraiseSend(const unsigned char *buf,unsigned char len);
 
 
 //-------------- IN ----------------
-// Inputs prototypes ; user must define these four functions :
-void fraiseReceiveCharBroadcast(); 	// string message to every device 
-void fraiseReceiveBroadcast(); 		// raw message to every device 
-void fraiseReceiveChar();		// string message
-void fraiseReceive();			// raw message
+/** \name Input Functions prototypes
+	User must define these four functions, that are called when the device receives a message. Each input function is called for a specific type of message. These functions then parse the received message using one of the Input Routines or Input Macros.
+*/
+//@{
+void fraiseReceiveCharBroadcast(); 	/**< @brief String message to every device. */
+void fraiseReceiveBroadcast(); 		/**< @brief Raw message to every device. */
+void fraiseReceiveChar();		/**< @brief String message to this device. */
+void fraiseReceive();			/**< @brief Raw message to this device. */
+//@}
 
-// Input routines
-unsigned char fraiseGetChar(); 	// get next char from receive buffer
-unsigned char fraisePeekChar(); // see next char (but keep it in the buffer)
-unsigned char fraiseGetIndex(); // get read index in RXbuffer
-unsigned char fraiseGetAt(unsigned char i); // get RXbuffer content at a given place
-unsigned char fraiseGetLen(); 	// total length of current receive packet.
+/** \name Input routines
+	Use these functions when parsing the current message in Input Functions.
+*/
+//@{
+unsigned char fraiseGetChar(); 	///< Get next char from receive buffer.
+unsigned char fraisePeekChar(); ///< See next char (but keep it in the buffer).
+unsigned char fraiseGetIndex(); ///< Get read index in RXbuffer.
+unsigned char fraiseGetAt(unsigned char i); ///< Get RXbuffer content at a given place.
+unsigned char fraiseGetLen(); 	///< Get total length of current receive packet.
+void fraiseSendCopy(); ///< Copy the RX buffer to TX buffer, in char mode, from first RX byte to the one before current index (don't add last fraiseGetChar). Used to return queried parameter setting.
+//@}
 
-void fraiseSendCopy(); // copy the RX buffer to TX buffer, in char mode, from first RX byte to the one before current index (don't add last fraiseGetChar). Used to return queried parameter setting.
 
-
-// Input macros (parameters set/get)
+/** \name  Input macros (parameters set/get)
+	To be used in a switch() block.
+*/
+//@{
+/// in case **n**, assign next byte in the message to **p**
 #define PARAM_CHAR(n,p) case n: p = fraiseGetChar();
+/// in case **n**, assign next 16 bit integer in the message to **p**
 #define PARAM_INT(n,p) case n: p = fraiseGetChar() << 8; p += fraiseGetChar();
+/// in case **n**, assign next 32 bit integer in the message to **p**
 #define PARAM_LONG(n,p) case n: p = ((unsigned long)( \
 	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar()) ) << 16 | \
 	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar();
 
-// Return the value of a parameter :
+/// in case **n**, set **i** to the value of parameter **p**
 #define GETPARAM(n, p, i) case n: i = p; break
+//@}
 
 /** @} 
 */
