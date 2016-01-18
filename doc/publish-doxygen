@@ -12,7 +12,7 @@ CHANGESET=$(git rev-parse --verify HEAD)
 # Get a clean version of the HTML documentation repo.
 rm -rf ${HTML_PATH}
 mkdir -p ${HTML_PATH}
-git clone -b gh-pages "${REPO_PATH}" --single-branch ${HTML_PATH}
+git clone -b gh-pages "${REPO_PATH}" ${HTML_PATH}
 
 # rm all the files through git to prevent stale files.
 cd ${HTML_PATH}
