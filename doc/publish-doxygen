@@ -16,6 +16,7 @@ git clone -b gh-pages "${REPO_PATH}" ${HTML_PATH}
 
 # rm all the files through git to prevent stale files.
 cd ${HTML_PATH}
+if [ `git config remote.origin.url` != ${REPO_PATH} ] ; then cd -; echo "ERROR cloning ${REPO_PATH} !" ;exit ; fi
 git rm -rf .
 cd -
 
@@ -28,6 +29,7 @@ git add .
 git config user.name "${COMMIT_USER}"
 git config user.email "${COMMIT_EMAIL}"
 git commit -m "Automated documentation build for changeset ${CHANGESET}."
+echo Pushing to `git config remote.origin.url`
 git push origin gh-pages
 cd -
 
