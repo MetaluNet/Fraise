@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+# thanks to http://blog.gockelhut.com/2014/09/automatic-documentation-publishing-with.html
+
 # Settings
 REPO_PATH=https://github.com/MetaluNet/Fraise-doc.git
 HTML_PATH=html
