@@ -33,6 +33,7 @@ void main(void)
 
 		if(delayFinished(mainDelay)) // when mainDelay triggers :
 		{
+			delayStart(mainDelay, 5000); 	// re-init mainDelay
 			analogSend();		// send analog channels that changed
 		}
 	}
