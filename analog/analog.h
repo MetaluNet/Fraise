@@ -5,7 +5,7 @@
  *				
  *********************************************************************
  * Author               Date        Comment
- *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *********************************************************************
  * Antoine Rousseau  march 2013     Original.
  ********************************************************************/
 /*
@@ -27,57 +27,101 @@
 #ifndef _ANALOG__H_
 #define _ANALOG__H_
 
+/** @defgroup analog Analog module
+ *  Automates the use of analog input pins
+ *  @{
+ */
+
 #include <fruit.h>
 
-#ifndef ANALOG_MAX_CHANNELS
-#define ANALOG_MAX_CHANNELS 16
+
+/** \name Settings to put in config.h
+ These parameters can be overloaded in the config.h of your firmware.
+*/
+//@{
+
+#ifndef ANALOG_MAX_CHANNELS 
+#define ANALOG_MAX_CHANNELS 16 /**< @brief default 16.*/
 #endif
 
-#ifndef ANALOG_FILTER
-#define ANALOG_FILTER 3
+#ifndef ANALOG_FILTER 
+#define ANALOG_FILTER 3 /**< @brief default 3 ; analog values are filtered and multiplied by 1<<ANALOG_FILTER. */
 #endif
 
 #ifndef ANALOG_THRESHOLD
+/** @brief default 7 : don't send an analog channel until it differs from last sent value by more than ANALOG_THRESHOLD. */
 #define ANALOG_THRESHOLD 7
 #endif
 
 #ifndef ANALOG_MINMAX_MARGIN
-#define ANALOG_MINMAX_MARGIN 100
+/** @brief default 100 : increase the minimum measured value by this amount (and decrease max value) for scaling output. */
+#define ANALOG_MINMAX_MARGIN 100 
 #endif
 
 #ifndef ANALOG_SCALED_MAX
+/** @brief default 16383 : maximum scaled output value. */
 #define ANALOG_SCALED_MAX 16383
 #endif
 
-#define AMODE_SCALE 1
-#define AMODE_NOSCALE 0
-#define AMODE_NUM 2
-#define AMODE_CHAR 0
-#define AMODE_CROSS 4
-#define AMODE_NOCROSS 0
+//@}
 
+/** \name Output mode switchs
+ The different mode switchs can be OR-ed together and passed to analogSetMode().
+ Default is AMODE_NUM.
+*/
+//@{
+/** @brief Map each channel to a normalized scale (see analogScaling() ). */
+#define AMODE_SCALE 1 
+/** @brief Send values in a raw (numerical) message, parsed by analog/parse.pd patch. Otherwise send text messages : "A channel value".*/
+#define AMODE_NUM 2
+/** @brief Crossing mode.  
+If channel has been set (see analogSet() ), wait the measurement value has crossed the set value before to continue to send value updates.*/
+#define AMODE_CROSS 4
+//@}
+
+/** @brief Init the module */
 void analogInit();
 
 void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardware channel to an analog channel
+
+/** @brief Select a pin for an analog channel. 
+	Assign the pin to the analog channel.
+    @param num Number of the channel (first channel = 0)
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
 #define analogSelect(num,conn) do { pinModeAnalogIn(conn); CALL_FUN2(analogSelectAdc,num,KAN(conn)); } while(0)
 
-void analogDeselect(unsigned char chan); // deselect a channel
+void analogDeselect(unsigned char chan); ///< @brief Deselect a channel.
 
-void analogService(void); // call often
+void analogService(void); ///< @brief Module service routine, to be called by the main loop.
 
-char analogSend(void); 	// call at the maximum rate you want to report analog ; 
-					// return number of channels sent (max 4)
+/** @brief Send analog values that changed. *//**
+Call at the maximum rate you want to report analog.   
+The way values are sent depends on the Output mode switchs. See analogSetMode().
+@return number of channels sent (max 4) */
+char analogSend(void); 	
 
-void analogSetMode(unsigned char mode); // configure the way analog values are sent; 
+/// @brief Configure the way analog values are sent (use Output mode switchs).
+void analogSetMode(unsigned char mode); 
 
+/// @brief Set the value of a channel (to be used in conjunction with AMODE_CROSS).
 void analogSet(unsigned char chan, int val);
+/// @brief Get the last measured value of a channel.
 int analogGet(unsigned char chan);
 
+/// @brief Get the distance between the last measured value of a channel and its internal value (set by analogSet() )
 int analogGetDistance(unsigned char chan);
 
+/// @brief Start or stop the scaling calibration
+/// @param scaling 1:start 0:stop
+/// First use analogScaling(1) to start calibration, which will measure the minimum and maximum values for each channel ; then stop calibration with analogScaling(0). 
 void analogScaling(unsigned char scaling); // when scaling, min and max are updated each sample
 
+/// @brief EEPROM declaration for this module
+/// Call this function in your EEdeclareMain() if you want to save analog scaling calibration.
 void analogDeclareEE();
 
+/** @} 
+*/
 
-#endif //
+#endif
