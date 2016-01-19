@@ -22,10 +22,6 @@
  * Copyright (c) Antoine Rousseau   2009-2014   
  ********************************************************************/
  
-#include <stdio.h>
-#include <ctype.h>
-#include <typedefs.h>
-
 #include "core.h"
 
 //------------- time ---------------------------------------------
@@ -103,7 +99,12 @@ void coreInit(void)
 	INTCONbits.GIEL = 1;  // enable interrupts
 }
 
+//--------------------- Main : -------------------------------
 
+void main() {
+	setup();
+	while(1) loop();
+}
 
 //--------------------- Interrupts : -------------------------------
 

@@ -8,10 +8,9 @@
 #include <fruit.h>
 #include <switch.h>
 
-void main(void)
-{	
-	t_delay mainDelay;
-	
+t_delay mainDelay;
+
+void setup(void) {	
 //----------- Setup ----------------
 	fruitInit();
 			
@@ -25,16 +24,16 @@ void main(void)
 	switchSelect(1,K2);
 	switchSelect(2,K3);
 	switchSelect(3,K4);
+}
 
+void loop() {
 // ---------- Main loop ------------
-	while(1){
-		fraiseService();	// listen to Fraise events
-		switchService();	// switch management routine
+	fraiseService();	// listen to Fraise events
+	switchService();	// switch management routine
 
-		if(delayFinished(mainDelay)) // when mainDelay triggers :
-		{
-			switchSend();		// send switch channels that changed
-		}
+	if(delayFinished(mainDelay)) // when mainDelay triggers :
+	{
+		switchSend();		// send switch channels that changed
 	}
 }
 

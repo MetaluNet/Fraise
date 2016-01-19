@@ -41,20 +41,31 @@
  *  @{
  */
 
+/** @name Initialization
+ @{ */
 /** @brief Init core module. */
 /** Init processor, configure TIMER0 for time() use.
 * Normally coreInit() is called by fruitInit() (see module fruit), so you don't have to call it by yourself.
 */
 void coreInit();
+/**@}*/
+
+/**@name User defined functions 
+@{*/
+/** @brief User defined initialization. */
+void setup();
+/** @brief User defined forever loop. */
+void loop();
 
 /** @brief User defined high priority interrupt routine. */
 void highInterrupts();
 /** @brief User defined low priority interrupt routine. */
 void lowInterrupts();
+/**@}*/
 
-/** @brief Write to eeprom. */
+/* @brief Write to eeprom. */
 void eeWriteByte(unsigned char address, unsigned char value);
-/** @brief Write to eeprom. */
+/* @brief Write to eeprom. */
 unsigned char eeReadByte(unsigned char address);
 
 

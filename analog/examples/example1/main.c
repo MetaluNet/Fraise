@@ -8,10 +8,9 @@
 #include <fruit.h>
 #include <analog.h>
 
-void main(void)
-{	
-	t_delay mainDelay;
-	
+t_delay mainDelay;
+
+void setup(void) {	
 //----------- Setup ----------------
 	fruitInit();
 			
@@ -25,17 +24,17 @@ void main(void)
 	analogSelect(1,K2);
 	analogSelect(2,K3);
 	analogSelect(3,K5);
+}
 
+void loop() {
 // ---------- Main loop ------------
-	while(1){
-		fraiseService();	// listen to Fraise events
-		analogService();	// analog management routine
+	fraiseService();	// listen to Fraise events
+	analogService();	// analog management routine
 
-		if(delayFinished(mainDelay)) // when mainDelay triggers :
-		{
-			delayStart(mainDelay, 5000); 	// re-init mainDelay
-			analogSend();		// send analog channels that changed
-		}
+	if(delayFinished(mainDelay)) // when mainDelay triggers :
+	{
+		delayStart(mainDelay, 5000); 	// re-init mainDelay
+		analogSend();		// send analog channels that changed
 	}
 }
 

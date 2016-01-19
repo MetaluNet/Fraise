@@ -7,32 +7,30 @@
 #include <fruit.h>
 
 unsigned char period = 200; // number of 5 ms time slices between prints of "Hello"
+unsigned char t = 0, t2 = 0;
+t_delay mainDelay;
 
-void main(void)
-{	
-	unsigned char t = 0, t2 = 0;
-	t_delay mainDelay;
-	
+void setup(void) {		
 //----------- Setup ----------------
 	fruitInit();
 			
 	pinModeDigitalOut(LED); 	// set the LED pin mode to digital out
 	digitalClear(LED);		// clear the LED
 	delayStart(mainDelay, 5000); 	// init the mainDelay to 5 ms
+}
 
+void loop() {
 // ---------- Main loop ------------
-	while(1){
-		fraiseService();	// listen to Fraise events
+	fraiseService();	// listen to Fraise events
 
-		if(delayFinished(mainDelay)) // when mainDelay triggers :
-		{
-			delayStart(mainDelay, 5000); 	// re-init mainDelay
-			t = t + 1;			// increment period counter	
-			if(t >= period){		// if counter overflows :
-				t = 0;				 // clear counter
-				t2 = t2 + 1;			 // increment aux counter 
-				printf("Cs Hello ! t2=%d\n", t2);// print Hello + aux counter value
-			}
+	if(delayFinished(mainDelay)) // when mainDelay triggers :
+	{
+		delayStart(mainDelay, 5000); 	// re-init mainDelay
+		t = t + 1;			// increment period counter	
+		if(t >= period){		// if counter overflows :
+			t = 0;				 // clear counter
+			t2 = t2 + 1;			 // increment aux counter 
+			printf("Cs Hello ! t2=%d\n", t2);// print Hello + aux counter value
 		}
 	}
 }
