@@ -22,36 +22,18 @@
  * Copyright (c) Antoine Rousseau   2009-2013   
  ********************************************************************/
  
-//#include <config.h>
-#include <pic18fregs.h>
-//#include <boardconfig.h>
-/*#include <boardio.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <typedefs.h>
-#include <ctype.h>
-#include <typedefs.h>*/
-
-//#include "fraise.h"
-//#include "fraisedevice.h"
-#include "core.h"
 #include "eeparams.h"
 
+#define EEUSER 28 // first free eeprom address, after space reserved for ID, NAME and PREFIX.
 
 int eeaddress;
 char eeoperation;
+
 #define EE_RD 0
 #define EE_WR 1
 
 #define EE_READBYTE_NEXT() (eeReadByte((char)(eeaddress++)))
 #define EE_WRITEBYTE_NEXT(data) eeWriteByte((char)(eeaddress++),data)
-
-/*void EEsetaddress(int address)
-{
-	//if(address>=EEUSER) eeaddress=address;
-}*/
-
 
 // ------- Loads :
 

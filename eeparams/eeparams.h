@@ -17,47 +17,73 @@
   along with this program; if not, write to the Free Software Foundation,
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
- *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *********************************************************************
  * Copyright (c) Antoine Rousseau   nov 2011 - 2014
  ********************************************************************/
 
 #ifndef EEPARAMS_H
 #define EEPARAMS_H
 
+#include "core.h"
+/** @defgroup eeparams EEPROM utilities module.
+ *  Save parameters values into EEPROM, and load them at setup.
+ -------------
+ example :
+ ~~~~
+ #include "eeprom.h" // declare eeprom module.
+ 
+ int i;
+ 
+ void setup() {
+ 	EEreadMain(); // at boot time restore the value of "i" from EEPROM
+ }
+ 
+ void fraiseReceive() // if we received a "raw bytes" message
+ {
+ 	unsigned char c = fraiseGetChar(); // get the first byte of the message
 
-// User EEPROM routines (parameters save/load) :
-#define EEUSER 28 // first free eeprom address
+	switch(c) {
+		PARAM_INT(1,i); // if the first byte was 1 then set "i" 
+		 EEwriteMain() ;// to the value of the next 16 bit integer and save EEPROM.
+		 break; 	
+	}
+ }
+ 
+ void EEdeclareMain() {
+ 	EEdeclareInt(&i); // declare "i" as an 16 bit integer into EEPROM storage.
+ }
+ ~~~~
+ *  @{
+ */
 
-/*extern int eeaddress;
+/** \name Read and write functions
+@{ */
+/** \brief Load all the parameters values from EEPROM ; you may call it at setup() */ 
+void EEreadMain();
+/** \brief Save all the parameters values to EEPROM */ 
+void EEwriteMain();
+/** @} */
 
-#define EE_RD 0
-#define EE_WR 1
-extern char eeoperation;
+/** \name Parameters declaration functions
+@{ */
 
-#define EE_READBYTE_NEXT() (ee_read_byte((char)(eeaddress++)))
-#define EE_WRITEBYTE_NEXT(data) ee_write_byte((char)(eeaddress++),data)
-void EEsetaddress(int address); // init eeaddress if address>=EEUSER;
-
-char EELoadChar();
-int EELoadInt();
-long EELoadLong();
-
-void EESaveChar(unsigned char data);
-void EESaveInt(int data);
-void  EESaveLong(long data);*/
-
-//User defined main input entries :
+/** \brief User must define this function, with a list of char/int/long declarations. */
 void EEdeclareMain();
 
 // EEdeclareMain() is definded with a sequence of :
+/** \brief Declare a 8 bit integer in EEdeclareMain(). 
+ @param data Address of the parameter.*/
 void EEdeclareChar(unsigned char *data);
+/** \brief Declare a 16 bit integer in EEdeclareMain(). 
+ @param data Address of the parameter.*/
 void EEdeclareInt(unsigned int *data);
+/** \brief Declare a 32 bit integer in EEdeclareMain(). 
+ @param data Address of the parameter.*/
 void EEdeclareLong(unsigned long *data);
+/// @}
 
+/// @}
 
-//Functions to store/load all params set :
-void EEwriteMain();
-void EEreadMain();
 
 
 #endif //EEPARAMS_H
