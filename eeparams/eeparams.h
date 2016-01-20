@@ -26,7 +26,8 @@
 
 #include "core.h"
 /** @defgroup eeparams EEPROM utilities module.
- *  Save parameters values into EEPROM, and load them at setup.
+  Save parameters values into EEPROM, and load them at setup.
+  
  -------------
  example :
  ~~~~

@@ -28,7 +28,7 @@
 #define _ANALOG__H_
 
 /** @defgroup analog Analog module
- *  Automates the use of analog input pins
+ *  Automates the use of analog input pins.
  *  @{
  */
 
@@ -79,7 +79,7 @@ If channel has been set (see analogSet() ), wait the measurement value has cross
 #define AMODE_CROSS 4
 //@}
 
-/** @brief Init the module */
+/** @brief Init the module in setup() */
 void analogInit();
 
 void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardware channel to an analog channel
@@ -93,7 +93,7 @@ void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardw
 
 void analogDeselect(unsigned char chan); ///< @brief Deselect a channel.
 
-void analogService(void); ///< @brief Module service routine, to be called by the main loop.
+void analogService(void); ///< @brief Module service routine, to be called by the main loop().
 
 /** @brief Send analog values that changed. *//**
 Call at the maximum rate you want to report analog.   
