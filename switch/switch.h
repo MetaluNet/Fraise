@@ -5,7 +5,7 @@
  *				
  *********************************************************************
  * Author               Date        Comment
- *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *********************************************************************
  * Antoine Rousseau  march 2013     Original.
  ********************************************************************/
 /*
@@ -28,26 +28,49 @@
 #define _SWITCH__H_
 
 #include <fruit.h>
-
-void switchInit();
-
+/** @defgroup switch Switch module
+ *  Automates the use of digital input pins.
+ *  @{
+ */
 void switchSelectHW(unsigned char channel, unsigned char *port, unsigned char bit); // assign a port/bit to a channel ; bit is decimal (0-7)
-
-void switchDeselect(unsigned char channel); // deselect a channel
-
-void switchService(void); // call often
-
-char switchSend(void); 	// call at the maximum rate you want to report switches
-			// return number of channels sent
-
-char switchGet(unsigned char chan);
-
 #define SWITCH_SELECT_(num,connport,connbit) \
 	do { switchSelectHW(num,&PORT##connport,connbit); } while(0)
 
+/// @name Initialization functions
+/// @{
+/** @brief Call it once in setup() */
+void switchInit();
 // use next macro like this : SERVO_SET_PORT(0,K2); to assign switch_0 to K2 connector.
+/** @brief Select a pin for a switch channel. 
+	Assign the pin to the switch channel.
+    @param num Number of the channel (first channel = 0).
+    @param conn Symbol of the pin (example : K1 for connector 1).	
+*/
 #define switchSelect(num,conn) do { \
 	pinModeDigitalIn(conn); \
 	CALL_FUN3(SWITCH_SELECT_,num,KPORT(conn),KBIT(conn)); } while(0)
+///@}
 
+
+/// @name Loop functions
+/// @{
+/** @brief Call in loop(). */
+void switchService(void); 
+/// @brief Call at the maximum rate you want to report switches.
+/// @return Number of channels sent.
+char switchSend(void);
+///@}
+
+/// @name Utilities
+/// @{
+/** @brief Deselect a channel. */
+void switchDeselect(unsigned char channel); 
+/// @brief Get the state of a channel.
+/// @param Chan Channel to read.
+/// @return State of the channel.
+char switchGet(unsigned char chan);
+///@}
+
+
+/// @}
 #endif //
