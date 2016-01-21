@@ -36,7 +36,7 @@
 #include <string.h>
 #include <typedefs.h>
 
-/** @defgroup core Core module.
+/** @defgroup core Core module
  *  Core module implements eeprom, pins and time.
  *  @{
  */
@@ -149,8 +149,8 @@ unsigned char eeReadByte(unsigned char address);
 */
 #define pinModeDigitalOut(conn) CALL_FUN2(PIN_MODE_DIGITAL_OUT_,KPORT(conn),KBIT(conn))
 
-#define setPinAnsel(conn,val) CALL_FUN3(SET_PIN_ANSEL_,KPORT(conn),KBIT(conn),(val)!=0)*/
 //@}
+#define setPinAnsel(conn,val) CALL_FUN3(SET_PIN_ANSEL_,KPORT(conn),KBIT(conn),(val)!=0)*/
 
 /** \name Bit macro */
 //@{

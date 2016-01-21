@@ -25,13 +25,13 @@
 #define EEPARAMS_H
 
 #include "core.h"
-/** @defgroup eeparams EEPROM utilities module.
+/** @defgroup eeparams EEPROM parameters module
   Save parameters values into EEPROM, and load them at setup.
   
  -------------
  example :
  ~~~~
- #include "eeparams.h" // declare eeprom module.
+ #include "eeparams.h" // declare EEPROM parameters module.
  
  int i;
  

@@ -25,7 +25,7 @@
 #define FRAISEDEV_H
 #include <core.h>
 
-/** @defgroup fraisedevice Fraise device module.
+/** @defgroup fraisedevice Fraise device module
  *  Implements Fraise device protocol on the serial device.
  *  @{
  */
@@ -33,13 +33,22 @@
 
 //-------------- SYSTEM -------------
 
+/** @name Initialization */
+/** @{ */
+/** @brief Init fraise device stack. Normally automatically called by fruitInit().*/
+/** Configure serial port as a fraise device. */
 void fraiseInit(void);
+/** @} */
 
+/** @name Service */
+/** @{ */
 /** @brief Fraise device service routine. */
-/** Check for input data from Fraise. Main loop should call this function peridically.
- This function will call input functions when the device receives a message from Fraise.
-*/
+/** Check for input data from Fraise.
+ This function calls input functions when the device receives a message from master.
+ Normal users shouldn't call fraiseService() directly, but use fruitService() instead. */
 void fraiseService(void); // to be called by the main loop.
+/** @} */
+
 void fraiseSetID(unsigned char id); // normally you don't have to use this.
 void fraiseISR(); //to be called by low priority interrupt.
 void fraiseSetInterruptEnable(char enable); //fraiseInit automatically enables interrupt.
@@ -47,6 +56,8 @@ char fraiseGetInterruptEnable(void);
 
 //-------------- OUT ----------------
 
+/** @name Fraise output to master */
+/** @{ */
 /** @brief Put a message into the Fraise TX queue
     @param buf Address of the bytes buffer
     @param len Number of bytes in the buffer 
@@ -55,6 +66,7 @@ char fraiseGetInterruptEnable(void);
     @return -2 : TX buffer format error
 */
 char fraiseSend(const unsigned char *buf,unsigned char len);
+/** @} */
 
 
 //-------------- IN ----------------

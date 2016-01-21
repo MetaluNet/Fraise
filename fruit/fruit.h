@@ -26,26 +26,29 @@
 
 /** @file */
 
-/** @defgroup fruit Fruit module.
+/** @defgroup fruit Fruit module
  *  Fruit module implements core, fraisedevice and eeparams modules.
- *  @{
- */
+ *  @{ */
 
 
 #include <fraisedevice.h>
 #include <eeparams.h>
 
-/** @brief Init fruit module. */
+/** @name Initialization */
+/** @{ */
+/** @brief Init fruit module at setup(). */
 /** Init core, configure serial port as a fraise device.
 */
 void fruitInit(void);
+/** @} */
 
-/** @brief Fruit module service routine. */
-/** Check for input data from Fraise.
-*/
+/** @name Service */
+/** @{ */
+/** @brief Fruit module service routine, to be called by main loop(). */
+/** Check for input data from Fraise.*/
 #define fruitService() fraiseService()
+/** @} */ 
 
-/** @} 
-*/
+/** @} */
 #endif //FRUIT_H
 
