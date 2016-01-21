@@ -31,7 +31,7 @@
  -------------
  example :
  ~~~~
- #include "eeprom.h" // declare eeprom module.
+ #include "eeparams.h" // declare eeprom module.
  
  int i;
  

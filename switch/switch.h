@@ -66,7 +66,7 @@ char switchSend(void);
 /** @brief Deselect a channel. */
 void switchDeselect(unsigned char channel); 
 /// @brief Get the state of a channel.
-/// @param Chan Channel to read.
+/// @param chan Channel to read.
 /// @return State of the channel.
 char switchGet(unsigned char chan);
 ///@}

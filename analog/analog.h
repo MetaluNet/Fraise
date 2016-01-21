@@ -79,10 +79,14 @@ If channel has been set (see analogSet() ), wait the measurement value has cross
 #define AMODE_CROSS 4
 //@}
 
+void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardware channel to an analog channel
+
+/** \name Initialization
+*/
+//@{
 /** @brief Init the module in setup() */
 void analogInit();
 
-void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardware channel to an analog channel
 
 /** @brief Select a pin for an analog channel. 
 	Assign the pin to the analog channel.
@@ -91,8 +95,14 @@ void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardw
 */
 #define analogSelect(num,conn) do { pinModeAnalogIn(conn); CALL_FUN2(analogSelectAdc,num,KAN(conn)); } while(0)
 
-void analogDeselect(unsigned char chan); ///< @brief Deselect a channel.
+/// @brief Configure the way analog values are sent (use Output mode switchs).
+void analogSetMode(unsigned char mode); 
 
+//@}
+
+/** \name Main loop functions
+*/
+//@{
 void analogService(void); ///< @brief Module service routine, to be called by the main loop().
 
 /** @brief Send analog values that changed. *//**
@@ -100,9 +110,13 @@ Call at the maximum rate you want to report analog.
 The way values are sent depends on the Output mode switchs. See analogSetMode().
 @return number of channels sent (max 4) */
 char analogSend(void); 	
+//@}
 
-/// @brief Configure the way analog values are sent (use Output mode switchs).
-void analogSetMode(unsigned char mode); 
+
+/** \name Utilities
+*/
+//@{
+void analogDeselect(unsigned char chan); ///< @brief Deselect a channel.
 
 /// @brief Set the value of a channel (to be used in conjunction with AMODE_CROSS).
 void analogSet(unsigned char chan, int val);
@@ -120,6 +134,9 @@ void analogScaling(unsigned char scaling); // when scaling, min and max are upda
 /// @brief EEPROM declaration for this module
 /// Call this function in your EEdeclareMain() if you want to save analog scaling calibration.
 void analogDeclareEE();
+
+//@}
+
 
 /** @} 
 */
