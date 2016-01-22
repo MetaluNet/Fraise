@@ -33,7 +33,8 @@ void loop() {
 
 	if(delayFinished(mainDelay)) // when mainDelay triggers :
 	{
-		switchSend();		// send switch channels that changed
+		delayStart(mainDelay, 5000); 	// reinit the mainDelay to 5 ms
+		switchSend();			// send switch channels that changed
 	}
 }
 
