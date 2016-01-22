@@ -27,7 +27,12 @@
 /** @file */
 
 /** @defgroup fruit Fruit module
- *  Fruit module implements core, fraisedevice and eeparams modules.
+ *  Fruit module implements @ref core, @ref fraisedevice and @ref eeparams.
+ 
+ Any normal firmware should include Fruit module.
+  
+ *  Example :
+ * \include fruit/examples/exampleFruit/main.c
  *  @{ */
 
 

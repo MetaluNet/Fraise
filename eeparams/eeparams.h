@@ -23,6 +23,7 @@
 
 #ifndef EEPARAMS_H
 #define EEPARAMS_H
+/** @file */
 
 #include "core.h"
 /** @defgroup eeparams EEPROM parameters module

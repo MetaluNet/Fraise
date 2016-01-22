@@ -26,9 +26,13 @@
 */
 #ifndef _ANALOG__H_
 #define _ANALOG__H_
+/** @file */
 
 /** @defgroup analog Analog module
  *  Automates the use of analog input pins.
+  
+ *  Example :
+ * \include analog/examples/example1/main.c
  *  @{
  */
 

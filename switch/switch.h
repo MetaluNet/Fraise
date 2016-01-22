@@ -26,10 +26,15 @@
 */
 #ifndef _SWITCH__H_
 #define _SWITCH__H_
+/** @file */
 
 #include <fruit.h>
 /** @defgroup switch Switch module
  *  Automates the use of digital input pins.
+  
+ *  Example :
+ * \include switch/examples/example1/main.c
+ * 
  *  @{
  */
 void switchSelectHW(unsigned char channel, unsigned char *port, unsigned char bit); // assign a port/bit to a channel ; bit is decimal (0-7)

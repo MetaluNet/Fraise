@@ -23,6 +23,9 @@
 
 #ifndef FRAISEDEV_H
 #define FRAISEDEV_H
+
+/** @file */
+
 #include <core.h>
 
 /** @defgroup fraisedevice Fraise device module
