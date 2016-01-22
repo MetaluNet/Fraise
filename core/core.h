@@ -57,9 +57,9 @@ void setup();
 /** @brief User defined forever loop. */
 void loop();
 
-/** @brief User defined high priority interrupt routine. */
+/** @brief Optional user defined high priority interrupt routine. */
 void highInterrupts();
-/** @brief User defined low priority interrupt routine. */
+/** @brief Optional user defined low priority interrupt routine. */
 void lowInterrupts();
 /**@}*/
 

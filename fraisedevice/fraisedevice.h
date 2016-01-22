@@ -71,7 +71,7 @@ char fraiseSend(const unsigned char *buf,unsigned char len);
 
 //-------------- IN ----------------
 /** \name Input Functions prototypes
-	User must define these four functions, that are called when the device receives a message. Each input function is called for a specific type of message. These functions then parse the received message using one of the Input Routines or Input Macros.
+	User may define any of these four functions, that are called when the device receives a message. Each input function is for a specific type of message. These functions then parse the received message using one of the Input Routines or Input Macros.
 */
 //@{
 void fraiseReceiveCharBroadcast(); 	/**< @brief String message to every device. */

@@ -102,8 +102,13 @@ void coreInit(void)
 //--------------------- Main : -------------------------------
 
 void main() {
+#ifdef UD_SETUP
 	setup();
+#endif
+
+#ifdef UD_LOOP
 	while(1) loop();
+#endif
 }
 
 //--------------------- Interrupts : -------------------------------
@@ -128,7 +133,9 @@ void high_ISR(void)
 		LOWER_MSB(Now)=TMR0H;
 	}
 	
+#ifdef UD_HIGH
 	highInterrupts();
+#endif
 }
 
 
@@ -143,7 +150,9 @@ void low_ISR(void)
 {	
 	fraiseISR();
 	
+#ifdef UD_LOW
 	lowInterrupts();
+#endif
 }
 
 

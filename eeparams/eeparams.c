@@ -102,14 +102,18 @@ void EEwriteMain()
 {
 	eeoperation=EE_WR;
 	eeaddress=EEUSER;
+#ifdef UD_EE
 	EEdeclareMain();
+#endif
 }
 
 void EEreadMain()
 {
 	eeoperation=EE_RD;
 	eeaddress=EEUSER;
+#ifdef UD_EE
 	EEdeclareMain();
+#endif
 }
 
 

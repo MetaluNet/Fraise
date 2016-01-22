@@ -670,18 +670,30 @@ void fraiseService(void)
 			if(ischar){
 				c = fraiseGetChar();
 				FrRXout_len -= 1;
-				if     (c == 'B') fraiseReceiveCharBroadcast();
+				if     (c == 'B') {
+#ifdef UD_RCVCB
+					fraiseReceiveCharBroadcast();
+#endif
+					}
 				else if(c == 'N') Assign();		/* assign to id if name matchs */
 				else if(c == 'F') ResetToBld();	/* goto Fraisebootloader if name matchs */
 				else if(c == 'I') __asm reset __endasm; //init
 			}
+#ifdef UD_RCVB
 			else fraiseReceiveBroadcast();
+#endif
 		}
 		else 			//Normal device packet
 		{
 			FrRXout_first = FrRXout;
-			if(ischar) fraiseReceiveChar();
+			if(ischar) {
+#ifdef UD_RCVC
+				fraiseReceiveChar();
+#endif
+			}
+#ifdef UD_RCV
 			else fraiseReceive();
+#endif
 		}
 		
 		goto discard;

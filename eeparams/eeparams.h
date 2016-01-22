@@ -31,7 +31,7 @@
  -------------
  example :
  ~~~~
- #include "eeparams.h" // declare EEPROM parameters module.
+ #include "fruit.h"
  
  int i;
  
@@ -68,7 +68,7 @@ void EEwriteMain();
 /** \name Parameters declaration functions
 @{ */
 
-/** \brief User must define this function, with a list of char/int/long declarations. */
+/** \brief User may define this function, with a list of char/int/long declarations. */
 void EEdeclareMain();
 
 // EEdeclareMain() is definded with a sequence of :

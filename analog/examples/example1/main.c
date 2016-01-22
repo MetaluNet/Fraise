@@ -57,17 +57,3 @@ void fraiseReceiveChar() // receive text
 	}	
 }
 
-void fraiseReceive() // receive raw bytes
-{}
-
-void fraiseReceiveCharBroadcast(){} // receive broadcast text
-void fraiseReceiveBroadcast(){} // receive broadcast raw bytes
-
-
-// Interrupt routines
-void highInterrupts(){}
-void lowInterrupts(){}
-
-// EEPROM parameters management (see eeparams module doc)
-void EEdeclareMain(){}
-

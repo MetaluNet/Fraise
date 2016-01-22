@@ -17,6 +17,8 @@ void setup(void) {
 	pinModeDigitalOut(LED); 	// set the LED pin mode to digital out
 	digitalClear(LED);		// clear the LED
 	delayStart(mainDelay, 5000); 	// init the mainDelay to 5 ms
+	
+	pinModeDigitalIn(K1);
 }
 
 void loop() {
@@ -30,7 +32,7 @@ void loop() {
 		if(t >= period){		// if counter overflows :
 			t = 0;				 // clear counter
 			t2 = t2 + 1;			 // increment aux counter 
-			printf("Cs Hello ! t2=%d\n", t2);// print Hello + aux counter value
+			printf("Cs Hello ! t2=%d K1=%d\n", t2, digitalRead(K1));// print Hello + aux counter value
 		}
 	}
 }
@@ -65,15 +67,4 @@ void fraiseReceive() // receive raw bytes
 						//to the value of the next byte
 	}
 }
-
-void fraiseReceiveCharBroadcast(){} // receive broadcast text
-void fraiseReceiveBroadcast(){} // receive broadcast raw bytes
-
-
-// Interrupt routines
-void highInterrupts(){}
-void lowInterrupts(){}
-
-// EEPROM parameters management (see eeparams module doc)
-void EEdeclareMain(){}
 
