@@ -49,22 +49,22 @@ void switchInit()
 	unsigned char i;
 		
 	for(i=0;i<CHANNELS_GROUPS;i++) {
-		oldStates[i]=States[i]=1;
+		oldStates[i] = States[i] = 1;
 	}
 	
 	for(i=0;i<MAX_CHANNELS;i++) {
-		Pins[i]=0;
+		Pins[i] = 255;
 	}
 }
 
 void switchSelectHW(unsigned char channel, unsigned char *port, unsigned char bit)
 {
-	Pins[channel]=(((unsigned int)(port-&PORTA)&7)<<4) + (bit&7);
+	Pins[channel] = (((unsigned int)(port-&PORTA)&7)<<4) + (bit&7);
 }
 
 void switchDeselect(unsigned char channel)
 {
-	Pins[channel]=0;
+	Pins[channel] = 255;
 }
 
 void switchService(void)
@@ -73,7 +73,7 @@ void switchService(void)
 	
 	for(i=0;i<MAX_CHANNELS;i++) {
 		pin=Pins[i];
-		if(pin) {
+		if(pin != 255) {
 			if(bittst(*(&PORTA+(pin>>4)),pin&7)) CHANSET(i);
 			else CHANCLR(i);
 		}
@@ -87,7 +87,7 @@ char switchSend(void)
 	
 	while(count<4) {
 		pin=Pins[chan];
-		if(pin) {
+		if(pin != 255) {
 			set=CHANISSET(chan);
 			if(set!=OLDCHANISSET(chan)) {
 				if(set) OLDCHANSET(chan);
