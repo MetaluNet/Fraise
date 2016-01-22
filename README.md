@@ -1,6 +1,6 @@
 ![fraise-logo](http://metalu.net/IMG/png/siteon0.png)
 
-[ **FRAISE** ](https://github.com/MetaluNet/Fraise) : <b>FRA</b>mework for <b>I</b>nterfacing <b>S</b>oftware and <b>E</b>lectronics
+[<b>FRAISE</b>](https://github.com/MetaluNet/Fraise) : <b>FRA</b>mework for <b>I</b>nterfacing <b>S</b>oftware and <b>E</b>lectronics
 
 --------------------------------
 
@@ -12,6 +12,7 @@
 -	a multi-platform integrated development and runtime environment hosted by [Pure Data](www.puredata.info) for microcontroller boards
 
 Fraise boards are currently powered by Microchip's PIC18F26K22 8-bit microcontrollers, which have similar capabilities to Arduino's ATmega328.  
+
 Compilation of the firmware is done with [SDCC](http://sdcc.sourceforge.net) and [gputils](http://gputils.sourceforge.net); Fraise ships with the compiler's binaries for Linux-x86, Windows and OSX (Linux-arm to come), and automates from Pd all the compilation and upload processes.
 
 ![fruit-utils](http://metalu.net/local/cache-vignettes/L321xH101/fruit_utils-30b1e.png)
@@ -29,8 +30,10 @@ PureData + externals :
 -	comport
 
 On 64 bit linux, the compiler requires 32 bit compatibility libraries.
-On Debian-like do :   
-`sudo apt-get install libc6-i386`   
+On Debian-like do :
+
+`sudo apt-get install libc6-i386`
+
 `sudo apt-get install lib32stdc++6`
 
 ##installation :
@@ -43,7 +46,8 @@ Extract the archive somewhere, declare this path into Pd preferences.
 
 On Linux, you may need to add your user to the dialout group, 
 to have read/write permissions on the USB device /dev/ttyACM0. Just do :   
-`sudo adduser [your_username] dialout`   
+`sudo adduser [your_username] dialout`
+
 then logout and re-login.
 
 
