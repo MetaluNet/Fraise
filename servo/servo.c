@@ -24,7 +24,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA  02110-1301, USA.
 */
-#include <stdlib.h>
+/*#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -32,14 +32,17 @@
 #include <fraisedevice.h>
 //#include <eeparams.h>
 
-#include <config.h>
+#include <config.h>*/
 #include <servo.h>
 
 unsigned char *NextPort,*Port[8];
 unsigned char NextMask,Mask[8];
 unsigned int Val[8];
 unsigned char Count=0;
-unsigned long servoSOF; //time of last start of frame
+//unsigned long servoSOF; //time of last start of frame
+t_delay servoDelay;
+
+#define SERVO_LOOP_TIME 18000 //micros
 
 // Timer macros
 #define TIMER 5
@@ -85,7 +88,7 @@ unsigned long servoSOF; //time of last start of frame
 #define TIMER_INIT CALL_FUN2(TIMER_INIT_T,TIMER,TIMERPNUM)
 
 
-void Servo_Init()
+void servoInit()
 {
 	unsigned char i;
 	
@@ -97,34 +100,40 @@ void Servo_Init()
 	}
 	Count=0;
 	
-	servoSOF=GetTime();
+	//servoSOF=GetTime();
+	delayStart(servoDelay, SERVO_LOOP_TIME);
 }
 
-void Servo_SetPort(unsigned char num,unsigned char *port,unsigned char mask)
+void servoSetPort(unsigned char num,unsigned char *port,unsigned char mask)
 {
 	Port[num]=port;
 	Mask[num]=mask;
 	Val[num]=0;
 }
 
-void Servo_Set(unsigned char num,unsigned int val)
+void servoSet(unsigned char num,unsigned int val)
 {
 	Val[num]=val;
 }
 
-void Servo_Rewind(void)
+void servoRewind(void)
 {
 	Count=0;
 }
 
-void Servo_Service(void)
+void servoService(void)
 {
 	unsigned int val;
 	
-	if(Elapsed(servoSOF)>Micros(18000UL)) {
+	/*if(Elapsed(servoSOF)>Micros(18000UL)) {
 		Servo_Rewind();
 		servoSOF=GetTime();
+	}*/
+	if(delayFinished(servoDelay)) {
+		servoRewind();
+		delayStart(servoDelay, SERVO_LOOP_TIME);
 	}
+	
 
 	if(Count>7) return;
 	if(TIMER_ON) return;
@@ -152,7 +161,7 @@ void Servo_Service(void)
 	Count++;	
 }
 
-void Servo_ISR(void)
+void servoHighInterrupt(void)
 {
 	if(!TIMER_IF) return;
 	/* *NextPort&=(~NextMask); */
@@ -165,20 +174,20 @@ void Servo_ISR(void)
 	TIMER_IF=0;
 }
 
-void Servo_Input() //unsigned char fraddress)
+void servoReceive()
 {
 	unsigned char c, c2;
 	unsigned int i = 0;
 	
-	c=FrRXgetchar();
+	c=fraiseGetChar();
 	if(c == 254) {
-		FrRXcopytoTX();
-		c2=FrRXgetchar();
+		fraiseSendCopy();
+		c2=fraiseGetChar();
 		if(c2 < 8) printf("%d %d\n",c2,Val[c2]);
 	}
 	else if(c < 8) {
-		i = FrRXgetchar()<<8; 
-		i += FrRXgetchar();
+		i = fraiseGetChar()<<8; 
+		i += fraiseGetChar();
 		Val[c]=i;
 	}
 }

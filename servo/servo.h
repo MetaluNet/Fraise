@@ -27,24 +27,72 @@
 #ifndef _Servo__H_
 #define _Servo__H_
 
-void Servo_Init(void);
+/** @file */
 
-void Servo_SetPort(unsigned char num,unsigned char *port,unsigned char mask);
-void Servo_Set(unsigned char num,unsigned int val);
+/** @defgroup servo Servo module
+ *  Automates the use of maximum 8 RC servomotors.
+  
+ *  Example :
+ * \include servo/examples/example1/main.c
+ *  @{
+ */
+#include <fruit.h>
 
-void Servo_Service(void);
-void Servo_Rewind(void); //to be called every 20ms
+/** \name Initialization
+*/
+//@{
+/** @brief Init the module in **setup()** */
+void servoInit(void);
 
-void Servo_ISR(void);
+/** @brief Select a pin for a servo channel. 
+    @param num Servomotor channel (0 to 7)
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
+#define servoSelect(num,conn) do { \
+		digitalClear(conn);\
+		pinModeDigitalOut(conn);\
+		CALL_FUN3(SERVO_SELECT_,num,KPORT(conn),KBIT(conn));\
+	} while(0)
+//@}
 
-void Servo_Input();//unsigned char fraddress);
-
-#define SERVO_SET_PORT_(num,connport,connbit) do {\
-	LAT##connport##bits.LAT##connport##connbit = 0; /*set out latch to 0*/ \
-	TRIS##connport##bits.TRIS##connport##connbit = 0; /*configure Kconn pin as an output*/ \
-	Servo_SetPort(num,&LAT##connport,1<<connbit); } while(0)
 	
-// use next macro like this : SERVO_SET_PORT(0,2); to assign Servo_0 to K2 connector.
-#define SERVO_SET_PORT(num,conn) CALL_FUN3(SERVO_SET_PORT_,num,KPORT(conn),KBIT(conn))
+/** \name Main loop functions
+*/
+//@{
+void servoService(void); ///< @brief Module service routine, to be called by the main **loop()**.
+//@}
+
+/** \name Utilities
+*/
+//@{
+/** @brief Set position of a servomotor. 
+    @param num Servomotor channel (0 to 7)
+    @param val New position of this servo, in 8/FOSC steps ; e.g for Versa1, FOSC=64MHz, so servo steps are 1/8 us : 8000 corresponds to 1 ms position.  
+*/
+void servoSet(unsigned char num,unsigned int val); 
+//@}
+
+
+/** \name Interrupt routine
+*/
+//@{
+void servoHighInterrupt(void); ///< @brief Module interrupt routine, must be called by the **highInterrupts()** user defined function.
+//@}
+
+/** \name Receive function
+*/
+//@{
+/** @brief Module receive function, to be called by the **fraiseReceive()** user defined function.
+* 
+    The first byte of the message represents the channel (0-7), the 2 next bytes are the 16 bit new position value.
+    If the first byte equals to 254, then the message is for reading a channel position ; the next byte then is the actual channel, and the module sends to the master the current position of this channel.
+*/
+void servoReceive();
+//@}
+
+void servoSetPort(unsigned char num,unsigned char *port,unsigned char mask);
+
+#define SERVO_SELECT_(num,connport,connbit) servoSetPort(num,&LAT##connport,1<<connbit)
+	
 
 #endif //
