@@ -31,6 +31,7 @@
 
 /** @defgroup servo Servo module
  *  Automates the use of maximum 8 RC servomotors.
+    Servo module uses timer 5.
   
  *  Example :
  * \include servo/examples/example1/main.c

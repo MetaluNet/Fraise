@@ -24,22 +24,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA  02110-1301, USA.
 */
-/*#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
-#include <core.h>
-#include <fraisedevice.h>
-//#include <eeparams.h>
-
-#include <config.h>*/
 #include <servo.h>
 
 unsigned char *NextPort,*Port[8];
 unsigned char NextMask,Mask[8];
 unsigned int Val[8];
 unsigned char Count=0;
-//unsigned long servoSOF; //time of last start of frame
+
 t_delay servoDelay;
 
 #define SERVO_LOOP_TIME 18000 //micros
@@ -56,14 +48,6 @@ t_delay servoDelay;
 #define TIMERPNUM 5
 #endif
 
-//#define CONCAT(x,y) x ## y
-//#define CONCAT5(a,b,c,d,e) CONCAT(CONCAT(CONCAT(CONCAT(a,b),c),d),e)
-//#define VAL(x) x
-
-//#define TIMER_ON CONCAT5(T,TIMER,CONbits.TMR,TIMER,ON)
-//#define CALL_FUN(x,y) x(y)
-//#define CALL_FUN2(x,y,z) x(y,z)
-
 #define TIMER_ON_(Timer) T##Timer##CONbits.TMR##Timer##ON
 #define TIMER_ON CALL_FUN(TIMER_ON_,TIMER)
 
@@ -79,14 +63,13 @@ t_delay servoDelay;
 #define TIMER_INIT_T(Timer,TimerPNum) \
 	T##Timer##CON=0; \
 	T##Timer##CONbits.T##Timer##CKPS0=1; 	/* 	prescaler 2 (->8MHz at 64MHz) 	*/\
-	T##Timer##CONbits.T##Timer##RD16=1; 	/* 	16bits 							*/\
-	PIE##TimerPNum##bits.TMR##Timer##IE=1;	/* 	enable timer interrupt 			*/\
-	IPR##TimerPNum##bits.TMR##Timer##IP=1;	/* 	high priority 					*/\
+	T##Timer##CONbits.T##Timer##RD16=1; 	/* 	16bits 				*/\
+	PIE##TimerPNum##bits.TMR##Timer##IE=1;	/* 	enable timer interrupt 		*/\
+	IPR##TimerPNum##bits.TMR##Timer##IP=1;	/* 	high priority 			*/\
 	PIR##TimerPNum##bits.TMR##Timer##IF
 
 
 #define TIMER_INIT CALL_FUN2(TIMER_INIT_T,TIMER,TIMERPNUM)
-
 
 void servoInit()
 {
@@ -100,7 +83,6 @@ void servoInit()
 	}
 	Count=0;
 	
-	//servoSOF=GetTime();
 	delayStart(servoDelay, SERVO_LOOP_TIME);
 }
 
@@ -125,15 +107,10 @@ void servoService(void)
 {
 	unsigned int val;
 	
-	/*if(Elapsed(servoSOF)>Micros(18000UL)) {
-		Servo_Rewind();
-		servoSOF=GetTime();
-	}*/
 	if(delayFinished(servoDelay)) {
 		servoRewind();
 		delayStart(servoDelay, SERVO_LOOP_TIME);
-	}
-	
+	}	
 
 	if(Count>7) return;
 	if(TIMER_ON) return;
