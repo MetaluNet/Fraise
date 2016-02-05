@@ -1,11 +1,11 @@
-#N canvas 196 370 388 502 10;
+#N canvas 197 370 388 502 10;
 #X declare -stdpath moonlib;
 #X declare -stdpath hcs;
 #X declare -stdpath ggee;
 #X declare -stdpath zexy;
 #X declare -lib zexy;
 #X obj 21 51 cnv 10 150 30 empty \$0-stastocan-rcv empty 20 12 0 14
--241291 -1 0;
+-166441 -1 0;
 #X obj 20 51 tgl 15 0 \$0-on-snd \$0-on-rcv on 2 7 1 8 -258699 -258699
 -262144 1 1;
 #X obj 21 30 inlet;
@@ -503,9 +503,9 @@
 #X connect 37 0 30 0;
 #X connect 37 1 14 0;
 #X restore 15 107 pd comport;
-#X obj 36 52 cnv 15 135 12 empty \$0-piedvercan firmware_version:2.1.3
-2 7 1 10 -262130 -66577 0;
-#N canvas 514 616 186 256 \$0-utils 0;
+#X obj 36 52 cnv 15 135 12 empty \$0-piedvercan firmware_version: 2
+7 1 10 -262130 -66577 0;
+#N canvas 516 616 186 256 \$0-utils 0;
 #X obj 2 -1 cnv 15 170 250 empty empty empty 20 12 0 14 -57730 -66577
 0;
 #X obj 10 7 bng 20 250 50 0 \$0-listdevices-snd \$0-listdevices-rcv
@@ -653,7 +653,7 @@ list_serial_devices 22 10 0 12 -262144 -1 -262144;
 #X obj 43 85 nbx 5 14 -1e+37 1e+37 0 0 empty \$0-outrate out -18 6
 0 8 -262144 -1 -1 0 256;
 #X obj 114 85 nbx 5 14 -1e+37 1e+37 0 0 empty \$0-inrate in -18 6 0
-8 -262144 -1 -1 3117 256;
+8 -262144 -1 -1 0 256;
 #N canvas 149 370 495 183 interprete 0;
 #X obj 68 21 inlet;
 #X obj 68 124 s \$0-make-done;
@@ -711,7 +711,7 @@ list_serial_devices 22 10 0 12 -262144 -1 -262144;
 #X connect 17 1 16 0;
 #X connect 17 2 2 0;
 #X restore 99 209 pd tosystem;
-#N canvas 9 611 419 259 Bootloader/Compiler 0;
+#N canvas 10 609 419 259 Bootloader/Compiler 0;
 #N canvas 781 317 498 407 enter-boot-quit 0;
 #X msg 123 204 0;
 #X obj 123 225 s \$0-verified;

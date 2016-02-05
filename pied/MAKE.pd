@@ -1,4 +1,4 @@
-#N canvas 242 75 1120 757 10;
+#N canvas 243 75 1120 757 10;
 #X obj 76 25 inlet;
 #X symbolatom 94 162 10 0 0 0 - - -, f 10;
 #X obj 94 183 s \$0-make-fruitname;
@@ -541,9 +541,9 @@
 #X restore 75 558 pd make_libs;
 #X obj 75 441 spigot;
 #X obj 108 380 r \$0-make-familly;
-#X obj 319 548 spigot;
-#X obj 352 484 r \$0-make-familly;
-#X obj 352 503 strcmp pic32;
+#X obj 936 675 spigot;
+#X obj 969 611 r \$0-make-familly;
+#X obj 969 630 strcmp pic32;
 #X obj 75 384 t b;
 #X obj 164 489 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 -1;
@@ -551,7 +551,7 @@
 -1 -1;
 #X obj 108 402 strcmp 18f;
 #X obj 109 421 == 0;
-#X obj 352 524 == 0;
+#X obj 969 651 == 0;
 #X text 98 597 -----make batch file:;
 #X obj 459 578 r \$0-make-tobatch;
 #X obj 94 95 unwonk s s;
@@ -573,7 +573,7 @@
 #X connect 1 0 2 0;
 #X connect 1 1 4 0;
 #X connect 4 0 3 0;
-#X restore 250 660 pd clear_batch;
+#X restore 250 667 pd clear_batch;
 #N canvas 741 453 402 414 compile_proj 0;
 #X obj 152 152 r \$0-make-objsdir;
 #X obj 95 252 list prepend;
@@ -604,7 +604,7 @@
 #X connect 11 0 7 0;
 #X connect 12 1 11 1;
 #X connect 14 0 1 0;
-#X restore 150 881 pd compile_proj;
+#X restore 150 888 pd compile_proj;
 #N canvas 769 518 447 431 compile_boardconfig 0;
 #X obj 177 114 r \$0-make-objsdir;
 #X obj 120 214 list prepend;
@@ -627,7 +627,7 @@
 #X connect 7 0 5 1;
 #X connect 8 0 5 0;
 #X connect 9 0 1 0;
-#X restore 250 822 pd compile_boardconfig;
+#X restore 250 829 pd compile_boardconfig;
 #N canvas 548 78 561 684 link_proj 0;
 #X obj 33 15 inlet;
 #X obj 67 86 slist \$0-make-modules;
@@ -735,7 +735,7 @@
 #X connect 47 0 46 1;
 #X connect 48 0 34 0;
 #X connect 48 1 34 1;
-#X restore 250 847 pd link_proj;
+#X restore 250 854 pd link_proj;
 #N canvas 770 520 450 300 cd_srcdir 0;
 #X obj 110 19 inlet;
 #X obj 110 42 t b b;
@@ -754,7 +754,7 @@
 #X connect 4 0 6 0;
 #X connect 6 0 5 0;
 #X connect 7 0 4 0;
-#X restore 250 708 pd cd_srcdir;
+#X restore 250 715 pd cd_srcdir;
 #N canvas 710 579 349 293 prologue*OSDEP 0;
 #X obj 47 14 inlet;
 #X obj 47 40 t b b;
@@ -772,7 +772,7 @@
 #X connect 6 0 2 0;
 #X connect 7 0 6 0;
 #X connect 7 2 6 0;
-#X restore 250 684 pd prologue*OSDEP;
+#X restore 250 691 pd prologue*OSDEP;
 #N canvas 777 547 450 300 save_batch*OSDEP 0;
 #X obj 104 29 inlet;
 #X obj 131 240 s \$0-make-tobatch;
@@ -797,7 +797,7 @@
 #X connect 10 0 5 0;
 #X connect 10 1 6 0;
 #X connect 10 2 5 0;
-#X restore 250 898 pd save_batch*OSDEP;
+#X restore 250 905 pd save_batch*OSDEP;
 #X obj 158 286 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #N canvas 812 483 443 363 make_sdcc_path*OSDEP 0;
@@ -823,7 +823,7 @@
 #X connect 9 1 5 0;
 #X connect 9 2 4 0;
 #X restore 75 579 pd make_sdcc_path*OSDEP;
-#N canvas 758 170 450 300 make_objsdir 1;
+#N canvas 758 170 450 300 make_objsdir 0;
 #X obj 22 57 r \$0-make-src;
 #X obj 22 78 split_path;
 #X obj 22 100 pack s s;
@@ -888,7 +888,7 @@
 #X connect 8 0 5 0;
 #X connect 8 1 6 0;
 #X connect 8 2 5 0;
-#X restore 250 919 pd launch_batch*OSDEP;
+#X restore 250 926 pd launch_batch*OSDEP;
 #N canvas 848 75 491 579 count_available_ram 0;
 #X obj 102 6 inlet;
 #X obj 154 55 r \$0-make-boarddir;
@@ -1169,7 +1169,7 @@
 #X connect 27 1 29 0;
 #X restore 75 466 pd count_available_ram;
 #X floatatom 204 486 7 0 0 0 - - -, f 7;
-#N canvas 897 78 495 695 count_used_memory 1;
+#N canvas 897 78 495 695 count_used_memory 0;
 #X obj 50 6 inlet;
 #X obj 69 51 symbol;
 #X obj 69 95 msgfile;
@@ -1309,7 +1309,7 @@
 #X connect 5 1 6 0;
 #X connect 6 0 7 0;
 #X connect 7 0 1 0;
-#X restore 250 876 pd send_done_to_pd;
+#X restore 250 883 pd send_done_to_pd;
 #X obj 427 772 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X obj 533 446 -;
@@ -1333,7 +1333,7 @@
 #X connect 5 1 1 0;
 #X connect 5 2 6 0;
 #X connect 6 0 7 0;
-#X restore 350 712 pd mkdir_objs;
+#X restore 350 719 pd mkdir_objs;
 #N canvas 631 447 468 415 compile_modules 0;
 #X obj 106 10 inlet;
 #X obj 106 61 slist \$0-make-modules;
@@ -1383,7 +1383,7 @@
 #X connect 18 0 17 1;
 #X connect 19 0 22 0;
 #X connect 20 0 15 0;
-#X restore 250 782 pd compile_modules;
+#X restore 250 789 pd compile_modules;
 #N canvas 419 413 807 449 shell-utils*OSDEP 0;
 #X obj -7813 143 list prepend add;
 #X obj -7813 186 s \$0-make-tobatch;
@@ -1483,7 +1483,7 @@
 #X connect 46 1 27 0;
 #X connect 46 2 28 0;
 #X restore 603 650 pd shell-utils*OSDEP;
-#N canvas 823 466 450 403 test-if-worked 0;
+#N canvas 824 464 450 403 test-if-worked 0;
 #X obj 115 13 inlet;
 #X obj 195 123 split_path;
 #X obj 168 72 r \$0-make-src;
@@ -1552,8 +1552,8 @@
 #X connect 9 0 12 0;
 #X connect 11 0 10 0;
 #X connect 12 0 11 1;
-#X restore 250 753 pd rm_mapfile_errfile;
-#N canvas 606 720 358 244 print_errfile 0;
+#X restore 250 760 pd rm_mapfile_errfile;
+#N canvas 607 628 358 244 print_errfile 0;
 #X obj 85 14 inlet;
 #X obj 145 29 r \$0-make-src;
 #X obj 112 73 symbol;
@@ -1783,11 +1783,11 @@
 #X connect 5 2 6 0;
 #X connect 6 0 7 0;
 #X connect 8 0 6 1;
-#X restore 250 734 pd add_bin_sdcc_path;
+#X restore 250 741 pd add_bin_sdcc_path;
 #X obj 459 606 textfile;
 #X text 602 437 minus bootloader_size=32*64;
 #X obj 432 834 spigot 1;
-#X obj 514 803 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 514 803 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #N canvas 82 466 359 319 compile_crt 0;
 #X obj 157 94 r \$0-make-objsdir;
@@ -1811,7 +1811,7 @@
 #X connect 6 0 5 0;
 #X connect 9 0 5 1;
 #X connect 10 0 1 0;
-#X restore 250 802 pd compile_crt;
+#X restore 250 809 pd compile_crt;
 #X obj 593 764 == 0;
 #X obj 462 721 r \$1-make-done;
 #X obj 593 742 r \$1-dontclean-snd;
@@ -2196,10 +2196,10 @@ find void HighInterrupts(void) \, clear;
 #X connect 12 1 11 1;
 #X connect 14 0 1 0;
 #X restore 75 763 pd compile_main;
-#X obj 250 612 r \$1-make-main-done;
-#X obj 298 584 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 250 556 r \$1-make-main-done;
+#X obj 391 615 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#N canvas 7 75 878 596 findUserDefFuncs 0;
+#N canvas 8 75 878 596 findUserDefFuncs 0;
 #X obj 30 26 inlet;
 #X obj 99 20 r \$0-make-src;
 #X obj 99 41 split_path;
@@ -2298,7 +2298,80 @@ _fraiseReceiveCharBroadcast:, f 95;
 #X connect 34 1 4 0;
 #X connect 38 0 39 0;
 #X connect 39 0 23 0;
-#X restore 250 635 pd findUserDefFuncs;
+#X restore 250 642 pd findUserDefFuncs;
+#N canvas 825 462 450 403 test-if-worked 0;
+#X obj 115 13 inlet;
+#X obj 301 180 split_path;
+#X obj 327 113 r \$0-make-src;
+#X obj 327 141 t a a;
+#X obj 135 229 folder_list;
+#X obj 135 130 symbol;
+#X msg 135 205 symbol \$1/*;
+#X obj 135 248 split_path;
+#X msg 192 293 1;
+#X msg 224 294 0;
+#X obj 115 283 f;
+#X obj 115 90 t b b b;
+#X obj 115 369 outlet ok;
+#X obj 208 370 outlet failed;
+#X obj 115 309 sel 1 0;
+#X obj 196 14 r \$0-make-src;
+#X obj 196 35 split_path;
+#X obj 196 57 pack s s;
+#X obj 348 60 symbol;
+#X msg 168 94 symbol \$1/\$2/\$2-objs/;
+#X msg 231 247 symbol \$2.asm;
+#X obj 192 271 sel asm;
+#X connect 0 0 11 0;
+#X connect 2 0 3 0;
+#X connect 3 1 1 0;
+#X connect 4 0 7 0;
+#X connect 5 0 6 0;
+#X connect 6 0 4 0;
+#X connect 7 1 21 0;
+#X connect 8 0 10 1;
+#X connect 9 0 10 1;
+#X connect 10 0 14 0;
+#X connect 11 0 10 0;
+#X connect 11 1 5 0;
+#X connect 11 2 9 0;
+#X connect 14 0 12 0;
+#X connect 14 1 13 0;
+#X connect 15 0 16 0;
+#X connect 16 0 17 0;
+#X connect 16 1 17 1;
+#X connect 17 0 19 0;
+#X connect 17 0 20 0;
+#X connect 19 0 5 1;
+#X connect 20 0 21 1;
+#X connect 21 0 8 0;
+#X restore 250 603 pd test-if-worked;
+#N canvas 608 628 358 244 print_errfile 0;
+#X obj 85 14 inlet;
+#X obj 145 29 r \$0-make-src;
+#X obj 112 73 symbol;
+#X msg 145 52 symbol \$1/make.err;
+#X msg 112 97 read \$1 cr \, rewind \, flush \, clear;
+#X obj 112 163 print MAKE;
+#X obj 85 36 t b b;
+#X obj 85 194 outlet;
+#X obj 132 7 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 112 142 list trim;
+#X obj 112 120 msgfile;
+#X connect 0 0 6 0;
+#X connect 1 0 3 0;
+#X connect 2 0 4 0;
+#X connect 3 0 2 1;
+#X connect 4 0 10 0;
+#X connect 6 0 7 0;
+#X connect 6 1 2 0;
+#X connect 8 0 2 0;
+#X connect 9 0 5 0;
+#X connect 10 0 9 0;
+#X restore 250 580 pd print_errfile;
+#X obj 250 624 bng 15 250 50 0 empty empty empty 17 7 0 10 -4034 -1
+-1;
 #X connect 0 0 3 0;
 #X connect 1 0 2 0;
 #X connect 3 0 66 0;
@@ -2444,6 +2517,9 @@ _fraiseReceiveCharBroadcast:, f 95;
 #X connect 163 0 164 0;
 #X connect 165 0 163 0;
 #X connect 166 0 165 0;
-#X connect 167 0 168 0;
-#X connect 167 0 169 0;
+#X connect 167 0 171 0;
 #X connect 169 0 74 0;
+#X connect 170 0 172 0;
+#X connect 170 1 105 0;
+#X connect 171 0 170 0;
+#X connect 172 0 169 0;
