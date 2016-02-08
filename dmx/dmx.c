@@ -4,7 +4,7 @@
  *
  *********************************************************************
  * Author               Date        Comment
- *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *********************************************************************
  * Antoine Rousseau  may 2012     Original.
  ********************************************************************/
 
@@ -24,14 +24,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA  02110-1301, USA.
 */
-#include <string.h>
-#include <config.h>
-#include <core.h>
+
 #include <dmx.h>
 
 
 //serial port:
-#if DMX_UART_PORT==1
+#if DMX_UART_NUM==1
 #define SPBRGx 			SPBRG1
 #define SPBRGHx 		SPBRGH1
 #define BAUDCONx 		BAUDCON1
@@ -112,8 +110,8 @@ void DMXInit(void)
 	
 	/*DMX_UART_PIN=1;
 	DMX_UART_TRIS=0;*/
-	DigitalSet(DMX_UART_PIN);
-	SetPinDigiOut(DMX_UART_PIN);
+	digitalSet(DMX_UART_PIN);
+	pinModeDigitalOut(DMX_UART_PIN);
 
 	BAUDCONxbits.BRG16=1;
 
