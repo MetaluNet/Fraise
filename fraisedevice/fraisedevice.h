@@ -93,9 +93,14 @@ unsigned char fraiseGetIndex(); ///< Get read index in RXbuffer.
 unsigned char fraiseGetAt(unsigned char i); ///< Get RXbuffer content at a given place.
 unsigned char fraiseGetLen(); 	///< Get total length of current receive packet.
 void fraiseSendCopy(); ///< Copy the RX buffer to TX buffer, in char mode, from first RX byte to the one before current index (don't add last fraiseGetChar). Used to return queried parameter setting.
+
+#define fraiseGetInt() (fraiseGetChar() << 8 + fraiseGetChar()) ///< @brief Get next 16 bit integer from receive buffer.
+#define fraiseGetLong() (((unsigned long)( \
+	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar()) ) << 16 | \
+	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar()) ///< @brief Get next 32 bit long integer from receive buffer.
+
 //@}
-
-
+	
 /** \name  Input macros (parameters set/get)
 	To be used in a switch() block.
 */
