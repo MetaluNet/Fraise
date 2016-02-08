@@ -74,4 +74,8 @@
 #define MBENBIT 1
 #define MBENAN	10
 
+#define AUXSERIAL_NUM 2
+#define AUXSERIAL_TX K11
+#define AUXSERIAL_RX K12
+
 #endif
