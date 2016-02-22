@@ -49,19 +49,26 @@
 #define LEDPORT	C
 #define LEDBIT 	1
 
+//---- MOTOR A
 #define MA1PORT	A
 #define MA1BIT	5
 #define MA1AN	4
 
-//#define MA2PORT	A
-//#define MA2BIT	2
-//#define MA2AN	2
 #define MA2 K1
 
 #define MAENPORT A
 #define MAENBIT  3
 #define MAENAN   3
 
+#define MAEN2   K2
+
+#define MOTA_PWM 5
+
+#define MOTA_CURRENT K3
+
+#define MOTA_CONFIG() do{/*set PWM pin digi out :*/pinModeDigitalOut(K4);} while(0)
+
+//---- MOTOR B
 #define MB1PORT	B
 #define MB1BIT	0
 #define MB1AN	12
@@ -74,6 +81,18 @@
 #define MBENBIT 1
 #define MBENAN	10
 
+#define MBEN2PORT B
+#define MBEN2BIT 4
+#define MBEN2AN	11
+
+#define MOTB_PWM 1
+
+#define MOTB_CURRENT K10
+
+#define MOTB_CONFIG() do{/*init PWM1 to P1B for MOTB_PWM : */ PSTR1CON=0; PSTR1CONbits.STR1B=1;pinModeDigitalOut(K9);} while(0)
+
+
+//---- Aux serial port
 #define AUXSERIAL_NUM 2
 #define AUXSERIAL_TX K11
 #define AUXSERIAL_RX K12
