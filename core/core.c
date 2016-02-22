@@ -78,6 +78,7 @@ void coreInit(void)
 	PORTZ = LATZ = 0;
 	PORTZbits.RZ1 = LATZbits.LATZ1 = 1;	
 
+    // Master clock on Timer0 :
 	T0CONbits.TMR0ON = 1;
 	T0CONbits.T08BIT = 0;	// 16 bit timer
 	T0CONbits.T0CS = 0;		// Use internal clock
@@ -90,13 +91,17 @@ void coreInit(void)
 	INTCON2bits.TMR0IP=1;	// high priority
 	//T0CON=0b10010111;
 
-	RCONbits.IPEN = 1;
+	RCONbits.IPEN = 1;  // enable interrupts priority mode
 
-	// Use our own special output function for STDOUT
-	//stdout = STREAM_USER;
-	
 	INTCONbits.GIEH = 1;  // enable interrupts
 	INTCONbits.GIEL = 1;  // enable interrupts
+
+// --------- init TMR2 as default PWM source -----------
+	// fPWM = fOSC / (TMR2prescale * 4 * (PR2+1))
+	//		= 64000000Hz/(4 * 4 * 256) = 15.625 kHz
+	T2CONbits.T2CKPS0=1; //prescaler 4
+	PR2=255;
+	T2CONbits.TMR2ON=1;
 }
 
 //--------------------- Main : -------------------------------
