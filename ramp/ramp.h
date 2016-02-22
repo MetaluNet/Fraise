@@ -40,7 +40,7 @@ typedef struct {
 	int maxSpeed; 	//Maximum absolute speed allowed to ramp generator, in minc/ms
 	long int speed; //Consign speed computed by ramp generator, in uinc/ms
 	int maxAccel ;  //Maximum acceleration allowed to ramp generator, in uinc/ms/ms
-*
+
 					//ex: RAMP_UINCPOW=10
 					// maxAccel=1 -> 1 uinc/ms/ms : during 1s, speed will be increased of 1000/1024 minc/ms : 
 					// it will take about 1s for speed to increase of 1 maxSpeed unity.   
