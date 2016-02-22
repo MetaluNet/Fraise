@@ -177,6 +177,9 @@ unsigned unsigned long int time(void); ///< Get time since bootup in 64/FOSC ste
 
 #define timeISR() (Now._dword) ///< time() equivalent to be used inside of interrupts routines.
 
+/// Time type
+typedef  unsigned long t_time;
+
 /// Delay type
 typedef  unsigned long t_delay;
 
