@@ -25,7 +25,7 @@
 # MA  02110-1301, USA.
 */
 
-#include "dcmotoror.h"
+#include "dcmotor.h"
 
 static long incDeltaT, lastIncTime, deltaT, actualSpeed, error;
 static int pos,deltaPos;
@@ -139,7 +139,7 @@ void dcmotorInput(t_dcmotor *mot)
 	}
 }
 
-void dcmotor_declareEE(t_dcmotor *mot)
+void dcmotorDeclareEE(t_dcmotor *mot)
 {
 	EEdeclareChar(&mot->Setting.reversed);
 	rampDeclareEE(&mot->PosRamp);

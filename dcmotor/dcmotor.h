@@ -88,6 +88,10 @@ extern int dcmotor_v,dcmotor_vabs;
 extern t_dcmotorVars dcmotorVars;
 extern t_dcmotorVolVars dcmotorVolVars;
 
+// I'm really don't know why compiler complains if I use a 1 arg macro for INIT_PWM_...
+#define INIT_PWM_(pwm,unused) do{CCP##pwm##CON = 0b00001100;} while(0) /* single PWM active high*/
+#define INIT_PWM(pwm) CALL_FUN2(INIT_PWM_,pwm,0)
+
 #define SET_PWM_(pwm,val) do{ CCP##pwm##CONbits.DC##pwm##B1 = val&2;  CCP##pwm##CONbits.DC##pwm##B0 = val&1; CCPR##pwm##L=val>>2; } while(0)
 
 #define SET_PWM(pwm,val) CALL_FUN2(SET_PWM_, pwm, val)
@@ -142,26 +146,33 @@ extern t_dcmotorVolVars dcmotorVolVars;
 
 
 #define DCMOTOR_INIT_(motID) do{\
-	/*SETPORT_MOT##motID;*/\
+	digitalClear(M##motID##1);\
+	digitalClear(M##motID##2);\
+	digitalSet(M##motID##EN);\
+	digitalSet(M##motID##EN2);\
 	pinModeDigitalOut(M##motID##1);\
 	pinModeDigitalOut(M##motID##2);\
 	pinModeDigitalOut(M##motID##EN);\
-	SET_PWM(MOT##motID##_PWM, 0);\
-	/*MOT##motID##_IN1 = 0;*/digitalClear(M##motID##1);\
-	/*MOT##motID##_IN2 = 0;*/digitalClear(M##motID##2);\
-	/*MOT##motID##_EN = 1;*/digitalSet(M##motID##EN);\
-	pinModeDigitalIn(MOT##motID##_END);\
+	pinModeDigitalOut(M##motID##EN2);\
+    \
+    pinModeDigitalIn(MOT##motID##_END);\
 	pinModeDigitalIn(MOT##motID##_A);\
 	pinModeDigitalIn(MOT##motID##_B);\
+	INIT_PWM(MOT##motID##_PWM);\
+	SET_PWM(MOT##motID##_PWM, 0);\
+	MOT##motID##_CONFIG();\
+	\
 	dcmotor##motID.Setting.Mode = 0;\
 	dcmotor##motID.Setting.PosWindow = 2;\
 	dcmotor##motID.Setting.PwmMin = 10;\
 	dcmotor##motID.Setting.StallTime = 16;\
 	dcmotor##motID.Setting.PosErrorGain = 7;\
 	dcmotor##motID.Setting.reversed = 0;\
+	\
 	rampInit(&dcmotor##motID.PosRamp);\
 	pidInit(&dcmotor##motID.SpeedPID);\
 	pidInit(&dcmotor##motID.PosPID);\
+	\
 	dcmotor##motID.VolVars.Position = 0;\
 	dcmotor##motID.VolVars.homed = 0;\
 	dcmotor##motID.VolVars.end = 0;\
@@ -227,10 +238,10 @@ void dcmotorCompute(t_dcmotor *mot);
  } while(0)
 
 void dcmotorInput(t_dcmotor *mot);
-#define DCMOTOR_INPUT(motID) dcmotor_input(&dcmotor##motID)
+#define DCMOTOR_INPUT(motID) dcmotorInput(&dcmotor##motID)
 
 void dcmotorDeclareEE(t_dcmotor *mot);
-#define DCMOTOR_DECLARE_EE(motID) do{ dcmotor_declareEE(&dcmotor##motID);} while(0)
+#define DCMOTOR_DECLARE_EE(motID) do{ dcmotorDeclareEE(&dcmotor##motID);} while(0)
 
 #define DCMOTOR(motID) (dcmotor##motID)
 #define DCMOTOR_GETPOS(motID) (DCMOTOR(motID).VolVars.Position)
