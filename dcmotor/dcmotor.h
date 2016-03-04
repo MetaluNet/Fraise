@@ -179,7 +179,7 @@ extern t_dcmotorVolVars dcmotorVolVars;
 	dcmotor##motID.Vars.PWMConsign = dcmotor##motID.Vars.SpeedConsign = 0;\
 	dcmotor##motID.Vars.lastPosition = 0;\
  } while(0)	
-#define DCMOTOR_INIT(motID) CALL_FUN(DCMOTOR_INIT_,motID)
+#define dcmotorInit(motID) CALL_FUN(DCMOTOR_INIT_,motID)
 
 #define DCMOTOR_LOAD_dcmotorVolVars_(motID) do{ \
 	__critical {\
