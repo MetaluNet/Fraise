@@ -1,13 +1,12 @@
-#N canvas 905 347 372 334 10;
-#X declare -stdpath moonlib ggee;
+#N canvas 865 126 372 334 10;
 #X obj 21 39 cnv 15 150 25 empty \$0-stastocan-rcv empty 20 12 0 14
--241291 -1 0;
+-166441 -1 0;
 #X obj 26 47 tgl 15 1 \$0-on-snd \$0-on-rcv on 0 -6 1 8 -258699 -1
 -1 1 1;
-#X obj 100 43 cnv 15 70 20 empty \$0-pied_can-rcv pied_actif 2 12 1
-12 -241291 -1 0;
+#X obj 100 43 cnv 15 70 20 empty \$0-pied_can-rcv pied_inactif 2 12
+1 12 -166441 -1 0;
 #X obj 121 167 r \$0-fruitpresent;
-#N canvas 829 247 450 543 rename 0;
+#N canvas 831 243 450 543 rename 0;
 #X obj 76 149 s \$0-2Fr2;
 #X obj 76 102 symbol \$2;
 #X msg 76 124 Boot rename \$1;
@@ -100,7 +99,7 @@
 #X connect 38 0 22 1;
 #X connect 39 0 26 0;
 #X restore 22 207 pd rename;
-#N canvas 2 80 450 300 assign 0;
+#N canvas 4 78 450 300 assign 0;
 #X obj 83 71 symbol \$2;
 #X obj 83 94 pack s \$3;
 #X obj 83 137 s \$0-2Fr2;
@@ -113,7 +112,7 @@
 #X restore 22 232 pd assign;
 #X obj 46 47 bng 15 250 50 0 \$0-showutils-snd \$0-showutils-rcv utils
 17 7 0 10 -4034 -1 -1;
-#N canvas 89 684 322 115 \$0-utils 0;
+#N canvas 90 710 322 115 \$0-utils 0;
 #X obj 1 1 cnv 15 320 100 empty empty empty 20 12 0 14 -57730 -66577
 0;
 #X obj 179 38 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:10
@@ -141,12 +140,12 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X obj 10 78 hsl 90 15 0 127 0 0 \$0-make-rom-snd \$0-make-rom-rcv
 empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X restore 22 180 pd \$0-utils;
-#N canvas 697 512 473 361 Fr2_interface 0;
+#N canvas 698 510 473 361 Fr2_interface 0;
 #X obj 25 11 r Fr2;
-#X obj 141 235 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 141 235 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 25 32 route \$1;
-#X obj 24 119 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 24 119 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 141 190 del 100;
 #X obj 141 169 t b f;
@@ -195,7 +194,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 24 0 25 0;
 #X connect 25 0 12 0;
 #X restore 22 82 pd Fr2_interface;
-#N canvas 3 127 450 300 status 0;
+#N canvas 4 125 450 300 status 0;
 #X obj 42 32 loadbang;
 #X obj 42 96 s \$0-2Fr2;
 #X msg 42 74 Status 0;
@@ -211,7 +210,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 6 0 5 0;
 #X restore 22 105 pd status;
 #X text 18 0 usage: Fr2Fruit piedid fruitname fruitid firmware;
-#N canvas 2 232 355 250 tochild 0;
+#N canvas 4 258 355 250 tochild 0;
 #X obj 79 197 s \$0-2Fr2;
 #X text 25 10 data to child;
 #X obj 37 29 r Fraise-\$2-rcv;
@@ -241,7 +240,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 12 0 13 0;
 #X connect 13 0 9 0;
 #X restore 22 133 pd tochild;
-#N canvas 854 131 425 323 UI 0;
+#N canvas 855 129 425 323 UI 0;
 #N canvas 61 352 394 241 canvascolor 0;
 #X obj 15 13 inlet;
 #X obj 15 103 s \$0-stastocan-rcv;
@@ -257,7 +256,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 4 2 5 0;
 #X connect 5 0 1 0;
 #X restore 34 185 pd canvascolor;
-#N canvas 582 476 347 343 pied_can 0;
+#N canvas 583 502 347 343 pied_can 0;
 #X obj 17 17 inlet;
 #X obj 17 125 s \$0-pied_can-rcv;
 #X msg 17 70 color 1 13 22 \, label pied_inactif;
@@ -274,7 +273,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X obj 34 -20 r \$0-piedactif;
 #X obj 34 26 r \$0-fruitpresent;
 #X obj 35 -114 r \$0-showutils-snd;
-#N canvas 444 553 506 316 program 0;
+#N canvas 445 551 506 316 program 0;
 #X obj 43 15 r \$0-Fr2;
 #X obj 43 35 route Boot;
 #X obj 43 93 route prog_progress programmed program_error;
@@ -343,7 +342,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X obj 79 95 del 500;
 #X msg 49 113 2;
 #X msg 79 115 1;
-#N canvas 416 575 450 300 make 0;
+#N canvas 417 572 450 300 make 0;
 #X obj 53 25 r \$0-Fr2;
 #X obj 53 45 route Boot;
 #X obj 53 71 route \$2;
@@ -436,7 +435,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 27 0 17 0;
 #X restore 22 158 pd UI;
 #X obj 121 187 outlet on;
-#N canvas 3 88 450 300 select 0;
+#N canvas 4 86 450 300 select 0;
 #X obj 44 18 r \$0-piedactif;
 #X obj 44 228 s \$0-2Fr2;
 #X obj 44 178 f \$3;
@@ -469,7 +468,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 13 0 12 0;
 #X connect 14 0 2 0;
 #X restore 23 257 pd select;
-#N canvas 149 472 335 253 program 0;
+#N canvas 151 524 335 253 program 0;
 #X obj 42 28 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 90 102 symbol \$4;
@@ -484,7 +483,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X obj 223 19 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 221 42 getdir 2;
-#X obj 62 53 getdir 2;
+#X obj 62 53 ggee/getdir 2;
 #X connect 0 0 12 0;
 #X connect 1 0 3 1;
 #X connect 2 0 1 0;
@@ -497,7 +496,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 11 0 9 0;
 #X connect 12 0 3 0;
 #X restore 22 303 pd program;
-#N canvas 571 723 450 300 make 0;
+#N canvas 575 566 450 300 make 0;
 #X obj 48 14 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 100 112 symbol \$4;
@@ -512,24 +511,24 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 -1;
 #X text 190 162 make Fruitname SourcePath;
 #X obj 145 234 print;
-#X obj 72 63 getdir 2;
 #X obj 113 38 s \$0-UImeminit;
 #X obj 72 37 t b b;
-#X connect 0 0 14 0;
+#X obj 72 63 ggee/getdir 2;
+#X connect 0 0 13 0;
 #X connect 1 0 3 1;
 #X connect 2 0 1 0;
 #X connect 3 0 7 0;
 #X connect 4 0 5 0;
 #X connect 5 0 3 2;
 #X connect 7 0 6 0;
-#X connect 8 0 14 0;
+#X connect 8 0 13 0;
 #X connect 9 0 5 0;
 #X connect 9 0 1 0;
-#X connect 12 0 3 0;
-#X connect 14 0 12 0;
-#X connect 14 1 13 0;
+#X connect 13 0 14 0;
+#X connect 13 1 12 0;
+#X connect 14 0 3 0;
 #X restore 23 280 pd make;
-#N canvas 23 587 450 300 progbootloader 1;
+#N canvas 25 570 450 300 progbootloader 0;
 #X obj 62 48 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 110 122 symbol \$4;
@@ -538,25 +537,24 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X obj 180 102 loadbang;
 #X obj 180 123 symbol \$2;
 #X obj 82 209 s \$0-2Fr2;
-#X obj 82 73 getdir 2;
 #X obj 196 67 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 82 47 r \$0-progboot;
 #X msg 82 173 Boot progboot \$3 \$1/\$2;
-#X connect 0 0 7 0;
+#X obj 82 73 ggee/getdir 2;
+#X connect 0 0 10 0;
 #X connect 1 0 3 1;
 #X connect 2 0 1 0;
-#X connect 3 0 10 0;
+#X connect 3 0 9 0;
 #X connect 4 0 5 0;
 #X connect 5 0 3 2;
-#X connect 7 0 3 0;
-#X connect 8 0 5 0;
-#X connect 8 0 1 0;
-#X connect 9 0 7 0;
-#X connect 10 0 6 0;
+#X connect 7 0 5 0;
+#X connect 7 0 1 0;
+#X connect 8 0 10 0;
+#X connect 9 0 6 0;
+#X connect 10 0 3 0;
 #X restore 75 280 pd progbootloader;
 #X obj 26 19 inlet on;
-#X obj 144 83 declare -stdpath moonlib ggee;
 #X connect 3 0 13 0;
 #X connect 18 0 1 0;
 #X coords 0 -1 1 1 152 45 1 20 20;
