@@ -80,6 +80,7 @@ unsigned char eeReadByte(unsigned char address);
 #define KPORT(k) k##PORT
 #define KBIT(k)  k##BIT
 #define KAN(k)  k##AN
+#define KINT(k)  k##INT
 
 // PIN ROUTINES 
 //----- Digital Read :
