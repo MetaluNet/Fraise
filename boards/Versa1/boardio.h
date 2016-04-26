@@ -35,6 +35,7 @@
 #define K9PORT	B
 #define K9BIT 	2
 #define K9AN	8
+#define K9INT	2
 
 #define K10PORT	B
 #define K10BIT 	3
@@ -72,6 +73,7 @@
 #define MB1PORT	B
 #define MB1BIT	0
 #define MB1AN	12
+#define MB1INT	0
 
 #define MB2PORT	B
 #define MB2BIT	5
@@ -80,6 +82,7 @@
 #define MBENPORT B
 #define MBENBIT 1
 #define MBENAN	10
+#define MBENINT	1
 
 #define MBEN2PORT B
 #define MBEN2BIT 4
