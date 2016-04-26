@@ -66,7 +66,7 @@ t_delay servoDelay;
 	T##Timer##CONbits.T##Timer##RD16=1; 	/* 	16bits 				*/\
 	PIE##TimerPNum##bits.TMR##Timer##IE=1;	/* 	enable timer interrupt 		*/\
 	IPR##TimerPNum##bits.TMR##Timer##IP=1;	/* 	high priority 			*/\
-	PIR##TimerPNum##bits.TMR##Timer##IF
+	PIR##TimerPNum##bits.TMR##Timer##IF=0;
 
 
 #define TIMER_INIT CALL_FUN2(TIMER_INIT_T,TIMER,TIMERPNUM)
