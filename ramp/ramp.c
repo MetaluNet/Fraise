@@ -71,7 +71,7 @@ void rampCompute(t_ramp *Ramp)
 	
 	d=((long)M.destPos-(long)(M.currentPos>>RAMP_UINCPOW));
 
-	if((d>-3)&&(d<3)&&((absspeed_l>>1)<=M.maxDecel)) { //target proximity
+	if((d>-RAMP_MAXERROR)&&(d<RAMP_MAXERROR)&&((absspeed_l>>1)<=M.maxDecel)) { //target proximity
 		M.currentPos=((long int)M.destPos)<<RAMP_UINCPOW;
 		M.speed=0;
 	}

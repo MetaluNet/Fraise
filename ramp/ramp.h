@@ -33,6 +33,10 @@
 #define RAMP_UINCPOW 10 // 1 increment = 1024 milli-increments (mincs) = 1024x1024 micro-increments (uincs)
 #endif
 
+#ifndef RAMP_MAXERROR 
+#define RAMP_MAXERROR 3 //  
+#endif
+
 
 typedef struct {
 	int destPos; //Destination position, in incs
