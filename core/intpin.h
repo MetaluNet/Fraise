@@ -15,7 +15,7 @@
     #define INTPIN_IE INTCON3bits.INT1IE
     #define INTPIN_IP INTCON3bits.INT1IP
     #define INTPIN_EDGE INTCON2bits.INTEDG1
-#elif INTPIN==1
+#elif INTPIN==2
     #define INTPIN_IF INTCON3bits.INT2IF
     #define INTPIN_IE INTCON3bits.INT2IE
     #define INTPIN_IP INTCON3bits.INT2IP
