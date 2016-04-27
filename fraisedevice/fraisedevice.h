@@ -94,7 +94,7 @@ unsigned char fraiseGetAt(unsigned char i); ///< Get RXbuffer content at a given
 unsigned char fraiseGetLen(); 	///< Get total length of current receive packet.
 void fraiseSendCopy(); ///< Copy the RX buffer to TX buffer, in char mode, from first RX byte to the one before current index (don't add last fraiseGetChar). Used to return queried parameter setting.
 
-#define fraiseGetInt() (fraiseGetChar() << 8 + fraiseGetChar()) ///< @brief Get next 16 bit integer from receive buffer.
+#define fraiseGetInt() ((unsigned int)(fraiseGetChar()<<8) + (unsigned int)fraiseGetChar()) ///< @brief Get next 16 bit integer from receive buffer.
 #define fraiseGetLong() (((unsigned long)( \
 	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar()) ) << 16 | \
 	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar()) ///< @brief Get next 32 bit long integer from receive buffer.
