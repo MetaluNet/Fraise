@@ -78,6 +78,10 @@ void DMXService(); ///< @brief Module service routine, to be called by the main 
     @param value New value for this channel (0-255)
 */
 void DMXSet(unsigned int channel, unsigned char value);
+//@}
+
+/** @} 
+*/
 
 #endif // _DMX_H_
 

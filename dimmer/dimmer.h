@@ -134,4 +134,7 @@ void dimmerReceive();
 
 void dimmerPrintDebug();
 
+/** @} 
+*/
+
 #endif // DIMMER

@@ -95,5 +95,7 @@ void servoSetPort(unsigned char num,unsigned char *port,unsigned char mask);
 
 #define SERVO_SELECT_(num,connport,connbit) servoSetPort(num,&LAT##connport,1<<connbit)
 	
+/** @} 
+*/
 
 #endif //
