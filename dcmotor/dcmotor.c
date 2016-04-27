@@ -141,7 +141,7 @@ void dcmotorInput(t_dcmotor *mot)
 
 void dcmotorDeclareEE(t_dcmotor *mot)
 {
-	EEdeclareChar(&mot->Setting.reversed);
+	EEdeclareChar(&mot->Setting.flags);
 	rampDeclareEE(&mot->PosRamp);
 	pidDeclareEE(&mot->PosPID);
 	pidDeclareEE(&mot->SpeedPID);

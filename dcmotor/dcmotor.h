@@ -66,11 +66,17 @@ typedef struct {
 
 typedef struct {
 	unsigned char Mode ; 		//0:pwm 1:speed 2:pos 3:pos+speed_regulator
-	 int PosWindow; 	// tolerated absolute position error
-	 int PwmMin; 		// minimum absolute pwm value
+	int PosWindow; 	// tolerated absolute position error
+	int PwmMin; 		// minimum absolute pwm value
 	unsigned char StallTime;	// if position has not changed during this period, the motor is considered stopped. unit = 1/8 s.
 	unsigned char PosErrorGain;	// position error multiplier before PosPID
-	unsigned char reversed; 		//1 if positive speed decreases measured position
+	union{
+		unsigned char flags;
+		struct {
+        	unsigned reversed:1; 		// 1 if positive speed decreases measured position
+        	unsigned onlyPositive:1; 		// motor position is not allowed to be negative : when pos==0 only positive speed is allowed.
+        };
+    };
 } t_dcmotorSetting;
 
 typedef struct {
@@ -102,7 +108,7 @@ extern t_dcmotorVolVars dcmotorVolVars;
 
 #define DCMOTOR_CAPTURE_SERVICE_(motID) do{ 						\
 	dcmotor##motID.Incr.incA = digitalRead(MOT##motID##_A); 		\
-	if(!digitalRead(MOT##motID##_END)) { 						\
+	if(digitalRead(MOT##motID##_END) == MOT##motID##_ENDLEVEL) { 						\
 		dcmotor##motID.VolVars.Position = 0; 						\
 		dcmotor##motID.VolVars.homed = 1;							\
 		dcmotor##motID.VolVars.end = 1;							\
@@ -127,7 +133,7 @@ extern t_dcmotorVolVars dcmotorVolVars;
 
 #define DCMOTOR_CAPTURE_SERVICE_SINGLE_(motID) do{ 				\
 	dcmotor##motID.Incr.incA = digitalRead(MOT##motID##_A); 		\
-	if(!digitalRead(MOT##motID##_END)) { 						\
+	if(digitalRead(MOT##motID##_END) == MOT##motID##_ENDLEVEL) { 						\
 		dcmotor##motID.VolVars.Position = 0; 						\
 		dcmotor##motID.VolVars.homed = 1;							\
 		dcmotor##motID.VolVars.end = 1;							\
@@ -142,7 +148,7 @@ extern t_dcmotorVolVars dcmotorVolVars;
 		else  dcmotor##motID.VolVars.Position--;					\
 	}															\
  } while(0)	
-#define DCMOTOR_CAPTURE_SERVICE(motID) CALL_FUN(DCMOTOR_CAPTURE_SERVICE_,motID)
+#define DCMOTOR_CAPTURE_SERVICE_SINGLE(motID) CALL_FUN(DCMOTOR_CAPTURE_SERVICE_SINGLE_,motID)
 
 
 #define DCMOTOR_INIT_(motID) do{\
@@ -168,6 +174,7 @@ extern t_dcmotorVolVars dcmotorVolVars;
 	dcmotor##motID.Setting.StallTime = 16;\
 	dcmotor##motID.Setting.PosErrorGain = 7;\
 	dcmotor##motID.Setting.reversed = 0;\
+	dcmotor##motID.Setting.onlyPositive = 1;\
 	\
 	rampInit(&dcmotor##motID.PosRamp);\
 	pidInit(&dcmotor##motID.SpeedPID);\
@@ -199,7 +206,7 @@ void dcmotorCompute(t_dcmotor *mot);
 	if(dcmotor_v < -1023) dcmotor_v = -1023;	\
 	if((dcmotor_v > 0) && (dcmotor_v < dcmotor##motID.Setting.PwmMin)) dcmotor_v = 0; \
 	if((dcmotor_v < 0) && (dcmotor_v > -dcmotor##motID.Setting.PwmMin)) dcmotor_v = 0; \
-	if(dcmotor##motID.VolVars.end && (dcmotor_v < 0)) dcmotor_v = 0;\
+	if(dcmotor##motID.Setting.onlyPositive && dcmotor##motID.VolVars.end && (dcmotor_v < 0)) dcmotor_v = 0;\
 	/*dcmotor_v  = (dcmotor##motID.Setting.reversed ? -dcmotor_v : dcmotor_v);*/\
 } while(0)
 
