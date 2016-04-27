@@ -77,10 +77,16 @@ unsigned char eeReadByte(unsigned char address);
 
 // connector macros :
  
-#define KPORT(k) k##PORT
+/*#define KPORT(k) k##PORT
 #define KBIT(k)  k##BIT
 #define KAN(k)  k##AN
-#define KINT(k)  k##INT
+#define KINT(k)  k##INT*/
+
+#define KPROP(k, prop) k##prop
+#define KPORT(k) CALL_FUN2(KPROP, k, PORT)
+#define KBIT(k)  CALL_FUN2(KPROP, k, BIT)
+#define KAN(k)  CALL_FUN2(KPROP, k, AN)
+#define KINT(k)  CALL_FUN2(KPROP, k, INT)
 
 // PIN ROUTINES 
 //----- Digital Read :
