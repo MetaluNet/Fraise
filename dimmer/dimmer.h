@@ -1,7 +1,6 @@
 /*********************************************************************
  *
  *                8 channels AC dimmer library for Fraise pic18f device
- *				Uses TIMER3 !
  *				
  *********************************************************************
  * Author               Date        Comment
@@ -33,53 +32,61 @@
  *  8 channels AC dimmer 
   
  *  Example :
+ *
+ *   main.c
  * \include dimmer/examples/example1/main.c
+ *   config.h
+ * \include dimmer/examples/example1/config.h
  *  @{
  */
 #include <fruit.h>
 /** \name Settings to put in config.h
- These parameters can be overloaded in the config.h of your firmware.
+ You must define the pin used to trig the interrupt (sensing the AC zero-crossing):
+	~~~~
+	    #define DIMMER_INTPIN K9 (replace K9 by the pin used by your dimmer)
+	~~~~
+
+ The following parameters can be overloaded:
 */
 //@{
 
-#ifndef DIMMER_TIMER
-/** @brief Timer to be used by the dimmer module (default: 5). */
-#define  DIMMER_TIMER 5
-#endif
-
 #ifndef DIMMER_INTPIN
-/** @brief Pin used to trig the interrupt (you MUST define it in your config.h). */
 #error you must define DIMMER_INTPIN before calling dimmer.h
 #endif
 
 #ifndef DIMMER_INTEDGE
-/** @brief Edge of the interrupt (0:falling edge ; 1:rising edge) ; default: 0 (falling edge). */
-#define  DIMMER_INTEDGE 0
+/** @brief Edge of the interrupt (0:falling edge ; 1:rising edge) ; default: 1(rising edge). */
+#define  DIMMER_INTEDGE 1
+#endif
+
+#ifndef DIMMER_TIMER
+/** @brief Timer to be used by the dimmer module (only 1, 3 or 5 ; default: 5). */
+#define  DIMMER_TIMER 5
 #endif
 
 #ifndef DIMMER_K0 
-#define DIMMER_K0 KZ2 /**< @output pin for channel 0.*/
+#define DIMMER_K0 KZ2 /**< @brief output pin for channel 0.*/
 #endif
 #ifndef DIMMER_K1 
-#define DIMMER_K1 KZ2 /**< @output pin for channel 1.*/
+#define DIMMER_K1 KZ2 /**< @brief output pin for channel 1.*/
 #endif
 #ifndef DIMMER_K2 
-#define DIMMER_K2 KZ2 /**< @output pin for channel 2.*/
+#define DIMMER_K2 KZ2 /**< @brief output pin for channel 2.*/
 #endif
 #ifndef DIMMER_K3 
-#define DIMMER_K3 KZ2 /**< @output pin for channel 3.*/
+#define DIMMER_K3 KZ2 /**< @brief output pin for channel 3.*/
 #endif
 #ifndef DIMMER_K4 
-#define DIMMER_K4 KZ2 /**< @output pin for channel 4.*/
+#define DIMMER_K4 KZ2 /**< @brief output pin for channel 4.*/
 #endif
 #ifndef DIMMER_K5 
-#define DIMMER_K5 KZ2 /**< @output pin for channel 5.*/
+#define DIMMER_K5 KZ2 /**< @brief output pin for channel 5.*/
 #endif
 #ifndef DIMMER_K6 
-#define DIMMER_K6 KZ2 /**< @output pin for channel 6.*/
+#define DIMMER_K6 KZ2 /**< @brief output pin for channel 6.*/
 #endif
 #ifndef DIMMER_K7 
-#define DIMMER_K7 KZ2 /**< @output pin for channel 7.*/
+#define DIMMER_K7 KZ2 /**< @brief output pin for channel 7.*/
 #endif
 
 //@}
@@ -101,9 +108,9 @@ void dimmerService(void); ///< @brief Module service routine, to be called by th
 /** \name Utilities
 */
 //@{
-/** @brief Set position of a dimmermotor. 
-    @param num Dimmermotor channel (0 to 7)
-    @param val New delay for this dimmer, in 4/FOSC steps ; e.g for Versa1, FOSC=64MHz, so dimmer steps are 1/4 us : 40000 corresponds to 10 ms position (fully off @50Hz), 33333 gives a 8.333ms (fully off @60Hz)
+/** @brief Set the value of a dimmer channel.
+    @param num Dimmer channel (0 to 7)
+    @param val New 16 bit value for this channel, between 0 and 65535 
 */
 void dimmerSet(unsigned char num,unsigned int val); 
 //@}
@@ -121,10 +128,10 @@ void dimmerHighInterrupt(void); ///< @brief Module interrupt routine, must be ca
 /** @brief Module receive function, to be called by the **fraiseReceive()** user defined function.
 * 
     The first byte of the message represents the channel (0-7), the 2 next bytes are the 16 bit new position value.
-    If the first byte equals to 254, then the message is for reading a channel position ; the next byte then is the actual channel, and the module sends to the master the current position of this channel.
 */
 void dimmerReceive();
 //@}
 
+void dimmerPrintDebug();
 
 #endif // DIMMER

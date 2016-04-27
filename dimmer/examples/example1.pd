@@ -1,4 +1,4 @@
-#N canvas 73 249 862 565 10;
+#N canvas 316 130 887 625 10;
 #X declare -stdpath moonlib;
 #X declare -stdpath hcs;
 #X declare -stdpath ggee;
@@ -6,45 +6,73 @@
 #X declare -lib zexy;
 #X declare -stdpath Fraise;
 #X obj 19 141 fruit/fruit 1 fruit1 10 example1;
-#X obj 235 331 fruit/send2 fruit1;
+#X obj 60 508 fruit/send2 fruit1;
 #X obj 21 38 pied/pied 0 41424;
-#X floatatom 536 199 8 0 0 0 - - -, f 8;
-#X obj 539 139 hsl 128 15 3500 18000 0 0 empty empty empty -2 -8 0
-10 -262144 -1 -1 0 1;
-#X text 206 40 Output RC servo waveforms to K11 (channel 0) and K12
-(channel 1).;
-#X text 209 20 RC servo example for Versa1.0;
-#X text 543 180 position of servo channel 1 \, in 1/8 us steps.;
-#X floatatom 235 201 8 0 0 0 - - -, f 8;
-#X obj 238 141 hsl 128 15 3500 18000 0 0 empty empty empty -2 -8 0
-10 -262144 -1 -1 0 1;
-#X text 239 183 position of servo channel 1 \, in 1/8 us steps.;
-#X text 307 106 example range 4000 to 16000 = 0.5 ms to 2 ms (adjust
-the ranges for your servos and mechanical assembly);
-#X obj 511 343 fruit/receive fruit1;
-#X obj 511 384 route 0 1;
-#X floatatom 511 418 8 0 0 3 pos_0 - -, f 8;
-#X floatatom 571 418 8 0 0 3 pos_1 - -, f 8;
-#X text 205 65 Here main servo channel is set to 20 in firmware (see
-example1/main.c).;
-#X text 607 272 get current pos of servo 0;
-#X text 607 295 get current pos of servo 1;
-#X text 566 364 Receive requested channel positions.;
 #X obj 22 8 declare -stdpath Fraise;
-#X msg 235 224 c 40 c 0 i \$1;
-#X msg 536 222 c 40 c 1 i \$1;
-#X msg 514 272 c 40 c 254 c 0;
-#X msg 514 295 c 20 c 254 c 1;
-#X obj 511 363 route 40;
-#X connect 3 0 22 0;
-#X connect 4 0 3 0;
-#X connect 8 0 21 0;
-#X connect 9 0 8 0;
-#X connect 12 0 25 0;
-#X connect 13 0 14 0;
-#X connect 13 1 15 0;
-#X connect 21 0 1 0;
-#X connect 22 0 1 0;
+#X obj 44 208 vsl 15 128 0 1 0 0 empty empty 0 0 -9 0 10 -262144 -1
+-1 5300 1;
+#X msg 44 344 0 \$1;
+#X obj 60 392 unpack f f;
+#X obj 60 460 pack f f;
+#X obj 117 435 i;
+#X obj 82 208 vsl 15 128 0 1 0 0 empty empty 1 0 -9 0 10 -262144 -1
+-1 8100 1;
+#X obj 120 208 vsl 15 128 0 1 0 0 empty empty 2 0 -9 0 10 -262144 -1
+-1 0 1;
+#X obj 158 208 vsl 15 128 0 1 0 0 empty empty 3 0 -9 0 10 -262144 -1
+-1 0 1;
+#X obj 195 209 vsl 15 128 0 1 0 0 empty empty 4 0 -9 0 10 -262144 -1
+-1 0 1;
+#X obj 233 209 vsl 15 128 0 1 0 0 empty empty 5 0 -9 0 10 -262144 -1
+-1 0 1;
+#X obj 271 209 vsl 15 128 0 1 0 0 empty empty 6 0 -9 0 10 -262144 -1
+-1 0 1;
+#X obj 309 209 vsl 15 128 0 1 0 0 empty empty 7 0 -9 0 10 -262144 -1
+-1 0 1;
+#X msg 82 344 1 \$1;
+#X msg 120 344 2 \$1;
+#X msg 158 344 3 \$1;
+#X msg 195 345 4 \$1;
+#X msg 233 345 5 \$1;
+#X msg 271 345 6 \$1;
+#X msg 309 345 7 \$1;
+#X msg 60 485 c 40 c \$1 i \$2;
+#X obj 14 222 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 117 413 * 65535;
+#X obj 622 153 vsl 15 128 0 1 0 0 empty empty 7 0 -9 0 10 -262144 -1
+-1 6500 1;
+#X obj 622 290 t b f;
+#X obj 622 338 pack f f;
+#X msg 622 313 1 \, 2 \, 3 \, 4 \, 5 \, 6 \, 7;
+#X text 204 30 AC dimmer example for Versa1.0;
+#X text 205 65 Here main dimmer channel is set to 40 in firmware (see
+example1/main.c).;
+#X connect 4 0 5 0;
+#X connect 5 0 6 0;
+#X connect 6 0 7 0;
+#X connect 6 1 25 0;
+#X connect 7 0 23 0;
+#X connect 8 0 7 1;
+#X connect 9 0 16 0;
+#X connect 10 0 17 0;
+#X connect 11 0 18 0;
+#X connect 12 0 19 0;
+#X connect 13 0 20 0;
+#X connect 14 0 21 0;
+#X connect 15 0 22 0;
+#X connect 16 0 6 0;
+#X connect 17 0 6 0;
+#X connect 18 0 6 0;
+#X connect 19 0 6 0;
+#X connect 20 0 6 0;
+#X connect 21 0 6 0;
+#X connect 22 0 6 0;
 #X connect 23 0 1 0;
-#X connect 24 0 1 0;
-#X connect 25 0 13 0;
+#X connect 24 0 4 0;
+#X connect 25 0 8 0;
+#X connect 26 0 27 0;
+#X connect 27 0 29 0;
+#X connect 27 1 28 1;
+#X connect 28 0 6 0;
+#X connect 29 0 28 0;

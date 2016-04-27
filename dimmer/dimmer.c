@@ -1,12 +1,11 @@
 /*********************************************************************
  *
- *                Dimmer library for Fraise pic18f  device
- *				Uses TIMER5 !
+ *                8 channels AC dimmer library for Fraise pic18f device
  *				
  *********************************************************************
  * Author               Date        Comment
  *********************************************************************
- * Antoine Rousseau  jan 2013     Original.
+ * Antoine Rousseau  apr 2016     Original.
  ********************************************************************/
 /*
 # This program is free software; you can redistribute it and/or
@@ -35,12 +34,15 @@ unsigned int firstTime[2];      // time of the first channel
 unsigned char follower[16];     // channel following each channel (8 when last)
 unsigned int followerTime[16];  // values of the sorted ports
 
+unsigned char sorted[8];
+
 union{
 	unsigned char flags;
     struct {
         unsigned page:1;    // page number to be used by interrupt
         unsigned pageInt:1; // page currently used by interrupt
         unsigned changed:1; // one (or more) channel value changed
+        unsigned is60Hz;    // AC frequency is 60Hz (if false freq is 50Hz) ; measured by interrupt routine
     };
 } status;
 
@@ -59,7 +61,8 @@ union{
 } while(0)
 
 // Timer macros
-#define INTPIN KINT(DIMMER_INTPIN)
+//#define INTPIN KINT(DIMMER_INTPIN)
+#define INTPIN 2
 #include <intpin.h>
 
 void dimmerInit()
@@ -71,13 +74,14 @@ void dimmerInit()
 
 	for(i = 0; i < 8; i++) {
 		Val[i] = 65535;
+		sorted[i] = i;
 	}
 
 	pinModeDigitalIn(DIMMER_INTPIN);
 	INTPIN_EDGE = DIMMER_INTEDGE;
 	INTPIN_IP = 1; // high priority
 	INTPIN_IF = 0; // clear flag
-	INTPIN_IE = 0; // enable interrupt
+	INTPIN_IE = 1; // enable interrupt
 
     digitalClear(DIMMER_K0);
     digitalClear(DIMMER_K1);
@@ -99,23 +103,20 @@ void dimmerInit()
 
 void dimmerSet(unsigned char num,unsigned int val)
 {
-	Val[num] = val;
+	if(status.is60Hz) Val[num] = 8000UL + (((unsigned long)(0xFFFF - val) * 25000UL) / 0xFFFF);
+	else Val[num] = 8000UL + (((unsigned long)(0xFFFF - val) * 32000UL) / 0xFFFF);
+
 	status.changed = 1;
 }
 
 void dimmerService(void)
 {
     unsigned char i, j, tmp;
-    static unsigned char sorted[8];
     
 	if( (!status.changed) || (status.page != status.pageInt)) return;	
 
     status.changed = 0;
-    
-    for(i = 0 ; i < 8 ; i++) {
-        sorted[i] = i;
-    }
-    
+
     // sort channels ascendingly, by insertion algorithm (https://en.wikipedia.org/wiki/Insertion_sort)
     for(i = 1 ; i < 8 ; i++) {
         j = i;
@@ -127,25 +128,28 @@ void dimmerService(void)
         }
     }
     
-    first[!status.page] = sorted[0];
-    firstTime[!status.page] = Val[sorted[0]];
+    first[status.page==0] = sorted[0];
+    firstTime[status.page==0] = 0xFFFF - Val[sorted[0]];
 
     for(i = 0 ; i < 7 ; i++) {
-        follower[sorted[i]] = sorted[i+1];
-        followerTime[sorted[i]] = Val[sorted[i+1]] - Val[sorted[i]];
+        tmp = sorted[i];
+        if(status.page==0) tmp += 8;
+        follower[tmp] = sorted[i+1];
+        followerTime[tmp] = 0xFFFF - (Val[sorted[i+1]] - Val[sorted[i]]);
     }
-    follower[sorted[7]] = 8;
-    
-    status.page = !status.page; 
+    tmp = sorted[7];
+    if(status.page==0) tmp += 8;
+    follower[tmp] = 8;
+
+    status.page = (status.page==0); 
 }
 
 #define PROCESS_CHAN(chan, page) case chan : \
     digitalSet(DIMMER_K##chan); \
-    next = follower[chan + page?8:0] ; \
-    if(!(next & 8)) { \
-	    TIMER_H = (followerTime[chan + page?8:0]) >> 8; \
-	    TIMER_L = (followerTime[chan + page?8:0]) & 255; \
-        TIMER_IE = 1; \
+    next = follower[chan + (page?8:0)] ; \
+    if(next != 8) { \
+        TIMER_H = (followerTime[chan + (page?8:0)]) >> 8; \
+        TIMER_L = (followerTime[chan + (page?8:0)]) & 255; \
         TIMER_ON = 1; \
     } \
     break
@@ -154,8 +158,12 @@ void dimmerHighInterrupt(void)
 {
 	static unsigned char next;
 	static unsigned int val;
+	static t_time lastTime= 0;
 	
 	if(INTPIN_IF){
+	    if(lastTime) status.is60Hz = elapsed(lastTime) < microToTime(9000);
+	    lastTime = timeISR();
+	    
 	    INTPIN_IF = 0;
 	    status.pageInt = status.page;
 	    digitalClear(DIMMER_K0);
@@ -173,13 +181,13 @@ void dimmerHighInterrupt(void)
         TIMER_H = val>>8;
         TIMER_L = val&255;
         TIMER_IF = 0;
-        TIMER_IE = 1;
         TIMER_ON = 1;
 	}
 	
 	if(TIMER_IF) {
 	    TIMER_ON = 0;
 	    TIMER_IF = 0;
+
 	    if(status.pageInt) switch(next) {
 	        PROCESS_CHAN(0, 1);
 	        PROCESS_CHAN(1, 1);
@@ -199,6 +207,7 @@ void dimmerHighInterrupt(void)
 	        PROCESS_CHAN(6, 0);
 	        PROCESS_CHAN(7, 0);
 	    }
+	    fraiseISR(); // accept a bit of jitter to better protect Fraise communication
 	}
 }
 
@@ -208,17 +217,26 @@ void dimmerReceive()
 	unsigned int i = 0;
 	
 	c=fraiseGetChar();
-	if(c == 254) {
-		fraiseSendCopy();
-		c2=fraiseGetChar();
-		if(c2 < 8) printf("%d %d\n",c2,Val[c2]);
-	}
-	else if(c < 8) {
-		i = fraiseGetChar()<<8; 
-		i += fraiseGetChar();
-		Val[c]=i;
+	if(c < 8) {
+		dimmerSet(c, fraiseGetInt());
 	}
 }
 
+void dimmerPrintDebug()
+{
+    unsigned char i;
+    putchar('B');
+    for(i = 0 ; i < 8 ; i++) {
+        putchar(sorted[i]); 
+    }
+    for(i = 0 ; i < 8 ; i++) {
+        putchar(follower[i]);
+    }
+    for(i = 0 ; i < 8 ; i++) {
+        putchar(follower[i+8]);
+    }
+    putchar(status.page*2 + status.pageInt);
+    putchar('\n');
+}
 
 

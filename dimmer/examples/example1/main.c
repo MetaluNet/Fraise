@@ -1,23 +1,28 @@
 /*********************************************************************
  *               dimmer example for Versa1.0
- *	Send triac triggers to K11 (channel 0) and K12 (channel 1).
+ *	Connect dimmer board to Versa1's VNH2 port.
  *********************************************************************/
 #define BOARD Versa1
 #include <fruit.h>
 #include <dimmer.h>
+t_delay mainDelay;
 
 //----------- Setup ----------------
 void setup(void) {	
 	fruitInit();			
-	dimmerInit();        // init servo module
-//	dimmerSelect(0,K11); // assign connector K11 to dimmer channel 0
-//	dimmerSelect(1,K12); // assign connector K12 to dimmer channel 1
+	dimmerInit();        // init dimmer module
+	delayStart(mainDelay, 20000); 	// init the mainDelay to 20 ms
 }
 
 // ---------- Main loop ------------
 void loop() {
 	fraiseService();// listen to Fraise events
 	dimmerService();	// dimmer management routine
+	if(delayFinished(mainDelay)) // when mainDelay triggers :
+	{
+		delayStart(mainDelay, 20000); 	// re-init mainDelay
+		//dimmerPrintDebug();		// 
+	}
 }
 
 // ---------- Interrupts ------------
