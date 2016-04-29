@@ -22,6 +22,7 @@
 #define MOTD_IN2 			LATAbits.LATA7
 #define SETPORT_MOTD do{ TRISCbits.TRISC0=TRISBbits.TRISB3=TRISAbits.TRISA7=0;} while(0)*/
 
+// CONNECTORS :
 #define K1PORT 	C
 #define K1BIT 	1
 
@@ -48,16 +49,19 @@
 #define K7PORT	B
 #define K7BIT 	0
 #define K7AN	12
+#define K7INT   0
 
 #define K8PORT	B
 #define K8BIT 	1
 #define K8AN	10
+#define K8INT   1
 
 #define K9PORT	B
 #define K9BIT 	2
 #define K9AN	8
+#define K9INT   2
 
-
+// MOTOR A :
 #define MA1PORT	A
 #define MA1BIT	3
 #define MA1AN	3
@@ -69,6 +73,12 @@
 #define MAENPORT A
 #define MAENBIT 4
 
+#define MAEN2 KZ2
+
+#define MOTA_PWM 5
+#define MOTA_CONFIG() do{}while(0)
+
+// MOTOR B :
 #define MB1PORT	A
 #define MB1BIT	1
 #define MB1AN	1
@@ -80,6 +90,12 @@
 #define MBENPORT B
 #define MBENBIT 5
 
+#define MBEN2 KZ2
+
+#define MOTB_PWM 3
+#define MOTB_CONFIG() do{}while(0)
+
+// MOTOR C :
 #define MC1PORT	B
 #define MC1BIT	4
 #define MC1AN	11
@@ -90,6 +106,14 @@
 #define MCENPORT C
 #define MCENBIT 2
 
+#define MCEN2 KZ2
+
+#define MOTC_PWM 1
+#define MOTC_CONFIG() do{\
+    /* init PWM1 to pulse MOTC_IN1 (P1D) : */ PSTR1CON=0; PSTR1CONbits.STR1D=1; \
+}while(0)
+ 
+// MOTOR D :
 #define MD1PORT	B
 #define MD1BIT	3
 #define MD1AN	9
@@ -99,5 +123,15 @@
 
 #define MDENPORT C
 #define MDENBIT 0
+
+#define MDEN2 KZ2
+
+#define MOTD_PWM 2
+#define MOTD_CONFIG() do{}while(0)
+ 
+//---- Aux serial port :
+#define AUXSERIAL_NUM 1
+#define AUXSERIAL_TX K5
+#define AUXSERIAL_RX K6
 
 #endif
