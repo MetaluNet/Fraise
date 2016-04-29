@@ -1,10 +1,5 @@
-#N canvas 71 253 862 565 10;
-#X declare -stdpath moonlib;
-#X declare -stdpath moonlib;
-#X declare -stdpath hcs;
-#X declare -stdpath ggee;
-#X declare -stdpath zexy;
-#X declare -lib zexy;
+#N canvas 72 251 862 565 10;
+#X declare -stdpath Fraise;
 #X obj 19 141 fruit/fruit 1 fruit1 10 example1;
 #X obj 235 331 fruit/send2 fruit1;
 #X obj 21 38 pied/pied 0 41424;
@@ -18,7 +13,7 @@
 #X text 543 180 position of servo channel 1 \, in 1/8 us steps.;
 #X floatatom 235 201 8 0 0 0 - - -, f 8;
 #X obj 238 141 hsl 128 15 3500 18000 0 0 empty empty empty -2 -8 0
-10 -262144 -1 -1 8800 1;
+10 -262144 -1 -1 0 1;
 #X text 239 183 position of servo channel 1 \, in 1/8 us steps.;
 #X text 307 106 example range 4000 to 16000 = 0.5 ms to 2 ms (adjust
 the ranges for your servos and mechanical assembly);
@@ -35,6 +30,7 @@ example1/main.c).;
 #X text 607 272 get current pos of servo 0;
 #X text 607 295 get current pos of servo 1;
 #X text 566 364 Receive requested channel positions.;
+#X obj 22 6 declare -stdpath Fraise;
 #X connect 3 0 5 0;
 #X connect 4 0 3 0;
 #X connect 5 0 1 0;
