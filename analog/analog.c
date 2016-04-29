@@ -115,11 +115,11 @@ void analogService(void)
 char analogSend()
 {
 	static unsigned char chan = 0;
-	unsigned char count = 0, len = 0;
+	unsigned char loop = 0, count = 0, len = 0;
 	int v, d;
 	static unsigned char buf[13] = { 'B' }; //'B' + 3x4 chars
 	
-	while(count < 4) {
+	while((count < 4) && (loop++ < ANALOG_MAX_CHANNELS)){
 		chan++;
 		if(chan >= ANALOG_MAX_CHANNELS) {
 			chan = 0;
