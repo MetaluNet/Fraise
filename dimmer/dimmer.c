@@ -103,8 +103,8 @@ void dimmerInit()
 
 void dimmerSet(unsigned char num,unsigned int val)
 {
-	if(status.is60Hz) Val[num] = 8000UL + (((unsigned long)(0xFFFF - val) * 25000UL) / 0xFFFF);
-	else Val[num] = 8000UL + (((unsigned long)(0xFFFF - val) * 32000UL) / 0xFFFF);
+	if(status.is60Hz) Val[num] = DIMMER_TMIN + (((unsigned long)(0xFFFF - val) * (33000UL- DIMMER_TMIN)) / 0xFFFF);
+	else Val[num] = 8000UL + (((unsigned long)(0xFFFF - val) * (40000UL - DIMMER_TMIN)) / 0xFFFF);
 
 	status.changed = 1;
 }

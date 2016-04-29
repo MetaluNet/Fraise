@@ -89,6 +89,10 @@
 #define DIMMER_K7 KZ2 /**< @brief output pin for channel 7.*/
 #endif
 
+#ifndef DIMMER_TMIN
+#define DIMMER_TMIN 9000UL
+#endif
+
 //@}
 	
 /** \name Initialization
