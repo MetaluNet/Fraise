@@ -144,16 +144,34 @@ void dimmerService(void)
     status.page = (status.page==0); 
 }
 
-#define PROCESS_CHAN(chan, page) case chan : \
+/*#define PROCESS_CHAN(chan, page) case chan : \
     digitalSet(DIMMER_K##chan); \
     next = follower[chan + (page?8:0)] ; \
-    if(next != 8) { \
+    if(!(next != 8)) { \
         TIMER_H = (followerTime[chan + (page?8:0)]) >> 8; \
         TIMER_L = (followerTime[chan + (page?8:0)]) & 255; \
         TIMER_ON = 1; \
     } \
-    break
-
+    break*/
+#define PROCESS_CHAN(chan) do { \
+    digitalSet(DIMMER_K##chan); \
+    if(status.pageInt) { \
+    	next = follower[chan + 8] ; \
+    	if(!(next & 8)) { \
+	        TIMER_H = (followerTime[chan + 8]) >> 8; \
+	        TIMER_L = (followerTime[chan + 8]) & 255; \
+        	TIMER_ON = 1; \
+        } \
+    } else { \
+        next = follower[chan] ; \
+    	if(!(next & 8)) { \
+	        TIMER_H = (followerTime[chan]) >> 8; \
+	        TIMER_L = (followerTime[chan]) & 255; \
+        	TIMER_ON = 1; \
+        } \
+    } \
+  } while(0)
+    
 void dimmerHighInterrupt(void)
 {
 	static unsigned char next;
@@ -166,6 +184,7 @@ void dimmerHighInterrupt(void)
 	    
 	    INTPIN_IF = 0;
 	    status.pageInt = status.page;
+	    	    
 	    digitalClear(DIMMER_K0);
 	    digitalClear(DIMMER_K1);
 	    digitalClear(DIMMER_K2);
@@ -188,7 +207,27 @@ void dimmerHighInterrupt(void)
 	    TIMER_ON = 0;
 	    TIMER_IF = 0;
 
-	    if(status.pageInt) switch(next) {
+		//if(!(next&8)) {
+			if(!(next&4)) {
+				if(!(next&2)) {
+					if(!(next&1)) PROCESS_CHAN(0);
+					else PROCESS_CHAN(1);
+				} else {
+					if(!(next&1)) PROCESS_CHAN(2);
+					else PROCESS_CHAN(3);
+				} 
+			} else {
+				if(!(next&2)) {
+					if(!(next&1)) PROCESS_CHAN(4);
+					else PROCESS_CHAN(5);
+				} else {
+					if(!(next&1)) PROCESS_CHAN(6);
+					else PROCESS_CHAN(7);
+				}
+			}
+		//} 
+
+	    /*if(status.pageInt) switch(next) {
 	        PROCESS_CHAN(0, 1);
 	        PROCESS_CHAN(1, 1);
 	        PROCESS_CHAN(2, 1);
@@ -206,8 +245,8 @@ void dimmerHighInterrupt(void)
 	        PROCESS_CHAN(5, 0);
 	        PROCESS_CHAN(6, 0);
 	        PROCESS_CHAN(7, 0);
-	    }
-	    fraiseISR(); // accept a bit of jitter to better protect Fraise communication
+	    }*/
+	    //fraiseISR(); // accept a bit of jitter to better protect Fraise communication
 	}
 }
 
