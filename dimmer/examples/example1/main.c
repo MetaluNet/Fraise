@@ -30,6 +30,10 @@ void highInterrupts()
 {
 	dimmerHighInterrupt();
 }
+void lowInterrupts()
+{
+	dimmerLowInterrupt();
+}
 
 // ---------- Receiving ------------
 void fraiseReceive() // receive raw bytes

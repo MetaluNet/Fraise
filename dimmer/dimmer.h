@@ -93,6 +93,10 @@
 #define DIMMER_TMIN 9000UL
 #endif
 
+#ifndef DIMMER_INTPRI
+#define DIMMER_INTPRI 1
+#endif
+
 //@}
 	
 /** \name Initialization
@@ -123,7 +127,10 @@ void dimmerSet(unsigned char num,unsigned int val);
 /** \name Interrupt routine
 */
 //@{
-void dimmerHighInterrupt(void); ///< @brief Module interrupt routine, must be called by the **highInterrupts()** user defined function.
+void dimmerHighInterrupt(void); ///< @brief Module high interrupt routine, must be called by the **highInterrupts()** user defined function.
+//@}
+//@{
+void dimmerLowInterrupt(void); ///< @brief Module low interrupt routine, must be called by the **lowInterrupts()** user defined function.
 //@}
 
 /** \name Receive function
@@ -132,6 +139,7 @@ void dimmerHighInterrupt(void); ///< @brief Module interrupt routine, must be ca
 /** @brief Module receive function, to be called by the **fraiseReceive()** user defined function.
 * 
     The first byte of the message represents the channel (0-7), the 2 next bytes are the 16 bit new position value.
+    If the first byte is 8 then the next char sets the AC frequency : 0=50Hz, 1=60Hz
 */
 void dimmerReceive();
 //@}

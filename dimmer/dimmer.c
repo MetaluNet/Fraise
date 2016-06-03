@@ -54,15 +54,15 @@ union{
 	TIMER_CON = 0; \
 	TIMER_PS1 = 1;  /* 	prescaler 4 (->4MHz at 64MHz)   */\
 	TIMER_16BIT = 1;/* 	16bits                          */\
-	TIMER_IP = 1;	/* 	high priority                   */\
+	TIMER_IP = DIMMER_INTPRI;	/* 	high/low priority interrupt */\
 	TIMER_ON = 0;	/* 	stop timer                      */\
 	TIMER_IF = 0;   /*  clear flag                      */\
 	TIMER_IE = 1;	/* 	enable timer interrupt         */\
 } while(0)
 
 // Timer macros
-//#define INTPIN KINT(DIMMER_INTPIN)
-#define INTPIN 2
+#define INTPIN KINT(DIMMER_INTPIN)
+//#define INTPIN 2
 #include <intpin.h>
 
 void dimmerInit()
@@ -79,7 +79,7 @@ void dimmerInit()
 
 	pinModeDigitalIn(DIMMER_INTPIN);
 	INTPIN_EDGE = DIMMER_INTEDGE;
-	INTPIN_IP = 1; // high priority
+	INTPIN_IP = DIMMER_INTPRI; // high priority
 	INTPIN_IF = 0; // clear flag
 	INTPIN_IE = 1; // enable interrupt
 
@@ -172,18 +172,20 @@ void dimmerService(void)
     } \
   } while(0)
     
-void dimmerHighInterrupt(void)
+void dimmerInterrupt(void)
 {
 	static unsigned char next;
 	static unsigned int val;
 	static t_time lastTime= 0;
 	
 	if(INTPIN_IF){
-	    if(lastTime) status.is60Hz = elapsed(lastTime) < microToTime(9000);
+	    //if(lastTime) status.is60Hz = elapsed(lastTime) < microToTime(9000);
 	    lastTime = timeISR();
 	    
 	    INTPIN_IF = 0;
-	    status.pageInt = status.page;
+	    //status.pageInt = status.page;
+	    status.pageInt = 0;
+	    if(status.page) status.pageInt = 1;
 	    	    
 	    digitalClear(DIMMER_K0);
 	    digitalClear(DIMMER_K1);
@@ -209,7 +211,7 @@ void dimmerHighInterrupt(void)
 
 		//if(!(next&8)) {
 			if(!(next&4)) {
-				if(!(next&2)) {
+	            if(!(next&2)) {
 					if(!(next&1)) PROCESS_CHAN(0);
 					else PROCESS_CHAN(1);
 				} else {
@@ -250,6 +252,21 @@ void dimmerHighInterrupt(void)
 	}
 }
 
+void dimmerHighInterrupt(void)
+{
+#if DIMMER_INTPRI == 1
+    dimmerInterrupt();
+#endif
+}
+
+void dimmerLowInterrupt(void)
+{
+#if DIMMER_INTPRI != 1
+    dimmerInterrupt();
+#endif
+}
+
+
 void dimmerReceive()
 {
 	unsigned char c, c2;
@@ -258,6 +275,8 @@ void dimmerReceive()
 	c=fraiseGetChar();
 	if(c < 8) {
 		dimmerSet(c, fraiseGetInt());
+	} else if (c == 8) {
+	    status.is60Hz = (fraiseGetChar() != 0);
 	}
 }
 
@@ -274,7 +293,8 @@ void dimmerPrintDebug()
     for(i = 0 ; i < 8 ; i++) {
         putchar(follower[i+8]);
     }
-    putchar(status.page*2 + status.pageInt);
+    //putchar(status.page*2 + status.pageInt);
+    putchar(status.flags);
     putchar('\n');
 }
 
