@@ -107,7 +107,9 @@ void analogSetMode(unsigned char mode);
 /** \name Main loop functions
 */
 //@{
-void analogService(void); ///< @brief Module service routine, to be called by the main loop().
+/// @brief Module service routine, to be called by the main loop().
+/// @return channel currently sampled.
+unsigned char analogService(void);
 
 /** @brief Send analog values that changed. *//**
 Call at the maximum rate you want to report analog.   

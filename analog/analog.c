@@ -83,12 +83,12 @@ void analogDeselect(unsigned char chan)
 	bitclr(Selected[chan>>3],chan&7);
 }
 
-void analogService(void)
+unsigned char analogService(void)
 {
 	static unsigned char chan=0, conv=0;
 	int v;
 	
-	if(ADCON0bits.GO) return;
+	if(ADCON0bits.GO) return chan;
 	
 	if(conv) {
 		v = Value[chan];
@@ -110,6 +110,8 @@ void analogService(void)
 		ADCON0bits.GO = 1;
 		conv = 1;
 	}
+	
+	return chan;
 }
 
 char analogSend()
