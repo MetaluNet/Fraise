@@ -1,10 +1,10 @@
-#N canvas 865 126 372 334 10;
+#N canvas 867 122 402 349 10;
 #X obj 21 39 cnv 15 150 25 empty \$0-stastocan-rcv empty 20 12 0 14
--166441 -1 0;
-#X obj 26 47 tgl 15 1 \$0-on-snd \$0-on-rcv on 0 -6 1 8 -258699 -1
+-241291 -1 0;
+#X obj 26 47 tgl 15 0 \$0-on-snd \$0-on-rcv on 0 -6 1 8 -258699 -1
 -1 1 1;
-#X obj 100 43 cnv 15 70 20 empty \$0-pied_can-rcv pied_inactif 2 12
-1 12 -166441 -1 0;
+#X obj 100 43 cnv 15 70 20 empty \$0-pied_can-rcv pied_actif 2 12 1
+12 -241291 -1 0;
 #X obj 121 167 r \$0-fruitpresent;
 #N canvas 831 243 450 543 rename 0;
 #X obj 76 149 s \$0-2Fr2;
@@ -112,7 +112,7 @@
 #X restore 22 232 pd assign;
 #X obj 46 47 bng 15 250 50 0 \$0-showutils-snd \$0-showutils-rcv utils
 17 7 0 10 -4034 -1 -1;
-#N canvas 90 710 322 115 \$0-utils 0;
+#N canvas 91 736 322 115 \$0-utils 0;
 #X obj 1 1 cnv 15 320 100 empty empty empty 20 12 0 14 -57730 -66577
 0;
 #X obj 179 38 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:10
@@ -142,10 +142,10 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X restore 22 180 pd \$0-utils;
 #N canvas 698 510 473 361 Fr2_interface 0;
 #X obj 25 11 r Fr2;
-#X obj 141 235 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 141 235 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 25 32 route \$1;
-#X obj 24 119 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 24 119 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 141 190 del 100;
 #X obj 141 169 t b f;
@@ -209,7 +209,6 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 6 0 4 0;
 #X connect 6 0 5 0;
 #X restore 22 105 pd status;
-#X text 18 0 usage: Fr2Fruit piedid fruitname fruitid firmware;
 #N canvas 4 258 355 250 tochild 0;
 #X obj 79 197 s \$0-2Fr2;
 #X text 25 10 data to child;
@@ -555,6 +554,14 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 10 0 3 0;
 #X restore 75 280 pd progbootloader;
 #X obj 26 19 inlet on;
-#X connect 3 0 13 0;
-#X connect 18 0 1 0;
+#X text 18 0 usage: Fr2Fruit piedid fruitname fruitid firmware dont_poll
+;
+#X obj 195 28 loadbang;
+#X obj 195 72 == 0;
+#X obj 195 50 f \$5;
+#X connect 3 0 12 0;
+#X connect 17 0 1 0;
+#X connect 19 0 21 0;
+#X connect 20 0 1 0;
+#X connect 21 0 20 0;
 #X coords 0 -1 1 1 152 45 1 20 20;
