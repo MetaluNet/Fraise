@@ -32,7 +32,7 @@ void loop() {
 		if(t >= period){		// if counter overflows :
 			t = 0;				 // clear counter
 			t2 = t2 + 1;			 // increment aux counter 
-			printf("Cs Hello ! t2=%d K1=%d\n", t2, digitalRead(K1));// print Hello + aux counter value
+			printf("CHello! t2= %d K1= %d\n", t2, digitalRead(K1));// print Hello + aux counter value
 		}
 	}
 }
