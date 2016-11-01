@@ -1,0 +1,16 @@
+#N canvas 293 112 750 380 10;
+#X obj 109 114 uname;
+#X msg 109 77 bang;
+#X obj 106 175 unpack symbol symbol symbol symbol symbol;
+#X symbolatom 389 203 0 0 0 0 - - -;
+#X symbolatom 107 319 0 0 0 0 - - -;
+#X symbolatom 176 296 0 0 0 0 - - -;
+#X symbolatom 247 275 0 0 0 0 - - -;
+#X symbolatom 316 229 0 0 0 0 - - -;
+#X connect 0 0 2 0;
+#X connect 1 0 0 0;
+#X connect 2 0 4 0;
+#X connect 2 1 5 0;
+#X connect 2 2 6 0;
+#X connect 2 3 7 0;
+#X connect 2 4 3 0;
