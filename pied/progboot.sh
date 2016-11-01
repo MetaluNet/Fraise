@@ -2,9 +2,6 @@
 
 # $1 = directory to make
 # $2 = pdsend port
-# $3 = OS (linux/windows/macos)
-
-export FRAISEOS=$3
 
 (
 	FRAISEH=`dirname $0`/../
