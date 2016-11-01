@@ -379,7 +379,7 @@
 #X obj 610 339 symbol;
 #X symbolatom 610 358 10 0 0 0 - - -, f 10;
 #X obj 610 380 s \$0-make-chip;
-#N canvas 737 87 476 559 make_cflags 1;
+#N canvas 737 87 476 559 make_cflags 0;
 #X obj 58 15 inlet;
 #X obj 58 41 t b b;
 #X obj 85 167 list append;
@@ -391,7 +391,7 @@
 #X obj 85 64 l -I. -mpic16 --vc --denable-peeps --optimize-cmp --optimize-df
 --obanksel=2 --opt-code-speed --fomit-frame-pointer --use-non-free
 --std-sdcc99;
-#X obj 85 119 list append -DSDCC;
+#X obj 105 122 list append -DSDCC;
 #X obj 85 447 s \$0-make-cflags;
 #X obj 58 510 outlet;
 #X msg 163 296 symbol -I"\$1";
@@ -415,8 +415,7 @@
 #X connect 4 0 15 0;
 #X connect 5 0 13 0;
 #X connect 7 0 6 0;
-#X connect 8 0 9 0;
-#X connect 9 0 2 0;
+#X connect 8 0 2 0;
 #X connect 12 0 5 1;
 #X connect 13 0 14 0;
 #X connect 14 0 10 0;

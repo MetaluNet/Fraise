@@ -118,9 +118,6 @@ void main() {
 
 //--------------------- Interrupts : -------------------------------
 
-#ifndef SDCC
-#pragma interrupt high_ISR
-#endif
 void high_ISR(void)
 #ifdef SDCC
  __shadowregs __interrupt 1
@@ -145,9 +142,6 @@ void high_ISR(void)
 
 
 
-#ifndef SDCC
-#pragma interruptlow low_ISR
-#endif
 void low_ISR(void) 
 #ifdef SDCC
  __interrupt 2
