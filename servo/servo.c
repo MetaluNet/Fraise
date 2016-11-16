@@ -27,10 +27,10 @@
 
 #include <servo.h>
 
-unsigned char *NextPort,*Port[8];
-unsigned char NextMask,Mask[8];
-unsigned int Val[8];
-unsigned char Count=0;
+static unsigned char *NextPort,*Port[8];
+static unsigned char NextMask,Mask[8];
+static unsigned int Val[8];
+static unsigned char Count=0;
 
 t_delay servoDelay;
 

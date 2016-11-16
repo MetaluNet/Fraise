@@ -26,15 +26,15 @@
 
 #include <dimmer.h>
 
-unsigned int Val[8];            // channels values
+static unsigned int Val[8];            // channels values
 
 // following values are duplicated for page swaping
-unsigned char first[2];        // first channel to go (128 if none)
-unsigned int firstTime[2];      // time of the first channel  
-unsigned char follower[16];     // channel following each channel (8 when last)
-unsigned int followerTime[16];  // values of the sorted ports
+static unsigned char first[2];        // first channel to go (128 if none)
+static unsigned int firstTime[2];      // time of the first channel  
+static unsigned char follower[16];     // channel following each channel (8 when last)
+static unsigned int followerTime[16];  // values of the sorted ports
 
-unsigned char sorted[8];
+static unsigned char sorted[8];
 
 union{
 	unsigned char flags;
