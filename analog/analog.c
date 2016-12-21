@@ -37,6 +37,7 @@ static int Dist[ANALOG_MAX_CHANNELS]; // distance of oldValue from inValue
 static unsigned char Scaling=0; // 1 when scaling
 static unsigned char Selected[CHANNELS_GROUPS];
 static unsigned char HWChan[ANALOG_MAX_CHANNELS];
+static unsigned char Pins[ANALOG_MAX_CHANNELS];
 static int Threshold=ANALOG_THRESHOLD;
 static char Mode = AMODE_NUM;
 
@@ -62,6 +63,7 @@ void analogInit()
 		oldValue[i]=0;
 		Min[i]=0;
 		Max[i]=0x7FFF;
+		Pins[i]=255;
 	}
 	
 	ADCON2=0b10101111; //right justified, 12 AD, RC
@@ -72,10 +74,25 @@ void analogInit()
 
 }
 
+void analogInitTouch(){
+	CTMUCONH = 0x00;
+	CTMUCONL = 0x90;
+	CTMUICON = 0x03;			//55uA
+	CTMUCONHbits.CTMUEN = 1;	//Enable CTMU
+}
+
 void analogSelectAdc(unsigned char chan,unsigned char hwchan )
 {
 	bitset(Selected[chan>>3],chan&7);
 	HWChan[chan]=hwchan;
+	Pins[chan]=255;
+}
+
+void analogSelectAdcTouch(unsigned char chan,unsigned char hwchan, unsigned char *port, unsigned char bit)
+{
+	bitset(Selected[chan>>3],chan&7);
+	HWChan[chan]=hwchan;
+	Pins[chan]=(((unsigned int)(port-&PORTA)&7)<<4) + (bit&7);
 }
 
 void analogDeselect(unsigned char chan)
@@ -87,12 +104,18 @@ unsigned char analogService(void)
 {
 	static unsigned char chan=0, conv=0;
 	int v;
+	unsigned char pin;
 	
 	if(ADCON0bits.GO) return chan;
 	
 	if(conv) {
 		v = Value[chan];
 // v = oldv-oldv/N+ADres = ((ADres*N)+oldv*(N-1))/N : v = N*lowpass[N](ADres) N=2^ANALOG_FILTER
+		pin = Pins[chan];
+		if(pin != 255) {
+			bitclr(*(&TRISA+(pin>>4)),pin&7);
+			bitclr(*(&LATA+(pin>>4)),pin&7);
+		}
 		Value[chan] = v - (v>>ANALOG_FILTER) + ADRESL+(ADRESH<<8); 
 		if(Scaling == 1) {
 			v = Value[chan];
@@ -107,6 +130,24 @@ unsigned char analogService(void)
 	
 	if(isSelected(chan))	{
 		ADCON0=(HWChan[chan] << 2) + 1;
+		pin = Pins[chan];
+		if(pin != 255) {
+			bitset(*(&TRISA+(pin>>4)),pin&7);// set channel to digital input
+			bitset(*(__data unsigned char*)((int)&ANSELA + (pin>>4)),pin&7);// set channel to analog input
+			CTMUCONHbits.IDISSEN = 1;		// Drain any charge on the A/D circuit
+			Nop(); Nop(); 
+			CTMUCONHbits.IDISSEN =  0;		// Stop discharge of A/D circuit
+			CTMUCONLbits.EDG2STAT = 0;		// Make sure edge2 is 0
+			__critical{
+				CTMUCONLbits.EDG1STAT = 1;	// Set edge1 - Start Charge
+				Nop(); Nop(); Nop(); Nop();
+				Nop(); Nop(); Nop(); Nop();
+				Nop(); Nop(); Nop(); Nop();
+				Nop(); Nop(); Nop(); Nop();
+				Nop(); Nop(); Nop(); Nop();	
+				CTMUCONLbits.EDG1STAT = 0;	//Clear edge1 - Stop Charge
+			}			
+		}
 		ADCON0bits.GO = 1;
 		conv = 1;
 	}

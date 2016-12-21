@@ -1,4 +1,4 @@
-#N canvas 551 123 562 579 10;
+#N canvas 552 121 562 579 10;
 #X declare -path Fraise -stdpath Fraise;
 #X obj 22 237 analog/parse;
 #X obj 22 262 route 0 1 2 3;
@@ -30,6 +30,9 @@
 K1 to drive the led on., f 30;
 #X obj 22 474 > 500;
 #X obj 21 16 declare -path Fraise -stdpath Fraise;
+#X text 135 292 K5 is programmed for capacitive touch measurement \;
+connect a small isolated conductive surface \, and you should see the
+value decreasing slightly when the surface is touched.;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
 #X connect 1 1 3 0;

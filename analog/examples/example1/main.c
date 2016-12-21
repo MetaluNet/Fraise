@@ -20,10 +20,12 @@ void setup(void) {
 
 //----------- Analog setup ----------------
 	analogInit();		// init analog module
+	analogInitTouch();	// enable capacitive touch (for K5)
+	
 	analogSelect(0,K1);	// assign connector K1 to analog channel 0
 	analogSelect(1,K2);
 	analogSelect(2,K3);
-	analogSelect(3,K5);
+	analogSelectTouch(3,K5); // assign connector K5 to analog channel 3, but configure it for capacitive touch measurement.
 }
 
 void loop() {

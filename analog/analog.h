@@ -84,6 +84,8 @@ If channel has been set (see analogSet() ), wait the measurement value has cross
 //@}
 
 void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardware channel to an analog channel
+void analogSelectAdcTouch(unsigned char chan,unsigned char hwchan, unsigned char *port, unsigned char bit); // attach a hardware channel to an touch channel
+#define analogSelectTouch_(num,adchan, port, bit) do { analogSelectAdcTouch(num, adchan, &PORT##port, bit); } while(0)
 
 /** \name Initialization
 */
@@ -91,13 +93,21 @@ void analogSelectAdc(unsigned char chan,unsigned char hwchan); // attach a hardw
 /** @brief Init the module in setup() */
 void analogInit();
 
+/** @brief Enable capacitive touch function in setup() */
+void analogInitTouch();
 
-/** @brief Select a pin for an analog channel. 
-	Assign the pin to the analog channel.
-    @param num Number of the channel (first channel = 0)
+/// @brief Select a pin for an analog channel. 
+/** @param num Number of the channel (first channel = 0)
     @param conn Symbol of the pin (example : K1 for connector 1)	
 */
 #define analogSelect(num,conn) do { pinModeAnalogIn(conn); CALL_FUN2(analogSelectAdc,num,KAN(conn)); } while(0)
+
+
+/// @brief Select a pin for a capacitive touch channel and prepare it for capacitive measurement.
+/**	@param num Number of the channel (first channel = 0)
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
+#define analogSelectTouch(num,conn) do { CALL_FUN4(analogSelectTouch_,num, KAN(conn), KPORT(conn), KBIT(conn)); } while(0)
 
 /// @brief Configure the way analog values are sent (use Output mode switchs).
 void analogSetMode(unsigned char mode); 
