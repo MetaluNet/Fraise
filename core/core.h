@@ -72,7 +72,7 @@ unsigned char eeReadByte(unsigned char address);
 #define CALL_FUN(x,a) x(a)
 #define CALL_FUN2(x,a,b) x(a,b)
 #define CALL_FUN3(x,a,b,c) x(a,b,c)
-#define CALL_FUN4(x,a,c,d) x(a,b,c,d)
+#define CALL_FUN4(x,a,b,c,d) x(a,b,c,d)
 //#define CALL_FUNX(x,args...) x(args)
 
 // connector macros :
