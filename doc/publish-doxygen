@@ -6,7 +6,7 @@
 REPO_PATH=https://github.com/MetaluNet/Fraise-doc.git
 HTML_PATH=html
 COMMIT_USER="Documentation Builder"
-COMMIT_EMAIL="antoine_@_metalu_._net"
+COMMIT_EMAIL="_antoine_@metalu.net"
 CHANGESET=$(git rev-parse --verify HEAD)
 
 # Get a clean version of the HTML documentation repo.
