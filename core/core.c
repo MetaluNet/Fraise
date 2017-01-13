@@ -119,9 +119,9 @@ void main() {
 //--------------------- Interrupts : -------------------------------
 
 void high_ISR(void)
-#ifdef SDCC
+//#ifdef SDCC
  __shadowregs __interrupt 1
-#endif
+//#endif
 {
 	Now.word1= TMR0U;
 	LOWER_LSB(Now)=TMR0L;
@@ -143,9 +143,9 @@ void high_ISR(void)
 
 
 void low_ISR(void) 
-#ifdef SDCC
+//#ifdef SDCC
  __interrupt 2
-#endif
+//#endif
 {	
 	fraiseISR();
 	
