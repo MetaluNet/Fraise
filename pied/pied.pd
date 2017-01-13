@@ -1,4 +1,4 @@
-#N canvas 61 385 396 342 10;
+#N canvas 385 506 396 342 10;
 #X declare -stdpath moonlib;
 #X declare -stdpath hcs;
 #X declare -stdpath ggee;
@@ -10,14 +10,14 @@
 #X declare -stdpath zexy;
 #X declare -lib ../extra/zexy -lib zexy;
 #X obj 21 51 cnv 10 150 30 empty \$0-stastocan-rcv empty 20 12 0 14
--166441 -1 0;
-#X obj 20 51 tgl 15 0 \$0-on-snd \$0-on-rcv off 3 7 1 8 -166441 -166441
--66577 0 1;
+-241291 -1 0;
+#X obj 20 51 tgl 15 0 \$0-on-snd \$0-on-rcv on 3 7 1 8 -258699 -258699
+-262144 1 1;
 #X obj 21 30 inlet;
 #X obj 15 238 outlet;
 #X obj 15 193 r \$0-pied;
 #X obj 15 215 route actif;
-#N canvas 441 299 418 403 FromFraise 0;
+#N canvas 442 297 418 403 FromFraise 0;
 #X obj 317 119 print;
 #X obj 317 96 spigot;
 #X obj 361 98 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
@@ -295,12 +295,12 @@
 #X connect 6 0 7 0;
 #X connect 7 0 5 0;
 #X restore 15 148 pd SetID;
-#X obj 21 67 cnv 13 70 13 empty \$0-piedIDcan piedID:-1 2 7 1 12 -204786
+#X obj 21 67 cnv 13 70 13 empty \$0-piedIDcan piedID:1 2 7 1 12 -204786
 -66577 0;
-#N canvas 750 144 652 345 comport 0;
+#N canvas 751 142 652 345 comport 0;
 #X msg 155 160 close;
 #X obj 155 80 sel 0 1;
-#X obj 155 45 tgl 30 0 empty empty empty 17 7 0 10 -4034 -1 -1 0 1
+#X obj 155 45 tgl 30 0 empty empty empty 17 7 0 10 -4034 -1 -1 1 1
 ;
 #X obj 360 101 list prepend print;
 #X obj 360 123 list trim;
@@ -314,7 +314,7 @@
 #X obj 84 83 metro 500;
 #X obj 194 232 route open;
 #X msg 84 104 info;
-#X obj 177 256 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 177 256 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 84 37 loadbang;
 #X obj 106 59 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
@@ -405,7 +405,7 @@
 1;
 #X obj 155 136 t b b;
 #X msg 262 232 0;
-#X obj 277 296 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 277 296 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 155 209 comport;
 #X obj 155 18 r \$0-comport-on-snd;
@@ -449,9 +449,9 @@
 #X connect 34 0 3 0;
 #X connect 34 0 26 0;
 #X restore 15 107 pd comport;
-#X obj 36 52 cnv 15 135 12 empty \$0-piedvercan firmware_version: 2
-7 1 10 -262130 -66577 0;
-#N canvas 521 616 186 256 \$0-utils 0;
+#X obj 36 52 cnv 15 135 12 empty \$0-piedvercan firmware_version:2.1.3
+2 7 1 10 -262130 -66577 0;
+#N canvas 523 616 186 256 \$0-utils 0;
 #X obj 2 -1 cnv 15 170 250 empty empty empty 20 12 0 14 -57730 -66577
 0;
 #X obj 10 7 bng 20 250 50 0 \$0-listdevices-snd \$0-listdevices-rcv
@@ -587,9 +587,9 @@ list_serial_devices 22 10 0 12 -262144 -1 -262144;
 #X restore 15 168 pd UI;
 #X obj 143 238 netreceive \$2;
 #X obj 43 85 nbx 5 14 -1e+37 1e+37 0 0 empty \$0-outrate out -18 6
-0 8 -262144 -1 -1 0 256;
+0 8 -262144 -1 -1 60007 256;
 #X obj 114 85 nbx 5 14 -1e+37 1e+37 0 0 empty \$0-inrate in -18 6 0
-8 -262144 -1 -1 0 256;
+8 -262144 -1 -1 54970 256;
 #N canvas 154 360 495 183 interprete 0;
 #X obj 68 21 inlet;
 #X obj 68 124 s \$0-make-done;
@@ -1296,7 +1296,7 @@ list_serial_devices 22 10 0 12 -262144 -1 -262144;
 #X connect 16 0 17 0;
 #X restore 142 189 pd Bootloader/Compiler;
 #X text 2 9 usage: Fr2Pied num_serial_device unique_network_port;
-#N canvas 63 217 999 356 autoReconnect 0;
+#N canvas 64 215 999 356 autoReconnect 0;
 #X obj 128 43 r \$0-on-snd;
 #X obj 128 279 s \$0-comport-on-snd;
 #X obj 493 286 s \$0-pied-rcv;
@@ -1329,7 +1329,7 @@ list_serial_devices 22 10 0 12 -262144 -1 -262144;
 #X obj 894 312 s \$0-Fr2;
 #X obj 658 63 r \$0-pied;
 #X obj 658 85 route actif;
-#X obj 658 109 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 658 109 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 658 129 metro 1000;
 #X obj 744 171 del 800;
@@ -1452,6 +1452,32 @@ if watchdog fires., f 41;
 #X obj 86 142 declare -stdpath zexy;
 #X obj 242 142 declare -lib ../extra/zexy -lib zexy;
 #X restore 18 289 pd DECLARE-LIBS;
+#N canvas 5 75 450 300 testBitRate 1;
+#X obj 157 184 s \$0-pied-rcv;
+#X msg 157 159 #ETESTSTRING;
+#X obj 157 31 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 157 67 metro 10;
+#X msg 221 26 1;
+#X msg 343 26 10;
+#X obj 157 129 until;
+#X obj 157 107 f 10;
+#X msg 249 27 2;
+#X msg 313 26 5;
+#X msg 282 25 4;
+#X msg 302 73 3;
+#X connect 1 0 0 0;
+#X connect 2 0 3 0;
+#X connect 3 0 7 0;
+#X connect 4 0 3 1;
+#X connect 5 0 3 1;
+#X connect 6 0 1 0;
+#X connect 7 0 6 0;
+#X connect 8 0 3 1;
+#X connect 9 0 3 1;
+#X connect 10 0 3 1;
+#X connect 11 0 3 1;
+#X restore 287 102 pd testBitRate;
 #X connect 2 0 1 0;
 #X connect 4 0 5 0;
 #X connect 5 0 3 0;
