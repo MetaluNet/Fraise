@@ -1,0 +1,7 @@
+#N canvas 989 173 360 211 10;
+#X declare -stdpath Fraise;
+#X obj 25 25 declare -stdpath Fraise;
+#X obj 25 142 net/server 47181;
+#X obj 25 49 pied/pied 0 112233;
+#X text 134 139 net/server port(tcp);
+#X coords 0 0 1 1 50 50 0;

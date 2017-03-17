@@ -1,0 +1,16 @@
+#N canvas 217 350 450 300 10;
+#X declare -stdpath Fraise;
+#X obj 33 19 declare -stdpath Fraise;
+#X obj 33 97 fruit/fruit 1 fruit1 10;
+#X obj 35 171 fruit/receive fruit1;
+#X obj 35 203 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 33 50 net/client localhost 47181;
+#X obj 38 252 fruit/send2 fruit1;
+#X obj 143 206 tgl 15 0 empty empty empty 17 7 0 10 -4034 -1 -1 0 1
+;
+#X msg 143 226 L\$1;
+#X text 240 48 net/client host port(tcp);
+#X connect 2 0 3 0;
+#X connect 6 0 7 0;
+#X connect 7 0 5 1;
