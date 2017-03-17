@@ -117,15 +117,15 @@ void i2cm_init(unsigned char mode, unsigned char slew, unsigned char addr_brd)
   SSPxSTAT |= slew;
 
 #if I2CMASTER_PORT==1
-  SetPinDigiIn(I2C1SDA);
-  SetPinDigiIn(I2C1SCL);  
-  SetPinAnsel(I2C1SDA,0);
-  SetPinAnsel(I2C1SCL,0);
+  pinModeDigitalIn(I2C1SDA);
+  pinModeDigitalIn(I2C1SCL);  
+//  SetPinAnsel(I2C1SDA,0);
+//  SetPinAnsel(I2C1SCL,0);
 #else
-  SetPinDigiIn(I2C2SDA);
-  SetPinDigiIn(I2C2SCL);
-  SetPinAnsel(I2C2SDA,0);
-  SetPinAnsel(I2C2SCL,0);
+  pinModeDigitalIn(I2C2SDA);
+  pinModeDigitalIn(I2C2SCL);
+//  SetPinAnsel(I2C2SDA,0);
+//  SetPinAnsel(I2C2SCL,0);
 #endif
 
   SSPxADD = addr_brd;
