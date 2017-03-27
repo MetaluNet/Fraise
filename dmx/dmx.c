@@ -89,66 +89,69 @@ unsigned char DMXRegisters[DMX_NBCHAN];
 void Set250kB(void)
 {
 //baud rate : br=FOSC/[4 (n+1)] : n=FOSC/(4*br)-1 : br=250kHz, n=FOSC/1000000 - 1
-#define BRGHL (FOSC/1000000 - 1)
-	SPBRGHx=BRGHL/256;
-	SPBRGx=BRGHL%256;
+#define BRGHL (FOSC / 1000000 - 1)
+	SPBRGHx = BRGHL / 256;
+	SPBRGx = BRGHL % 256;
 }
 
 void Set96kB(void)
 {
 //baud rate : br=FOSC/[4 (n+1)] : n=FOSC/(4*br)-1 : br=96kHz, n=FOSC/384000 - 1
 #define BRGHL96 (FOSC/384000 - 1)
-	SPBRGHx=BRGHL96/256;
-	SPBRGx=BRGHL96%256;
+	SPBRGHx = BRGHL96 / 256;
+	SPBRGx = BRGHL96 % 256;
 }
 
 void DMXInit(void)
 {
 	int i;
 	
-	for(i=0;i<DMX_NBCHAN;i++) DMXRegisters[i]=0; //clear all channels
+	for(i = 0; i < DMX_NBCHAN; i++) DMXRegisters[i] = 0; //clear all channels
 	
-	/*DMX_UART_PIN=1;
-	DMX_UART_TRIS=0;*/
 	digitalSet(DMX_UART_PIN);
 	pinModeDigitalOut(DMX_UART_PIN);
 
-	BAUDCONxbits.BRG16=1;
+	BAUDCONxbits.BRG16 = 1;
 
-	TXSTAxbits.TXEN=1;
-	TXSTAxbits.BRGH=1;
-	TXSTAxbits.TX9=1;
-	TXSTAxbits.TX9D=1;
+	TXSTAxbits.TXEN = 1;
+	TXSTAxbits.BRGH = 1;
+	TXSTAxbits.TX9 = 1;
+	TXSTAxbits.TX9D = 1;
 
-	RCSTAxbits.SPEN=1;
+	RCSTAxbits.SPEN = 1;
 }
 
 void DMXSet(unsigned int channel, unsigned char value)
 {
-	if(channel==0) return;
-	DMXRegisters[channel]=value;
+	if(channel == 0) return;
+	DMXRegisters[channel] = value;
 }
 
 void DMXService()
 {
-	static int channel=-1;
+	static int channel = -3;
+	static int MABstartTime;
 	
 	if(!TXSTAxbits.TRMT) return;
 	if(!TXxIF) return;
 	
-	if(channel==-1) {
-		Set96kB();
-		TXREGx=0;
-		channel=0;
-	} else if(channel==0) {
+	if(channel == -3) { // BREAK
+		Set96kB(); // 1 byte = 10 bits = 104 us
+		TXREGx = 0;
+		channel = -2;
+	} else if(channel == -2) { // MARK AFTER BREAK start
+		MABstartTime = time();
+		channel = -1;
+	} else if(channel == -1) { // MARK AFTER BREAK end
+		if(elapsed(MABstartTime) > microToTime(8)) // MAB = 8 microseconds minimum
+			channel = 0;
+	} else if(channel == 0) {
 		Set250kB();
-		TXREGx=0;
-		channel=1;
+		TXREGx = 0;
+		channel = 1;
 	} else {
-		TXREGx=DMXRegisters[channel++];
-		if(channel==DMX_NBCHAN) channel=-1;
+		TXREGx = DMXRegisters[channel++];
+		if(channel == DMX_NBCHAN) channel = -3;
 	}
 }
-
-
 

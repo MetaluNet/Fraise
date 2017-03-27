@@ -1,21 +1,17 @@
-#N canvas 72 251 654 307 10;
-#X declare -stdpath moonlib;
-#X declare -stdpath moonlib;
-#X declare -stdpath hcs;
-#X declare -stdpath ggee;
-#X declare -stdpath zexy;
-#X declare -lib zexy;
+#N canvas 73 249 654 307 10;
+#X declare -stdpath Fraise;
 #X obj 19 141 fruit/fruit 1 fruit1 10 example1;
 #X obj 292 218 fruit/send2 fruit1;
 #X obj 21 38 pied/pied 0 41424;
 #X floatatom 292 128 8 0 255 0 - - -, f 8;
 #X obj 295 98 hsl 128 15 0 255 0 0 empty empty value -2 -8 0 10 -262144
--1 -1 5600 1;
+-1 -1 0 1;
 #X text 209 20 DMX master example for Versa1.0;
 #X text 206 40 Send DMX frames to the auxiliary serial port.;
 #X floatatom 357 128 8 1 255 1 channel - -, f 8;
 #X msg 292 188 c 30 i \$2 c \$1;
 #X obj 292 157 pack f 1;
+#X obj 21 11 declare -stdpath Fraise;
 #X connect 3 0 9 0;
 #X connect 4 0 3 0;
 #X connect 7 0 9 1;
