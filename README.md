@@ -14,7 +14,7 @@
 
 Fraise boards are currently powered by Microchip's PIC18F26K22 8-bit microcontrollers, which have similar capabilities to Arduino's ATmega328.  
 
-Compilation of the firmware is done with [SDCC](http://sdcc.sourceforge.net) and [gputils](http://gputils.sourceforge.net); Fraise ships with the compiler's binaries for Linux-x86, Windows and OSX (Linux-arm to come), and automates from Pd all the compilation and flashing processes.
+Compilation of the firmware is done with [SDCC](http://sdcc.sourceforge.net) and [gputils](http://gputils.sourceforge.net); Fraise ships with the compiler's binaries for Linux-x86, Linux-arm, Windows and OSX, and automates from Pd all the compilation and flashing processes.
 
 ![fruit-utils](http://metalu.net/local/cache-vignettes/L321xH101/fruit_utils-30b1e.png)
 
