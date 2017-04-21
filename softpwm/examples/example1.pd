@@ -1,0 +1,36 @@
+#N canvas 756 173 529 460 10;
+#X declare -path Fraise -stdpath Fraise;
+#X obj 22 207 fruit/receive fruit1;
+#X obj 25 421 fruit/send2 fruit1;
+#X obj 21 38 pied/pied 0 41424;
+#X obj 21 16 declare -path Fraise -stdpath Fraise;
+#X obj 19 141 fruit/fruit 1 fruit1 10 ex1;
+#X msg 25 398 c 50 c \$1 i \$2;
+#X obj 28 326 hsl 128 15 0 1023 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 4371 1;
+#X floatatom 25 350 5 0 0 0 - - -, f 5;
+#X msg 25 291 1;
+#X msg 56 291 1022;
+#X obj 98 248 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 8900 1;
+#X obj 95 268 pow 3;
+#X obj 95 290 * 1023;
+#X msg 25 370 0 \$1 \, 1 \$1;
+#X text 135 268 'log' scale;
+#X text 99 370 set PWM for both LED and K1;
+#X text 260 39 software PWM example for Versa1.0;
+#X text 260 71 channels are configured in config.h:;
+#X text 277 89 channel 0: LED;
+#X text 277 102 channel 1: K1;
+#X text 277 116 channel 2: K2;
+#X text 277 130 channel 3: K3;
+#X text 277 144 channel 4: K4;
+#X connect 5 0 1 0;
+#X connect 6 0 7 0;
+#X connect 7 0 13 0;
+#X connect 8 0 6 0;
+#X connect 9 0 6 0;
+#X connect 10 0 11 0;
+#X connect 11 0 12 0;
+#X connect 12 0 6 0;
+#X connect 13 0 5 0;
