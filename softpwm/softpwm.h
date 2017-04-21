@@ -32,7 +32,10 @@
  *  Implements 8channels(max) 10bits 100Hz(max) software PWM.
   
  *  Example :
- * \include softpwm/examples/example1/main.c
+ *   main.c
+ * \include softpwm/examples/ex1/main.c
+ *   config.h
+ * \include softpwm/examples/ex1/config.h
  *  @{
  */
 

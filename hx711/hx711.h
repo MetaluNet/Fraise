@@ -69,7 +69,7 @@
 */
 //@{
 /** @brief Init the module in **setup()** 
-    @gainA channel A gain selection : 0=128 1=64
+    @param gainA channel A gain selection : 0=128 1=64
 */
 void hx711Init(unsigned char gainA);
 //@}

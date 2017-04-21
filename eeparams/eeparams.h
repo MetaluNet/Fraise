@@ -40,6 +40,8 @@
  	EEreadMain(); // at boot time restore the value of "i" from EEPROM
  }
  
+ void loop() { fruitService(); }
+ 
  void fraiseReceive() // if we received a "raw bytes" message
  {
  	unsigned char c = fraiseGetChar(); // get the first byte of the message

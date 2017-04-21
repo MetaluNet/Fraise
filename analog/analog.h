@@ -69,8 +69,8 @@
 
 //@}
 
-/** \name Output mode switchs
- The different mode switchs can be OR-ed together and passed to analogSetMode().
+/** \name Output mode switchs  
+ The different mode switchs can be OR-ed together and passed to analogSetMode().  <br>
  Default is AMODE_NUM.
 */
 //@{
@@ -79,7 +79,7 @@
 /** @brief Send values in a raw (numerical) message, parsed by analog/parse.pd patch. Otherwise send text messages : "A channel value".*/
 #define AMODE_NUM 2
 /** @brief Crossing mode.  
-If channel has been set (see analogSet() ), wait the measurement value has crossed the set value before to continue to send value updates.*/
+If channel value has been set (see analogSet() ), wait for the measurement value to cross the set value before sending value updates.*/
 #define AMODE_CROSS 4
 //@}
 
@@ -109,7 +109,7 @@ void analogInitTouch();
 */
 #define analogSelectTouch(num,conn) do { CALL_FUN4(analogSelectTouch_,num, KAN(conn), KPORT(conn), KBIT(conn)); } while(0)
 
-/// @brief Configure the way analog values are sent (use Output mode switchs).
+/// @brief Configure the way analog values are sent by analogSend() (use Output mode switchs).
 void analogSetMode(unsigned char mode); 
 
 //@}
@@ -122,7 +122,7 @@ void analogSetMode(unsigned char mode);
 unsigned char analogService(void);
 
 /** @brief Send analog values that changed. *//**
-Call at the maximum rate you want to report analog.   
+Call at the maximum rate you want to report analog.   <br>
 The way values are sent depends on the Output mode switchs. See analogSetMode().
 @return number of channels sent (max 4) */
 char analogSend(void); 	
@@ -143,7 +143,7 @@ int analogGet(unsigned char chan);
 int analogGetDistance(unsigned char chan);
 
 /// @brief Start or stop the scaling calibration
-/// @param scaling 1:start 0:stop
+/// @param scaling 1:start 0:stop   <br>
 /// First use analogScaling(1) to start calibration, which will measure the minimum and maximum values for each channel ; then stop calibration with analogScaling(0). 
 void analogScaling(unsigned char scaling); // when scaling, min and max are updated each sample
 

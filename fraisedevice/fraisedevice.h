@@ -47,7 +47,7 @@ void fraiseInit(void);
 /** @{ */
 /** @brief Fraise device service routine. */
 /** Check for input data from Fraise.
- This function calls input functions when the device receives a message from master.
+ This function calls input functions when the device receives a message from master.<br>
  Normal users shouldn't call fraiseService() directly, but use fruitService() instead. */
 void fraiseService(void); // to be called by the main loop.
 /** @} */
