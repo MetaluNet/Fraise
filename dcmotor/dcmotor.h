@@ -94,7 +94,7 @@ extern int dcmotor_v,dcmotor_vabs;
 extern t_dcmotorVars dcmotorVars;
 extern t_dcmotorVolVars dcmotorVolVars;
 
-// I'm really don't know why compiler complains if I use a 1 arg macro for INIT_PWM_...
+// I really don't know why compiler complains if I use a 1 arg macro for INIT_PWM_...
 #define INIT_PWM_(pwm,unused) do{CCP##pwm##CON = 0b00001100;} while(0) /* single PWM active high*/
 #define INIT_PWM(pwm) CALL_FUN2(INIT_PWM_,pwm,0)
 
