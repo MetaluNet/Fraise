@@ -15,6 +15,8 @@
 
 #define K4PORT	A
 #define K4BIT 	4
+#define K4PWM	5
+#define K4SETUP_PWM() do{} while(0)
 
 #define K5PORT	C
 #define K5BIT 	3
@@ -23,6 +25,8 @@
 #define K6PORT	C
 #define K6BIT 	2
 #define K6AN	14
+#define K6PWM	1
+#define K6SETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1A=1;} while(0)
 
 #define K7PORT	C
 #define K7BIT 	4
@@ -36,10 +40,14 @@
 #define K9BIT 	2
 #define K9AN	8
 #define K9INT	2
+#define K9PWM	1
+#define K9SETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1B=1;} while(0)
 
 #define K10PORT	B
 #define K10BIT 	3
 #define K10AN	9
+#define K10PWM	2
+#define K10SETUP_PWM() do{PSTR2CON=0; PSTR2CONbits.STR2A=1;} while(0)
 
 #define K11PORT	B
 #define K11BIT 	6
