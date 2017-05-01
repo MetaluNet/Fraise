@@ -54,13 +54,13 @@ GNU/Linux: ~/.local/lib/pd/extra (since Pd-0.47-1, preferred) or ~/pd-externals 
 
 Mac OS X: ~/Library/Pd 
 
-Windows: %AppData%\Pd (since Pd-0.47)  
-        %AppData%\Pd will be something like C:\Users\myusername\AppData\Roaming\pd  
-        prior to Win7 (e.g. Vista, XP, Win2000) this was synonymous with %UserProfile%\Application Data\Pd (which was used before Pd-0.47) 
+Windows: "%AppData%\Pd" (since Pd-0.47) <br>
+"%AppData%\Pd" will be something like "C:\Users\myusername\AppData\Roaming\pd"<br>
+prior to Win7 (e.g. Vista, XP, Win2000) this was synonymous with "%UserProfile%\Application Data\Pd" (which was used before Pd-0.47) 
 
 
 On Linux, you may need to add your user to the dialout group, 
-to have read/write permissions on the USB device /dev/ttyACM0. Just do :   
+to have read/write permissions on the USB device /dev/ttyACM0. Just do :<br>
 `sudo adduser [your_username] dialout`
 
 then logout (close your session) and re-login.
