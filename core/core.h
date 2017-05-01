@@ -82,6 +82,8 @@ unsigned char eeReadByte(unsigned char address);
 #define KBIT(k)  CALL_FUN2(KPROP, k, BIT)
 #define KAN(k)  CALL_FUN2(KPROP, k, AN)
 #define KINT(k)  CALL_FUN2(KPROP, k, INT)
+#define KPWM(k)  CALL_FUN2(KPROP, k, PWM)
+#define KSETUP_PWM(k)  CALL_FUN2(KPROP, k, SETUP_PWM)
 
 // PIN ROUTINES 
 //----- Digital Read :
@@ -105,13 +107,43 @@ unsigned char eeReadByte(unsigned char address);
 #define PIN_MODE_DIGITAL_OUT_(connport,connbit) do{\
 	TRIS##connport##bits.TRIS##connport##connbit=0;\
  } while(0)
+//----- PWM ("analog" output):
+#define PIN_MODE_ANALOG_OUT_(connport,connbit,pwm,setup_pwm) do{\
+	TRIS##connport##bits.TRIS##connport##connbit=0;\
+	setup_pwm(); /* pin special PWM setup, e.g select right steering output if needed */\
+	CCP##pwm##CON = 0b00001100; /* single PWM active high*/\
+ } while(0)
+
+#define ANALOG_WRITE_(pwm,val) do{ CCP##pwm##CONbits.DC##pwm##B1 = val&2; CCP##pwm##CONbits.DC##pwm##B0 = val&1; CCPR##pwm##L=val>>2; } while(0)
+
+
 
 /** \name Pin routines */
 //@{
 
+/** @brief Set pin mode to Digital Input.
+    @param conn Symbol of the pin (example : K1 for connector 1)	
+*/
+#define pinModeDigitalIn(conn) CALL_FUN2(PIN_MODE_DIGITAL_IN_,KPORT(conn),KBIT(conn))
+
+/** @brief Set pin mode to Analog Input.
+    @param conn Symbol of the pin (example: K1 for connector 1)	
+*/
+#define pinModeAnalogIn(conn) CALL_FUN2(PIN_MODE_ANALOGIN_,KPORT(conn),KBIT(conn))
+
+/** @brief Set pin mode to Digital Output. 
+    @param conn Symbol of the pin (example: K1 for connector 1)	
+*/
+#define pinModeDigitalOut(conn) CALL_FUN2(PIN_MODE_DIGITAL_OUT_,KPORT(conn),KBIT(conn))
+
+/** @brief Set pin mode to Analog Output (PWM). 
+    @param conn Symbol of the pin (example: K1 for connector 1)	
+*/
+#define pinModeAnalogOut(conn) CALL_FUN4(PIN_MODE_ANALOG_OUT_, KPORT(conn), KBIT(conn), KPWM(conn), KSETUP_PWM(conn))
+
 /** @brief Digital read from pin. 
 	Get the voltage (0/1) seen from the pin.
-    @param conn Symbol of the pin (example : K1 for connector 1)
+    @param conn Symbol of the pin (example: K1 for connector 1)
     @return 0 if voltage was LOW	
     @return 1 if voltage was HIGH	
 */
@@ -119,37 +151,29 @@ unsigned char eeReadByte(unsigned char address);
 
 /** @brief Digital write to pin. 
 	Set the pin output voltage to LOW or HIGH.
-    @param conn Symbol of the pin (example : K1 for connector 1)	
+    @param conn Symbol of the pin (example: K1 for connector 1)	
     @param val 0 or 1
 */
 #define digitalWrite(conn,val) CALL_FUN3(DIGITALWRITE_,KPORT(conn),KBIT(conn),val)
 
 /** @brief Digital clear pin. 
 	Clear the pin output voltage.
-    @param conn Symbol of the pin (example : K1 for connector 1)	
+    @param conn Symbol of the pin (example: K1 for connector 1)	
 */
 #define digitalClear(conn) CALL_FUN2(DIGITALCLEAR_,KPORT(conn),KBIT(conn))
 
 /** @brief Digital set pin. 
 	Set the pin output voltage ot HIGH.
-    @param conn Symbol of the pin (example : K1 for connector 1)	
+    @param conn Symbol of the pin (example: K1 for connector 1)	
 */
 #define digitalSet(conn) CALL_FUN2(DIGITALSET_,KPORT(conn),KBIT(conn))
 
-/** @brief Set pin to Digital Input. 
-    @param conn Symbol of the pin (example : K1 for connector 1)	
+/** @brief 'Analog' write to pin. 
+	Set the pin output voltage (actually PWM ratio).
+    @param conn Symbol of the pin (example: K1 for connector 1)	
+    @param val Value between 0 and 1023
 */
-#define pinModeDigitalIn(conn) CALL_FUN2(PIN_MODE_DIGITAL_IN_,KPORT(conn),KBIT(conn))
-
-/** @brief Set pin to Analog Input. 
-    @param conn Symbol of the pin (example : K1 for connector 1)	
-*/
-#define pinModeAnalogIn(conn) CALL_FUN2(PIN_MODE_ANALOGIN_,KPORT(conn),KBIT(conn))
-
-/** @brief Set pin to Digital Output. 
-    @param conn Symbol of the pin (example : K1 for connector 1)	
-*/
-#define pinModeDigitalOut(conn) CALL_FUN2(PIN_MODE_DIGITAL_OUT_,KPORT(conn),KBIT(conn))
+#define analogWrite(conn,val) CALL_FUN2(ANALOG_WRITE_, KPWM(conn), val)
 
 //@}
 
