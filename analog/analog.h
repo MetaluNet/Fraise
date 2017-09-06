@@ -49,7 +49,11 @@
 #endif
 
 #ifndef ANALOG_FILTER 
-#define ANALOG_FILTER 3 /**< @brief default 3 ; analog values are filtered and multiplied by 1<<ANALOG_FILTER. */
+#define ANALOG_FILTER 3 /**< @brief default 3, maximum 5; analog values are filtered and multiplied by 1<<ANALOG_FILTER. */
+#endif
+
+#if ANALOG_FILTER > 5
+#error ANALOG_FILTER is too big (max 5 allowed)
 #endif
 
 #ifndef ANALOG_THRESHOLD
