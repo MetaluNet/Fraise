@@ -82,10 +82,14 @@
 #define MB1BIT	0
 #define MB1AN	12
 #define MB1INT	0
+#define MB1PWM	4
+#define MB1SETUP_PWM() do{} while(0)
 
 #define MB2PORT	B
 #define MB2BIT	5
 #define MB2AN	13
+#define MB2PWM	3
+#define MB2SETUP_PWM() do{} while(0)
 
 #define MBENPORT B
 #define MBENBIT 1
