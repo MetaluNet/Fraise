@@ -45,16 +45,22 @@
 #define K6PORT	C
 #define K6BIT 	7
 #define K6AN	19
+#define K6PWM	3
+#define K6SETUP_PWM() do{PSTR3CON=0; PSTR3CONbits.STR3B=1;} while(0)
 
 #define K7PORT	B
 #define K7BIT 	0
 #define K7AN	12
 #define K7INT   0
+#define K7PWM	4
+#define K7SETUP_PWM() do{} while(0)
 
 #define K8PORT	B
 #define K8BIT 	1
 #define K8AN	10
 #define K8INT   1
+#define K8PWM	1
+#define K8SETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1C=1;} while(0)
 
 #define K9PORT	B
 #define K9BIT 	2
