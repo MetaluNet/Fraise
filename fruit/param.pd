@@ -1,4 +1,4 @@
-#N canvas 97 410 561 460 10;
+#N canvas 79 403 561 460 10;
 #X msg 142 127 set \$1;
 #X obj 28 15 r \$1-\$2-snd;
 #X obj 142 14 r \$1-\$2n-snd;
@@ -47,6 +47,7 @@
 #X connect 9 0 0 0;
 #X connect 10 0 11 0;
 #X connect 11 0 3 0;
+#X connect 11 0 4 0;
 #X connect 12 0 0 0;
 #X connect 12 0 18 0;
 #X connect 13 0 24 0;
