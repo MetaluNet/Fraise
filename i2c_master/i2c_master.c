@@ -24,7 +24,7 @@
 # MA  02110-1301, USA.
 */
 
-#include <core.h>
+#include <fruit.h>
 #include <i2c_master.h>
 
 #ifndef I2CMASTER_PORT
@@ -49,24 +49,6 @@
 #define SSPxIE 			PIE1bits.SSPIE
 #define SSPxIP 			PIR1bits.SSPIP
 #define BCLxIF 			PIR2bits.BCLIF
-
-/*#define SSPxBUF 		SSP1BUF
-#define SSPxCON1 		SSP1CON1 
-#define SSPxCON1bits 	SSP1CON1bits
-#define SSPxCON2 		SSP1CON2 
-#define SSPxCON2bits 	SSP1CON2bits
-#define SSPxCON3 		SSP1CON3 
-#define SSPxCON3bits 	SSP1CON3bits
-#define SSPxSTAT 		SSP1STAT
-#define SSPxSTATbits 	SSP1STATbits
-#define SSPxMSK 		SSP1MSK
-#define SSPxMSKbits 	SSP1MSKbits
-#define SSPxADD 		SSP1ADD
-#define SSPxADDbits 	SSP1ADDbits
-#define SSPxIF 			PIR1bits.SSP1IF
-#define SSPxIE 			PIE1bits.SSP1IE
-#define SSPxIP 			PIR1bits.SSP1IP
-#define BCLxIF 			PIR2bits.BCL1IF*/
 #else
 #define SSPxBUF 		SSP2BUF
 #define SSPxCON1 		SSP2CON1 
@@ -87,26 +69,6 @@
 #define BCLxIF 			PIR3bits.BCL2IF
 #endif
 
-/*#ifndef SSP1CON1
-#define SSPxBUF 		SSPBUF
-#define SSPxCON1 		SSPCON1 
-#define SSPxCON1bits 	SSPCON1bits
-#define SSPxCON2 		SSPCON2 
-#define SSPxCON2bits 	SSPCON2bits
-#define SSPxCON3 		SSPCON3 
-#define SSPxCON3bits 	SSPCON3bits
-#define SSPxSTAT 		SSPSTAT
-#define SSPxSTATbits 	SSPSTATbits
-#define SSPxMSK 		SSPMSK
-#define SSPxMSKbits 	SSPMSKbits
-#define SSPxADD 		SSPADD
-#define SSPxADDbits 	SSPADDbits
-#define SSPxIF 			PIR1bits.SSPIF
-#define SSPxIE 			PIE1bits.SSPIE
-#define SSPxIP 			PIR1bits.SSPIP
-#define BCLxIF 			PIR2bits.BCLIF
-#endif*/
-
 
 void i2cm_init(unsigned char mode, unsigned char slew, unsigned char addr_brd)
 {
@@ -119,13 +81,9 @@ void i2cm_init(unsigned char mode, unsigned char slew, unsigned char addr_brd)
 #if I2CMASTER_PORT==1
   pinModeDigitalIn(I2C1SDA);
   pinModeDigitalIn(I2C1SCL);  
-//  SetPinAnsel(I2C1SDA,0);
-//  SetPinAnsel(I2C1SCL,0);
 #else
   pinModeDigitalIn(I2C2SDA);
   pinModeDigitalIn(I2C2SCL);
-//  SetPinAnsel(I2C2SDA,0);
-//  SetPinAnsel(I2C2SCL,0);
 #endif
 
   SSPxADD = addr_brd;
@@ -143,6 +101,8 @@ void i2cm_close(void)
 }
 
 /*--------------------------------------*/
+#define MAXLOOP 1000
+#define SERVICE() 
 
 unsigned char i2cm_drdy(void)
 {
@@ -152,14 +112,17 @@ unsigned char i2cm_drdy(void)
 
 void i2cm_idle(void)
 {
-  while((SSPxCON2 & 0x1f) | (SSPxSTATbits.R_W));
+    unsigned int i = MAXLOOP;
+
+    while((--i > 0) && ( (SSPxCON2 & 0x1f) | (SSPxSTATbits.R_W))) SERVICE();
 }
 
 void i2cm_start(void)
 {
+  unsigned int i = MAXLOOP;
   i2cm_idle();
   SSPxCON2bits.SEN = 1;
-  while (SSPxCON2bits.SEN); 
+  while ((--i > 0) && SSPxCON2bits.SEN) SERVICE();
 }
 
 void i2cm_restart(void)
@@ -171,18 +134,20 @@ void i2cm_restart(void)
 
 void i2cm_stop(void)
 {
+  unsigned int i = MAXLOOP;
   i2cm_idle();
   SSPxCON2bits.PEN = 1;
-  while (SSPxCON2bits.PEN);
+  while ((--i > 0) && SSPxCON2bits.PEN) SERVICE();
 }
 
 void i2cm_ack(void)
 {
+  unsigned int i = MAXLOOP;
   i2cm_idle();
   SSPxIF = 0;
   SSPxCON2bits.ACKDT = 0;
   SSPxCON2bits.ACKEN = 1;
-  while (!SSPxIF); 
+  while ((--i > 0) && !SSPxIF) SERVICE(); 
 }
 
 void i2cm_nack(void)
@@ -198,9 +163,10 @@ void i2cm_nack(void)
 
 unsigned char i2cm_readchar(void)
 {
+  unsigned int i = MAXLOOP;
   i2cm_idle();
   SSPxCON2bits.RCEN = 1;
-  while( !i2cm_drdy() );
+  while((--i > 0) &&  !i2cm_drdy()) SERVICE();
   return ( SSPxBUF );
 }
 
