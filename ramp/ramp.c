@@ -118,7 +118,7 @@ void rampCompute(t_ramp *Ramp)
 			}
 			else M.speed+=(long)M.maxDecel+(long)M.maxAccel;//M.maxDecel<<1; //really don't why i have to apply twice decel, to avoid overshoot...
 		}
-		#else	
+		#else
 		if(M.speed<0) ds=-ds;
 
 		if(d>ds) M.speed+=M.maxDecel;
@@ -154,6 +154,7 @@ void rampInput(t_ramp *Ramp)
 			GETPARAM(1, Ramp->maxAccel, i);
 			GETPARAM(2, Ramp->maxDecel, i);
 			GETPARAM(10, Ramp->destPos, i);
+			GETPARAM(11, rampGetPos(Ramp), i);
 		}
 		printf("%d %d\n", c2, i);
 	} else switch(c) {
@@ -161,6 +162,7 @@ void rampInput(t_ramp *Ramp)
 		PARAM_INT(1, Ramp->maxAccel); break;
 		PARAM_INT(2, Ramp->maxDecel); break;
 		PARAM_INT(10, i);rampGoto(Ramp,i);break;
+		PARAM_INT(11, i);rampSetPos(Ramp,i);break;
 	}
 }
 
