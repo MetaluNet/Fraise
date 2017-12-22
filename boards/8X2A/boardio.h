@@ -140,4 +140,11 @@
 #define AUXSERIAL_TX K5
 #define AUXSERIAL_RX K6
 
+/*----------- I2C --------------*/
+#define I2C1SCL K2
+#define I2C1SDA K3
+
+#define I2C2SCL K8
+#define I2C2SDA K9
+
 #endif
