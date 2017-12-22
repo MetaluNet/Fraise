@@ -1,10 +1,10 @@
-#N canvas 140 161 542 405 10;
+#N canvas 773 313 542 405 10;
 #X declare -lib ../extra/getdir;
 #X declare -stdpath ggee;
 #X obj 21 69 cnv 15 150 25 empty \$0-stastocan-rcv empty 20 12 0 14
--166441 -1 0;
-#X obj 100 73 cnv 15 70 20 empty \$0-pied_can-rcv pied_inactif 2 12
-1 12 -166441 -1 0;
+-241291 -1 0;
+#X obj 100 73 cnv 15 70 20 empty \$0-pied_can-rcv pied_actif 2 12 1
+12 -241291 -1 0;
 #X obj 220 309 r \$0-fruitpresent;
 #N canvas 836 233 450 543 rename 0;
 #X obj 112 135 s \$0-2Fr2;
@@ -98,40 +98,40 @@
 #X restore 22 262 pd assign;
 #X obj 46 77 bng 15 250 50 0 \$0-showutils-snd \$0-showutils-rcv utils
 17 7 0 10 -4034 -1 -1;
-#N canvas 94 757 322 115 \$0-utils 0;
+#N canvas 109 746 324 103 \$0-utils 1;
 #X obj 1 1 cnv 15 320 100 empty empty empty 20 12 0 14 -57730 -66577
 0;
 #X obj 179 38 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:10
 -15 20 1 10 -4034 -1 -4034;
-#X obj 179 9 bng 15 250 50 0 \$0-rename \$0-rename-rcv RENAME:fruit1
+#X obj 179 9 bng 15 250 50 0 \$0-rename \$0-rename-rcv RENAME:fer1
 -15 20 1 10 -258113 -1 -258113;
 #X obj 116 82 cnv 10 120 15 \$0-progressbg-snd \$0-progressbg-rcv empty
 30 -10 0 10 -83269 -257985 0;
-#X obj 136 82 cnv 5 100 15 \$0-progressfg-snd \$0-progressfg-rcv empty
-105 8 0 10 -241291 -241291 0;
-#X obj 118 82 bng 15 250 50 0 \$0-program \$0-program-rcv PROGRAM:example1.hex
-0 -8 1 10 -241291 -1 -241291;
+#X obj 136 82 cnv 5 29 15 \$0-progressfg-snd \$0-progressfg-rcv 29%
+105 8 0 10 -24198 -24198 0;
+#X obj 118 82 bng 15 250 50 0 \$0-program \$0-program-rcv PROGRAM:fwAXL.hex
+0 -8 1 10 -24198 -1 -24198;
 #X obj 21 7 bng 15 250 50 0 \$0-progboot empty PROG_BOOTLOADER -15
 20 1 10 -159808 -1 -159808;
 #X obj 4 37 cnv 15 100 60 empty empty empty 20 12 0 14 -99865 -66577
 0;
 #X obj 8 41 bng 15 250 50 0 \$0-make empty MAKE 17 8 1 10 -4032 -1
 -4032;
-#X obj 10 60 hsl 90 15 0 127 0 0 \$0-make-rambg-snd \$0-make-rambg-rcv
+#X obj 11 59 hsl 90 15 0 127 0 0 \$0-make-rambg-snd \$0-make-rambg-rcv
+empty -2 8 0 10 -191407 -191407 -1 4200 1;
+#X obj 11 79 hsl 90 15 0 127 0 0 \$0-make-rombg-snd \$0-make-rombg-rcv
 empty -2 8 0 10 -191407 -191407 -1 0 1;
-#X obj 10 60 hsl 90 15 0 127 0 0 \$0-make-ram-snd \$0-make-ram-rcv
-empty -2 8 0 10 -2816 -2816 -1 0 1;
-#X obj 10 78 hsl 90 15 0 127 0 0 \$0-make-rombg-snd \$0-make-rombg-rcv
-empty -2 8 0 10 -191407 -191407 -1 0 1;
-#X obj 10 78 hsl 90 15 0 127 0 0 \$0-make-rom-snd \$0-make-rom-rcv
-empty -2 8 0 10 -1984 -1984 -1 0 1;
+#X obj 9 60 cnv 1 30 13 \$0-make-ram-snd \$0-make-ram-rcv RAM:1300/3879
+2 8 0 10 -2816 -1 0;
+#X obj 9 80 cnv 1 26 13 \$0-make-rom-snd \$0-make-rom-rcv ROM:18680/63488
+2 8 0 10 -1984 -1 0;
 #X restore 22 210 pd \$0-utils;
 #N canvas 699 508 473 361 Fr2_interface 0;
 #X obj 25 11 r Fr2;
-#X obj 141 235 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 141 235 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 25 32 route \$1;
-#X obj 24 119 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 24 119 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 141 190 del 100;
 #X obj 141 169 t b f;
@@ -207,7 +207,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X connect 11 0 12 0;
 #X connect 12 0 9 0;
 #X restore 22 163 pd tochild;
-#N canvas 411 269 429 489 UI 0;
+#N canvas 401 259 429 489 UI 0;
 #N canvas 62 350 394 241 canvascolor 0;
 #X obj 15 13 inlet;
 #X obj 15 103 s \$0-stastocan-rcv;
@@ -240,7 +240,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X obj 34 97 r \$0-piedactif;
 #X obj 34 143 r \$0-fruitpresent;
 #X obj 35 3 r \$0-showutils-snd;
-#N canvas 447 547 506 316 program 0;
+#N canvas 437 537 506 316 program 0;
 #X obj 43 15 r \$0-Fr2;
 #X obj 43 35 route Boot;
 #X obj 43 93 route prog_progress programmed program_error;
@@ -249,7 +249,7 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X obj 44 206 change;
 #X msg 33 255 label \$1%;
 #X obj 186 57 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 0 1;
+-1 -1 3700 1;
 #X obj 44 140 f;
 #X obj 246 276 s \$0-progressfg-rcv;
 #X msg 246 253 vis_size \$1 15;
@@ -309,18 +309,14 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X obj 79 212 del 500;
 #X msg 49 230 2;
 #X msg 79 232 1;
-#N canvas 418 570 450 300 make 0;
+#N canvas 565 551 450 324 make 0;
 #X obj 74 25 r \$0-Fr2;
 #X obj 74 45 route Boot;
 #X obj 74 71 route \$2;
 #X obj 74 99 route RAM ROM;
 #X obj 121 165 clip 0 100;
-#X obj 121 187 * 0.9;
 #X obj 34 253 s \$0-make-ram-rcv;
-#X msg 121 214 size \$1 15;
 #X obj 299 175 clip 0 100;
-#X obj 299 197 * 0.9;
-#X msg 299 224 size \$1 15;
 #X obj 197 257 s \$0-make-rom-rcv;
 #X msg 13 175 label RAM:\$1/\$2;
 #X msg 122 144 \$3;
@@ -333,32 +329,49 @@ empty -2 8 0 10 -1984 -1984 -1 0 1;
 #X obj 227 25 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 312 18 r \$0-UImeminit;
+#X obj 317 88 hsl 128 15 0 100 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 11800 1;
+#X msg 121 214 vis_size \$1 13;
+#X floatatom 163 254 5 0 0 0 - - -, f 5;
+#X obj 121 187 * 0.93;
+#X msg 299 224 vis_size \$1 13;
+#X obj 299 197 * 0.93;
+#X msg 140 277 size \$1;
+#X msg 139 296 13;
+#X msg 168 297 1;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
 #X connect 2 0 3 0;
-#X connect 3 0 12 0;
-#X connect 3 0 13 0;
-#X connect 3 1 14 0;
-#X connect 3 1 15 0;
-#X connect 4 0 5 0;
-#X connect 5 0 7 0;
-#X connect 7 0 6 0;
-#X connect 8 0 9 0;
-#X connect 9 0 10 0;
-#X connect 10 0 11 0;
-#X connect 12 0 6 0;
+#X connect 3 0 8 0;
+#X connect 3 0 9 0;
+#X connect 3 1 10 0;
+#X connect 3 1 11 0;
+#X connect 4 0 21 0;
+#X connect 6 0 23 0;
+#X connect 8 0 5 0;
+#X connect 9 0 4 0;
+#X connect 10 0 7 0;
+#X connect 11 0 6 0;
+#X connect 12 0 5 0;
+#X connect 12 0 7 0;
+#X connect 13 0 6 0;
 #X connect 13 0 4 0;
-#X connect 14 0 11 0;
-#X connect 15 0 8 0;
-#X connect 16 0 6 0;
-#X connect 16 0 11 0;
-#X connect 17 0 8 0;
-#X connect 17 0 4 0;
-#X connect 18 0 19 0;
-#X connect 19 0 16 0;
-#X connect 19 0 17 0;
-#X connect 20 0 19 0;
+#X connect 14 0 15 0;
+#X connect 15 0 12 0;
+#X connect 15 0 13 0;
+#X connect 16 0 15 0;
+#X connect 17 0 15 0;
+#X connect 18 0 21 0;
+#X connect 18 0 23 0;
+#X connect 19 0 5 0;
 #X connect 21 0 19 0;
+#X connect 21 0 20 0;
+#X connect 22 0 7 0;
+#X connect 23 0 22 0;
+#X connect 24 0 7 0;
+#X connect 24 0 5 0;
+#X connect 25 0 24 0;
+#X connect 26 0 24 0;
 #X restore 238 280 pd make;
 #X obj 275 18 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
