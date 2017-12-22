@@ -42,6 +42,9 @@
 #elif defined(__SDCC_r3ka)
 #include <asm/r3ka/features.h>
 
+#elif defined(__SDCC_tlcs90)
+#include <asm/tlcs90/features.h>
+
 #elif defined(__SDCC_gbz80)
 #include <asm/gbz80/features.h>
 
@@ -50,6 +53,9 @@
 
 #elif defined(__SDCC_ds390)
 #include <asm/ds390/features.h>
+
+#elif defined(__SDCC_stm8)
+#include <asm/stm8/features.h>
 
 #else
 /* PENDING */

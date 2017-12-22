@@ -13,7 +13,7 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
    GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License 
+   You should have received a copy of the GNU General Public License
    along with this library; see the file COPYING. If not, write to the
    Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
    MA 02110-1301, USA.
@@ -36,6 +36,10 @@
 #endif
 
 #include <sdcc-lib.h>
+
+#ifndef EOF
+  #define EOF (-1)
+#endif
 
 #ifndef NULL
   #define NULL (void *)0
@@ -78,10 +82,10 @@ extern int puts(const char *);
 extern char *gets(char *);
 #endif
 
-extern char getchar(void);
-extern void putchar(char);
+extern int getchar(void);
+extern int putchar(int);
 
-#if defined(SDCC_mcs51) && !defined(SDCC_USE_XSTACK)
+#if defined(__SDCC_mcs51) && !defined(__SDCC_USE_XSTACK)
 extern void printf_fast(__code const char *fmt, ...) _REENTRANT;
 extern void printf_fast_f(__code const char *fmt, ...) _REENTRANT;
 extern void printf_tiny(__code const char *fmt, ...) _REENTRANT;

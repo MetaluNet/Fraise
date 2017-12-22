@@ -1,13 +1,9 @@
 /*-------------------------------------------------------------------------
-   ctype.h - ANSI functions forward declarations
+   ctype.h
 
-   Copyright (C) 1998, Sandeep Dutta . sandeep.dutta@usa.net
+   Philipp Klaus Krause, philipp@informatik.uni-frankfurt.de 2013
 
-   Revisions:
-   1.0 - June.1.2000 1.0 - Bela Torok / bela.torok@kssg.ch
-   order: function definitions -> macros
-   corretced macro: isalpha(c)
-   added macros: _tolower(c), _toupper(c), tolower(c), toupper(c) toascii(c)
+   (c) 2013 Goethe-Universität Frankfurt
 
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -16,10 +12,10 @@
 
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License 
+   You should have received a copy of the GNU General Public License
    along with this library; see the file COPYING. If not, write to the
    Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
    MA 02110-1301, USA.
@@ -32,36 +28,69 @@
    might be covered by the GNU General Public License.
 -------------------------------------------------------------------------*/
 
-#ifndef __SDC51_CTYPE_H
-#define __SDC51_CTYPE_H 1
+#ifndef __SDCC_CTYPE_H
+#define __SDCC_CTYPE_H 1
 
-#include <sdcc-lib.h>
+extern int isalnum (int c);
+extern int isalpha (int c);
+extern int iscntrl (int c);
+extern int isgraph (int c);
+extern int isprint (int c);
+extern int ispunct (int c);
+extern int isspace (int c);
+extern int isalnum (int c);
+extern int isalnum (int c);
+extern int isxdigit (int c);
 
-extern char  iscntrl   (unsigned char )  ;
-extern char  isdigit   (unsigned char )  ;
-extern char  isgraph   (unsigned char )  ;
-extern char  islower   (unsigned char )  ;
-extern char  isupper   (unsigned char )  ;
-extern char  isprint   (unsigned char )  ;
-extern char  ispunct   (unsigned char )  ;
-extern char  isspace   (unsigned char )  ;
-extern char  isxdigit  (unsigned char )  ;
+extern int tolower (int c);
+extern int toupper (int c);
 
-#define isalnum(c)   (isalpha(c) || isdigit(c))
-#define isalpha(c)   (isupper(c) || islower(c))
+/* Provide inline versions for the most used functions for efficiency */
+#if __STDC_VERSION__ >= 199901L
 
-/* ANSI versions of _tolower & _toupper
-#define _tolower(c)  ((c) - ('a' - 'A'))
-#define _toupper(c)  ((c) + ('a' - 'A'))
-*/
+inline int isblank (int c)
+{
+  return ((unsigned char)c == ' ' || (unsigned char)c == '\t');
+}
 
-/* The _tolower & _toupper functions below can applied to any
-   alpha characters regardless of the case (upper or lower) */
-#define _tolower(c)  (char)(((c) |  (char)('a' - 'A')))
-#define _toupper(c)  (char)(((c) & ~(char)('a' - 'A')))
+#ifdef EOF
+_Static_assert(!((unsigned char)EOF == ' ' || (unsigned char)EOF == '\t'), "EOF out of range - ");
+#endif
 
-#define tolower(c)  ((isupper(c)) ? _tolower(c) : (c))
-#define toupper(c)  ((islower(c)) ? _toupper(c) : (c))
-#define toascii(c)  ((c) & 0x7F)
+inline int isdigit (int c)
+{
+  return ((unsigned char)c >= '0' && (unsigned char)c <= '9');
+}
+
+#ifdef EOF
+_Static_assert(!((unsigned char)EOF >= '0' && (unsigned char)EOF <= '9'), "EOF out of range - ");
+#endif
+
+inline int islower (int c)
+{
+  return ((unsigned char)c >= 'a' && (unsigned char)c <= 'z');
+}
+
+#ifdef EOF
+_Static_assert(!((unsigned char)EOF >= 'a' && (unsigned char)EOF <= 'z'), "EOF out of range - ");
+#endif
+
+inline int isupper (int c)
+{
+  return ((unsigned char)c >= 'A' && (unsigned char)c <= 'Z');
+}
+
+#ifdef EOF
+_Static_assert(!((unsigned char)EOF >= 'A' && (unsigned char)EOF <= 'Z'), "EOF out of range - ");
+#endif
+
+#else
+
+extern int isblank (int c);
+extern int isdigit (int c);
+extern int islower (int c);
+extern int isupper (int c);
+
+#endif
 
 #endif

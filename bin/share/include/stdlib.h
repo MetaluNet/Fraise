@@ -1,7 +1,8 @@
 /*-------------------------------------------------------------------------
-   stdlib.h - ANSI functions forward declarations
+   stdlib.h - General utilities (ISO C 11 7.22)
 
-   Copyright (C)1998, Sandeep Dutta . sandeep.dutta@usa.net
+   Copyright (C) 1998, Sandeep Dutta . sandeep.dutta@usa.net
+   Copyright (c) 2016, Philipp Klaus Krause, pkk@spth.de
 
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -13,7 +14,7 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
    GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License 
+   You should have received a copy of the GNU General Public License
    along with this library; see the file COPYING. If not, write to the
    Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
    MA 02110-1301, USA.
@@ -26,21 +27,33 @@
    might be covered by the GNU General Public License.
 -------------------------------------------------------------------------*/
 
-#ifndef __SDC51_STDLIB_H
-#define __SDC51_STDLIB_H 1
+#ifndef __SDCC_STDLIB_H
+#define __SDCC_STDLIB_H 1
 
-#ifndef NULL
-# define NULL (void *)0
+#ifndef __SIZE_T_DEFINED
+#define __SIZE_T_DEFINED
+  typedef unsigned int size_t;
 #endif
 
-#include <malloc.h>
+#ifndef __WCHAR_T_DEFINED
+#define __WCHAR_T_DEFINED
+  typedef unsigned long int wchar_t;
+#endif
 
-int abs(int j);
-long int labs(long int j);
+#ifndef NULL
+#define NULL (void *)0
+#endif
 
-extern float atof (const char *);
-extern int atoi (const char *);
-extern long atol (const char *);
+#define RAND_MAX 32767
+
+#define MB_CUR_MAX 4
+
+extern float atof (const char *nptr);
+extern int atoi (const char *nptr);
+extern long int atol (const char *nptr);
+#ifdef __SDCC_LONGLONG
+extern long long int atoll (const char *nptr);
+#endif
 
 extern void _uitoa(unsigned int, char*, unsigned char);
 extern void _itoa(int, char*, unsigned char);
@@ -48,10 +61,48 @@ extern void _itoa(int, char*, unsigned char);
 extern void _ultoa(unsigned long, char*, unsigned char);
 extern void _ltoa(long, char*, unsigned char);
 
-#define RAND_MAX 32767
-
 int rand(void);
 void srand(unsigned int seed);
+
+#if defined(__SDCC_mcs51) || defined(__SDCC_ds390) || defined(__SDCC_ds400)
+void __xdata *calloc (size_t nmemb, size_t size);
+void __xdata *malloc (size_t size);
+void __xdata *realloc (void *ptr, size_t size);
+#else
+void *calloc (size_t nmemb, size_t size);
+void *malloc (size_t size);
+void *realloc (void *ptr, size_t size);
+#endif
+
+#if __STDC_VERSION__ >= 201112L
+inline void *aligned_alloc(size_t alignment, size_t size)
+{
+  (void)alignment;
+  return malloc(size);
+}
+#endif
+
+extern void free (void * ptr);
+
+#if defined(__SDCC_z80) || defined(__SDCC_z180) || defined(__SDCC_r2k) || defined(__SDCC_r3ka) || defined(__SDCC_tlcs90)
+int abs(int j) __preserves_regs(b, c, iyl, iyh);
+#else
+int abs(int j);
+#endif
+long int labs(long int j);
+
+/* C99 Multibyte/wide character conversion functions (ISO C 11 7.22.7) */
+#if __STDC_VERSION__ >= 199901L
+int mblen(const char *s, size_t n);
+int mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n);
+int wctomb(char *s, wchar_t wc);
+#endif
+
+/* C99 Multibyte/wide string conversion functions (ISO C 11 7.22.8) */
+#if __STDC_VERSION__ >= 199901L
+size_t mbstowcs(wchar_t *restrict pwcs, const char *restrict s, size_t n);
+size_t wcstombs(char *restrict s, const wchar_t *restrict pwcs, size_t n);
+#endif
 
 /* Bounds-checking interfaces from annex K of the C11 standard. */
 #if defined (__STDC_WANT_LIB_EXT1__) && __STDC_WANT_LIB_EXT1__
@@ -71,3 +122,4 @@ typedef void (*constraint_handler_t)(const char *restrict msg, void *restrict pt
 #endif
 
 #endif
+

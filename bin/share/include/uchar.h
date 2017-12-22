@@ -1,8 +1,7 @@
 /*-------------------------------------------------------------------------
-   limits.h - ANSI defines constants for sizes of integral types
+   uchar.h: Unicode utilities  (ISO C 11 7.28)
 
-   Copyright (C) 1999, Sandeep Dutta . sandeep.dutta@usa.net
-   Adopted for the pic16 port by Vangelis Rokas <vrokas AT otenet.gr> 2004
+   Copyright (C) 2015-2016, Philipp Klaus Krause, pkk@spth.de
 
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -27,32 +26,33 @@
    might be covered by the GNU General Public License.
 -------------------------------------------------------------------------*/
 
-#ifndef __LIMITS_H
-#define __LIMITS_H 1
+#ifndef __SDCC_UCHAR_H
+#define __SDCC_UCHAR_H 1
 
-#define CHAR_BIT      8    /* bits in a char */
-#define SCHAR_MAX   127
-#define SCHAR_MIN  -128
-#define UCHAR_MAX   0xff
-#define UCHAR_MIN   0
-#ifdef __SDCC_CHAR_UNSIGNED
-#define CHAR_MAX    UCHAR_MAX
-#define CHAR_MIN    UCHAR_MIN
-#else
-#define CHAR_MAX    SCHAR_MAX
-#define CHAR_MIN    SCHAR_MIN
+#ifndef __MBSTATE_T_DEFINED
+#define __MBSTATE_T_DEFINED
+  typedef struct {unsigned char c[3];} mbstate_t;
 #endif
-#define INT_MIN    -32768
-#define INT_MAX     32767
-#define SHRT_MAX    INT_MAX
-#define SHRT_MIN    INT_MIN
-#define UINT_MAX    0xffff
-#define UINT_MIN    0
-#define USHRT_MAX   UINT_MAX
-#define USHRT_MIN   UINT_MIN
-#define LONG_MIN   -2147483648
-#define LONG_MAX    2147483647
-#define ULONG_MAX   0xffffffff
-#define ULONG_MIN   0
+
+#ifndef __SIZE_T_DEFINED
+#define __SIZE_T_DEFINED
+  typedef unsigned int size_t;
+#endif
+
+#ifndef __CHAR16_T_DEFINED
+#define __CHAR16_T_DEFINED
+  typedef unsigned int char16_t;
+#endif
+
+#ifndef __CHAR32_T_DEFINED
+#define __CHAR32_T_DEFINED
+  typedef unsigned long int char32_t;
+#endif
+
+size_t mbrtoc16(char16_t *restrict pc16, const char *restrict s, size_t n, mbstate_t *restrict ps);
+size_t c16rtomb(char *restrict s, char16_t c16, mbstate_t *restrict ps);
+size_t mbrtoc32(char32_t *restrict pc32, const char *restrict s, size_t n, mbstate_t *restrict ps);
+size_t c32rtomb(char *restrict s, char32_t c32, mbstate_t *restrict ps);
 
 #endif
+

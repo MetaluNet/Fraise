@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------
-   malloc.h - malloc header file
+   features.h - default features.
 
-   Copyright (C) 1997, Dmitry S. Obukhov <dmitry.obukhov AT gmail.com>
+   Copyright (C) 2001, Michael Hope
 
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -26,25 +26,12 @@
    might be covered by the GNU General Public License.
 -------------------------------------------------------------------------*/
 
-#ifndef __SDCC51_MALLOC_H
-#define __SDCC51_MALLOC_H
-#include <sdcc-lib.h>
-#include <stddef.h>
+#ifndef __SDC51_ASM_FEATURES_H
+#define __SDC51_ASM_FEATURES_H   1
 
-#if _SDCC_MALLOC_TYPE_MLH
-
-void * calloc (size_t nmemb, size_t size);
-void * malloc (size_t size);
-void * realloc (void * ptr, size_t size);
-void free (void * ptr);
-
-#else
-
-extern void __xdata * calloc (size_t nmemb, size_t size);
-extern void __xdata * malloc (size_t size);
-extern void __xdata * realloc (void * ptr, size_t size);
-extern void free (void * ptr);
-
-#endif
+#define _REENTRANT	__reentrant
+#define _CODE		__code
+#define _AUTOMEM
+#define _STATMEM
 
 #endif

@@ -1,8 +1,7 @@
 /*-------------------------------------------------------------------------
-   stddef.h - ANSI functions forward declarations
+   wchar.h - Extended and multibyte wide character utilitites (ISO C 11 7.29)
 
-   Copyright (C) 2004, Maarten Brock / sourceforge.brock@dse.nl
-   Copyright (C) 2011, Philipp Klaus Krause / pkk@spth.de
+   Copyright (c) 2015-2016, Philipp Klaus Krause / pkk@spth.de
 
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -27,20 +26,9 @@
    might be covered by the GNU General Public License.
 -------------------------------------------------------------------------*/
 
-#ifndef __SDCC_STDDEF_H
-#define __SDCC_STDDEF_H 1
-
-#ifndef NULL
-  #define NULL (void *)0
-#endif
-
-#ifndef __PTRDIFF_T_DEFINED
-#define __PTRDIFF_T_DEFINED
-#if defined (__SDCC_mcs51) || defined (__SDCC_ds390)
-  typedef long int ptrdiff_t;
-#else
-  typedef int ptrdiff_t;
-#endif
+#ifndef __WCHAR_T_DEFINED
+#define __WCHAR_T_DEFINED
+  typedef unsigned long int wchar_t;
 #endif
 
 #ifndef __SIZE_T_DEFINED
@@ -48,31 +36,37 @@
   typedef unsigned int size_t;
 #endif
 
-#if __STDC_VERSION__ >= 201112L
-  typedef unsigned char max_align_t;
+#ifndef __MBSTATE_T_DEFINED
+#define __MBSTATE_T_DEFINED
+  typedef struct {unsigned char c[3];} mbstate_t;
 #endif
 
-#ifndef __WCHAR_T_DEFINED
-#define __WCHAR_T_DEFINED
-  typedef unsigned long int wchar_t;
+#ifndef __WINT_T_DEFINED
+#define __WINT_T_DEFINED
+  typedef unsigned long int wint_t;
 #endif
 
-/* Bounds-checking interfaces from annex K of the C11 standard. */
-#if defined (__STDC_WANT_LIB_EXT1__) && __STDC_WANT_LIB_EXT1__
+struct tm;
 
-#ifndef __RSIZE_T_DEFINED
-#define __RSIZE_T_DEFINED
-typedef size_t rsize_t;
+#ifndef WEOF
+  #define WEOF 0xfffffffful
 #endif
 
-#ifndef __ERRNO_T_DEFINED
-#define __ERRNO_T_DEFINED
-typedef int errno_t;
-#endif
+/* C99 Wide string comparison functions (ISO C11 7.29.4.4) */
+int wcscmp(const wchar_t *s1, const wchar_t *s2);
 
-#endif
+/* C99 Miscellaneous functions (ISO C11 7.29.4.6) */
+size_t wcslen(const wchar_t *s);
 
-#define offsetof(s, m) __builtin_offsetof (s, m)
+/* C99 Single-byte/wide character conversion functions (ISO C 11 7.29.6.1) */
+wint_t btowc(int c);
+int wctob(wint_t c);
 
-#endif
+/* C99 Conversion state functions (ISO C 11 7.29.6.2) */
+int mbsinit(const mbstate_t *ps);
+
+/* C99 Restartable multibyte/wide character conversion functions (ISO C 11 7.29.6.3) */
+size_t mbrlen(const char *restrict s, size_t n, mbstate_t *restrict ps);
+size_t mbrtowc(wchar_t *restrict pwc, const char *restrict s, size_t n, mbstate_t *restrict ps);
+size_t wcrtomb(char *restrict s, wchar_t wc, mbstate_t *restrict ps);
 
