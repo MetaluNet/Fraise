@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cat | sed 's/$/;/' | pdsend $1
+
