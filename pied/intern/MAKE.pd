@@ -618,7 +618,7 @@
 #X connect 8 0 5 0;
 #X connect 9 0 1 0;
 #X restore 250 829 pd compile_boardconfig;
-#N canvas 702 105 656 778 link_proj 1;
+#N canvas 702 97 656 778 link_proj 0;
 #X obj 33 15 inlet;
 #X obj 67 86 slist \$0-make-modules;
 #X msg 67 61 len;
@@ -670,7 +670,7 @@
 #X obj 204 254 t b s;
 #X text 275 504 added2017: -C=disable cinit warnings;
 #X msg 397 536 list -Wl"-O 1 -C -m -w -s \$1/board.lkr";
-#X msg 150 486 list -Wl"-O 1 -m -w -s \$1/board.lkr";
+#X msg 150 486 list -Wl"-O 1 -C -m -w -s \$1/board.lkr";
 #X connect 0 0 11 0;
 #X connect 1 1 8 0;
 #X connect 1 2 4 0;
