@@ -23,6 +23,7 @@
  ********************************************************************/
  
 #include "core.h"
+#pragma config XINST=OFF // remove SDCC warning about XINST
 
 //------------- time ---------------------------------------------
 volatile unsigned int TMR0U=0; // upper word of TMR0
