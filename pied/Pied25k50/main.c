@@ -25,7 +25,7 @@
 void SetupBoard(void) {
 #if defined (PIEDUSB)
     //disable some defaults
-    ADCON1 |= 0b1111; //all pins digital
+    //ADCON1 |= 0b1111; //all pins digital
     //CVRCON = 0b00000000;
     LATC = 0x00;
     TRISC = 0xFF;
@@ -64,6 +64,10 @@ void SetupBoard(void) {
     mInitSwitch();
 
     mInitSerDrv();
+    
+    // disable analog for USART pins
+    ANSELCbits.ANSC6 = 0;
+    ANSELCbits.ANSC7 = 0;
 }
 //void USBSuspend(void);
 
