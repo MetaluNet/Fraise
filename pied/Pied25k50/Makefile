@@ -54,7 +54,7 @@ $(OBJS):	%.o: %.c  Makefile $(HDRS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(PROJ).hex: $(OBJS) $(LINKER_SCRIPT) $(CRT).o
-	$(CC) $(CFLAGS) -L $(SDCC_HOME)/lib/pic16 -Wl,"-m -w -s $(LINKER_SCRIPT)" -o $(PROJ) $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) -L $(SDCC_HOME)/lib/pic16 -Wl,"-m -C -w -s $(LINKER_SCRIPT)" -o $(PROJ) $(OBJS) $(LIBS)
 
 disass:
 	$(DIS) -p p$(CHIP) $(PROJ).hex > $(PROJ).lis
