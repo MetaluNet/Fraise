@@ -74,8 +74,8 @@ __code unsigned char device_descriptor[] = { //
     0x00, 0x02, // bcdUSB lsb, bcdUSB msb
     0x02, 0x00, // bDeviceClass, bDeviceSubClass
     0x00, E0SZ, // bDeviceProtocl, bMaxPacketSize
-    0x08, 0x04, // idVendor lsb, idVendor msb
-    0x0A, 0x00, // idProduct lsb, idProduct msb
+    0xD8, 0x04, // idVendor lsb, idVendor msb
+    0x62, 0xEF, // idProduct lsb, idProduct msb
     0x00, 0x01, // bcdDevice lsb, bcdDevice msb
     0x01, 0x00, // iManufacturer, iProduct
     0x00, 0x01 // iSerialNumber (none), bNumConfigurations*/
@@ -151,31 +151,35 @@ __code unsigned char string_descriptor0[] = { // available languages  descriptor
 };
 
 __code unsigned char string_descriptor1[] = { //
-    0x0E, STRING_DESCRIPTOR, // bLength, bDscType
-    'T', 0x00, //
+    0x16, STRING_DESCRIPTOR, // bLength, bDscType
+    'M', 0x00, //
     'e', 0x00, //
-    's', 0x00, //
     't', 0x00, //
-    'i', 0x00, //
-    '!', 0x00, //
+    'a', 0x00, //
+    'l', 0x00, //
+    'u', 0x00, //
+    '.', 0x00, //
+    'n', 0x00, //
+    'e', 0x00, //
+    't', 0x00, //
 };
 __code unsigned char string_descriptor2[] = { //
     0x20, STRING_DESCRIPTOR, //
+    'F', 0x00, //
+    'r', 0x00, //
+    'a', 0x00, //
+    'i', 0x00, //
+    's', 0x00, //
+    'e', 0x00, //
+    ' ', 0x00, //
+    'P', 0x00, //
+    'i', 0x00, //
+    'e', 0x00, //
+    'd', 0x00, //
+    ' ', 0x00, //
     'U', 0x00, //
     'S', 0x00, //
     'B', 0x00, //
-    ' ', 0x00, //
-    'G', 0x00, //
-    'e', 0x00, //
-    'n', 0x00, //
-    'e', 0x00, //
-    'r', 0x00, //
-    'i', 0x00, //
-    'c', 0x00, //
-    ' ', 0x00, //
-    'C', 0x00, //
-    'D', 0x00, //
-    'C', 0x00, //
 };
 
 // Put endpoint 0 buffers into dual port RAM
