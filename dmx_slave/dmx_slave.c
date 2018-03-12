@@ -29,6 +29,10 @@
 #include <core.h>
 #include <dmx_slave.h>
 
+#ifndef DMX_SLAVE_UART_PORT
+#define DMX_SLAVE_UART_PORT AUXSERIAL_NUM
+#define DMX_SLAVE_UART_PIN AUXSERIAL_RX
+#endif
 
 //serial port:
 #if DMX_SLAVE_UART_PORT==1
@@ -87,10 +91,10 @@
 #endif
 
 static unsigned char DMXRegisters[DMX_SLAVE_NBCHAN];
-#define STATE_NONE -1
-#define STATE_BREAKRCVD 0
-#define STATE_DMX 1
-static char State = STATE_NONE;
+#define STATE_NONE 0
+#define STATE_BREAKRCVD 1
+#define STATE_DMX 2
+static unsigned char State = STATE_NONE;
 static unsigned int DMXPointer = 0;
 static unsigned int MaxReceivedChannel;
 
@@ -129,12 +133,11 @@ void DMXSlaveInit(void)
 	
 	for(i=0;i<DMX_SLAVE_NBCHAN;i++) DMXRegisters[i]=0; //clear all channels
 	
-	//DigitalSet(DMX_UART_PIN);
-	//SetPinDigiOut(DMX_UART_PIN);
+	pinModeDigitalIn(DMX_SLAVE_UART_PIN);
 	BAUDCONxbits.BRG16=1;
 	Set250kB();
 	Serial_Init_Receiver();
-	TXSTAxbits.TXEN=1;
+	//TXSTAxbits.TXEN=1;
 	TXSTAxbits.BRGH=1;
 	RCSTAxbits.RX9 = 1;
 
@@ -154,16 +157,7 @@ void DMXSlaveISR()
 	unsigned char Byte;
 	
 	if(!RCxIF) return;
-	
-	
-	/*	WREG=RCREGx;
-		__asm nop __endasm ;	
-		WREG=RCREGx;
-	RCSTAxbits.SPEN=0;
-	RCSTAxbits.SPEN=1;*/
-	/*RCxIE = 0;
-		return;*/
-		
+			
 	if(RCSTAxbits.OERR){ // overrun error
 		State=STATE_NONE;
 		//Byte=RCREG;Byte=RCREG;
@@ -183,10 +177,10 @@ void DMXSlaveISR()
 		State=STATE_BREAKRCVD;
 		WREG=RCREGx;
 		//RCSTAxbits.CREN=0;
-		while(!DMX_SLAVE_UART_PIN);	
+	//while(!digitalRead(DMX_SLAVE_UART_PIN));	
 		//RCSTAxbits.CREN=1;
-		if(TXxIF) TXREGx = 0;
-		WREG=RCREGx;
+		//if(TXxIF) TXREGx = 0;
+		//WREG=RCREGx;
 		/*WREG=RCREGx;
 		__asm nop __endasm ;	
 		WREG=RCREGx;*/
@@ -226,7 +220,6 @@ void DMXSlaveISR()
 	}
 	
 	if(State==STATE_DMX){
-		if(TXxIF) TXREGx = 2;
 		DMXPointer++;
 		if(MaxReceivedChannel < DMXPointer) MaxReceivedChannel = DMXPointer;
 		if(DMXPointer < DMX_SLAVE_NBCHAN) DMXRegisters[DMXPointer] = Byte;
