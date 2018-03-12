@@ -269,7 +269,7 @@ void dimmerLowInterrupt(void)
 
 void dimmerReceive()
 {
-	unsigned char c, c2;
+	unsigned char c;
 	unsigned int i = 0;
 	
 	c=fraiseGetChar();
