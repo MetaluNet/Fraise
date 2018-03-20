@@ -238,3 +238,9 @@ unsigned int DMXSlaveGetMaxReceivedChannel()
 	return tmp;
 }
 
+void DMXSlaveSet(unsigned int channel, unsigned char value)
+{
+	if((channel<=0) || (channel > DMX_SLAVE_NBCHAN)) return;
+	DMXRegisters[channel] = value;
+}
+

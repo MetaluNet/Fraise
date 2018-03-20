@@ -28,12 +28,12 @@
 #define _DMX_SLAVE_H_
 
 void DMXSlaveInit();
-void DMXSlaveService();
 void DMXSlaveISR(); // to be declared in low ISR
 unsigned char DMXSlaveGet(unsigned int channel);
 unsigned int DMXSlaveGetMaxReceivedChannel(void); // calling this function resets the MaxReceivedChannel count.
 //  Application must define following constant in config.h :
 //#define DMX_SLAVE_UART_PORT 	{1 or 2}
+void DMXSlaveSet(unsigned int channel, unsigned char value);
 
 #ifndef DMX_SLAVE_NBCHAN
 #define DMX_SLAVE_NBCHAN 128
