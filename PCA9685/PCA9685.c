@@ -62,10 +62,10 @@
 #define ALLLED_OFF_L 0xFC
 #define ALLLED_OFF_H 0xFD
 
-static void delay(word microsecs)
+static void delay(word millisecs)
 {
 	t_delay del;
-	delayStart(del, microsecs);
+	delayStart(del, millisecs * 1000);
 	while(!delayFinished(del)){}
 }
 
