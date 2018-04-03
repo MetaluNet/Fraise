@@ -38,7 +38,7 @@
 #X restore 75 211 pd get_board;
 #X symbolatom 161 216 10 0 0 0 - - -, f 10;
 #X obj 161 235 s \$0-make-boardname;
-#N canvas 1 356 479 302 get_boarddir 1;
+#N canvas 1 356 479 302 get_boarddir 0;
 #X obj 65 -1 inlet;
 #X obj 65 76 symbol;
 #X obj 65 55 b;
@@ -98,7 +98,7 @@
 #X restore 75 263 pd get_boarddir;
 #X symbolatom 206 270 0 0 0 0 - - -;
 #X obj 224 303 s \$0-make-boarddir;
-#N canvas 776 387 450 431 get_modules 1;
+#N canvas 776 387 450 431 get_modules 0;
 #X obj 51 -7 inlet;
 #X obj 78 110 msgfile;
 #X obj 78 54 symbol;
@@ -698,7 +698,9 @@
 #X obj 204 254 t b s;
 #X text 275 504 added2017: -C=disable cinit warnings;
 #X msg 397 536 list -Wl"-O 1 -C -m -w -s \$1/board.lkr";
-#X msg 150 486 list -Wl"-O 1 -C -m -w -s \$1/board.lkr";
+#X msg 150 486 list -Wl"-O 1 -m -w -s \$1/board.lkr";
+#X text 394 553 removed for now \, because older sdcc version on some
+platforms., f 28;
 #X connect 0 0 11 0;
 #X connect 1 1 8 0;
 #X connect 1 2 4 0;
