@@ -194,8 +194,7 @@ void startapp(void) __naked
 	__endasm ;
 }
 
-extern stack;
-extern stack_end;
+extern int stack_end;
 
 void main (void);
 void _startup (void) __naked;
