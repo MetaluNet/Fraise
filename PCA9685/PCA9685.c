@@ -28,6 +28,7 @@
 #include <i2c_master.h>
 #include <PCA9685.h>
 
+// adapted from:
 /*************************************************** 
   This is a library for our Adafruit 16-channel PWM & Servo driver
 
