@@ -22,10 +22,12 @@ MAINFRAISE=../..
 
 BOARDSDIR=$(MAINFRAISE)/boards
 
-BOARDDIR=$(BOARDSDIR)/$(BOARD)
 
-BOARDMAKEFILE=$(BOARDDIR)/board.Makefile
+ifeq ($(BOARDDIR),)
+	BOARDDIR=$(BOARDSDIR)/$(BOARD)
+endif
 
+BOARDMAKEFILE:=$(BOARDDIR)/board.Makefile
 BLD_START=`echo print "$(MEM_SIZE)-(32*64)" | python` 
 
 include $(BOARDMAKEFILE) 
@@ -92,7 +94,7 @@ progpk2:
 	$(PK2CMD) -P -M -F$(HEXFILE)
 
 clean:
-	rm -f $(foreach suf,$(SUFFIXES),$(BOARDSDIR)/*/*.$(suf)) src/*.o src/*.asm src/*.lst src/*.cod hex/*.cod hex/*.lst hex/*.asm
+	rm -f $(foreach suf,$(SUFFIXES),$(BOARDSDIR)/*/*.$(suf), $(BOARDDIR)/*.$(suf)) src/*.o src/*.asm src/*.lst src/*.cod hex/*.cod hex/*.lst hex/*.asm
 
 #	rm -f */*.o */*.asm */*.lst src/*.o src/*.asm src/*.lst src/*.cod hex/*.cod hex/*.lst hex/*.asm
 

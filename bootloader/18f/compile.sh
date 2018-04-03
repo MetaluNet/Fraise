@@ -12,9 +12,17 @@ if [ x$1 = x ] ; then
 		fi
 	done
 	exit
-	fi
+fi
 
-export BOARD=$1
+#export BOARD=$1
+export BOARD=`basename $1`
 
+if [ `dirname $1` != . ] ; then
+	export BOARDDIR=$1
+else
+	export BOARDDIR=
+fi
+
+echo $BOARD $BOARDDIR
 make
 
