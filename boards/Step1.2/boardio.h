@@ -102,6 +102,6 @@
 #define K7AN	8
 #define K7PWM	1
 #define K7SETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1B=1;} while(0)
-
+#define K7INT	2
 
 #endif
