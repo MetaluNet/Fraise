@@ -1,26 +1,75 @@
 #ifndef _STEP1_2_IO_
 #define _STEP1_2_IO_
 
-#define MOTA_EN  			LATBbits.LATB3
-#define MOTA_IN1 			LATAbits.LATA4
-#define MOTA_IN2 			LATBbits.LATB5
-#define SETPORT_MOTA do{ TRISAbits.TRISA4=TRISBbits.TRISB3=TRISBbits.TRISB5=0;} while(0)
+#define MAENPORT B
+#define MAENBIT 3
+#define MAENAN 9
 
-#define MOTB_EN 			LATBbits.LATB4
-#define MOTB_IN1 			LATBbits.LATB0
-#define MOTB_IN2 			LATBbits.LATB1
-#define SETPORT_MOTB do{ TRISBbits.TRISB4=TRISBbits.TRISB0=TRISBbits.TRISB1=0;} while(0)
+#define MA1PORT A
+#define MA1BIT 4
+#define MA1AN 2
 
-#define SENSE_APORT A
-#define SENSE_ABIT 	0
-#define SENSE_AAN 	0
+#define MA2PORT B
+#define MA2BIT 5
+#define MA2PWM 3
+#define MA2SETUP_PWM() do{PSTR3CON=0; PSTR3CONbits.STR3A=1;} while(0)
 
-#define SENSE_BPORT A
-#define SENSE_BBIT 	1
-#define SENSE_BAN 	1
+#define MOTA_CONFIG() do{\
+}while(0)
+
+#define MASENSEPORT A
+#define MASENSEBIT 	0
+#define MASENSEAN 	0
+
+#define MAIPORT C
+#define MAIBIT 1
+#define MAIPWM 2
+#define MAISETUP_PWM() do{PSTR2CON=0; PSTR2CONbits.STR2A=1;} while(0)
+
+#define MACPORT A
+#define MACBIT 3
+#define MACAN 3
+
+//--------------------------------
+
+#define MBENPORT B
+#define MBENBIT 4
+#define MBENAN 11
+#define MBENPWM 1
+#define MBENSETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1D=1;} while(0)
+
+#define MB1PORT B
+#define MB1BIT 0
+#define MB1AN 12
+#define MB1PWM 4
+#define MB1SETUP_PWM() do{} while(0)
+
+#define MB2PORT B
+#define MB2BIT 1
+#define MB2AN 10
+#define MB2PWM 1
+#define MB2SETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1C=1;} while(0)
+
+#define MBSENSEPORT A
+#define MBSENSEBIT 	1
+#define MBSENSEAN 	1
+
+#define MBIPORT C
+#define MBIBIT 2
+#define MBIAN 14
+#define MBIPWM 1
+#define MBISETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1A=1;} while(0)
+
+#define MBCPORT A
+#define MBCBIT 2
+#define MBCAN 2
+
+//--------------------------------
 
 #define LEDPORT A
 #define LEDBIT 	7
+
+//--------------------------------
 
 #define K1PORT 	A
 #define K1BIT 	5
@@ -45,10 +94,14 @@
 #define K6PORT	C
 #define K6BIT 	7
 #define K6AN	19
+#define K6PWM	3
+#define K6SETUP_PWM() do{PSTR3CON=0; PSTR3CONbits.STR3B=1;} while(0)
 
 #define K7PORT	B
 #define K7BIT 	2
 #define K7AN	8
+#define K7PWM	1
+#define K7SETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1B=1;} while(0)
 
 
 #endif

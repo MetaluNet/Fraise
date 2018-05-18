@@ -32,8 +32,8 @@ __code char __at __CONFIG3H _conf4 = //_CCP2MX_PORTB3_3H	// CCP2 input/output is
 								 	_CCP2MX_PORTC1_3H	// CCP2 input/output is multiplexed with RC1
 								//&	_PBADEN_OFF_3H			// PORTB<5:0> pins are configured as digital I/O on Reset
 								&	_PBADEN_ON_3H		// PORTB<5:0> pins are configured as analog input channels on Reset
-								//&	_CCP3MX_PORTC6_3H		// P3A/CCP3 input/output is mulitplexed with RC6
-								&	_CCP3MX_PORTB5_3H	// P3A/CCP3 input/output is multiplexed with RB5
+								&	_CCP3MX_PORTC6_3H		// P3A/CCP3 input/output is mulitplexed with RC6
+								//&	_CCP3MX_PORTB5_3H	// P3A/CCP3 input/output is multiplexed with RB5
 								//&	_HFOFST_OFF_3H			// HFINTOSC output and ready status are delayed by the oscillator stable status
 								&	_HFOFST_ON_3H		// HFINTOSC output and ready status are not delayed by the oscillator stable status
 								&	_T3CMX_PORTB5_3H	// T3CKI is on RB5
