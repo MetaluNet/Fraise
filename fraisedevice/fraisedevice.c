@@ -236,8 +236,8 @@ void fraiseInit(void)
 	FrID = eeReadByte(EE_ID);
 
     	// set serial interrupts to low priority
-   	 TXxIP = 0;
-    	RCxIP = 0;
+	TXxIP = 0;
+	RCxIP = 0;
 	FrInterruptEnabled = 1;
 	
 	// Use our own special output function for STDOUT
@@ -410,6 +410,50 @@ discard:
 		return;
 }
 
+void fraiseSendBroadcast(const unsigned char *buf, unsigned char len)
+{
+	unsigned char i = len;
+	unsigned char ischar = 0;
+	unsigned char chksum = 0;
+	
+	if(!i) return;
+	if(*buf == 'C') {
+		ischar = 1;
+		len |= 128;
+	}
+	
+	i--;
+	buf++;
+	Serial_Init_Driver();
+	TXxIE = 0;
+	
+	while(TXxIF == 0);
+	
+	TXSTAxbits.TX9D = 1; 	// address byte
+	chksum += (TXREGx = 0);	// adress is null = broadcast
+	
+	Nop(); while(TXxIF == 0);
+	TXSTAxbits.TX9D = 0;
+
+	chksum += (TXREGx = len);
+
+	Nop(); while(TXxIF == 0);
+	if(ischar) chksum += (TXREGx = 'B');
+	else chksum += (TXREGx = 'b');
+
+	while(i) {
+		Nop(); while(TXxIF == 0);
+		chksum += (TXREGx = *buf);
+		i--;
+		buf++;
+	}
+	
+	Nop(); while(TXxIF == 0);
+	TXREGx = -chksum;
+	Nop(); while(TXxIF == 0);
+	
+	Serial_Init_Receiver();
+}
 
 //--------------------- Interrupt routine : -------------------------------
 
@@ -631,7 +675,11 @@ static void Assign() //"N" command
 
 static void ResetToBld() //"F" command
 {
-	if(CompareName()) return;
+	//INTCONbits.GIEH = 0; // disable high priority interrupts
+	if(CompareName()) {
+		//INTCONbits.GIEH = 1; // re-enable high priority interrupts
+		return;
+	}
 	Reset();
 }
 
