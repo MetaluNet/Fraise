@@ -1,0 +1,49 @@
+#N canvas 370 232 465 419 10;
+#X declare -stdpath Fraise;
+#X obj 21 51 declare -stdpath Fraise;
+#X obj 184 54 fruit/fruit 1 master 1 masterfruit 1;
+#X obj 184 104 fruit/fruit 1 client 2 clientfruit 1;
+#X obj 21 77 pied/pied 0 36363;
+#X obj 28 165 fruit/receive master;
+#X obj 28 186 print master;
+#X obj 168 165 fruit/receive client;
+#X obj 168 186 print client;
+#X obj 28 377 fruit/send master;
+#X obj 187 314 tgl 15 0 empty empty LED 0 -7 0 10 -262144 -1 -1 0 1
+;
+#X msg 187 339 L\$1;
+#X obj 423 328 tgl 15 0 empty empty LED 0 -7 0 10 -262144 -1 -1 0 1
+;
+#X msg 423 353 L\$1;
+#X obj 324 378 fruit/send client;
+#X obj 222 313 tgl 15 0 empty empty CLIENT_LED(REMOTE) 0 -7 0 10 -262144
+-1 -1 0 1;
+#X msg 222 340 SL\$1;
+#X msg 127 339 Ehello_1;
+#X msg 41 324 c 1 c \$1;
+#X msg 41 275 10;
+#X floatatom 41 304 5 0 0 1 togglePeriod - -, f 5;
+#X msg 71 275 255;
+#X obj 28 225 tgl 15 0 empty empty toggleOn 17 7 0 10 -262144 -1 -1
+0 1;
+#X msg 28 243 c 2 c \$1;
+#X text 26 10 Using "fraiseSendBroadcast()" function allows a fruit
+to send messages to the other fruits \, via broadcast diffusion.;
+#X text 103 222 <- automatic toggling of remote client led.;
+#X text 130 237 When the toggling is on \, the client led should blink
+even if pied/pied is switched off., f 45;
+#X connect 4 0 5 0;
+#X connect 6 0 7 0;
+#X connect 9 0 10 0;
+#X connect 10 0 8 1;
+#X connect 11 0 12 0;
+#X connect 12 0 13 1;
+#X connect 14 0 15 0;
+#X connect 15 0 8 1;
+#X connect 16 0 8 1;
+#X connect 17 0 8 0;
+#X connect 18 0 19 0;
+#X connect 19 0 17 0;
+#X connect 20 0 19 0;
+#X connect 21 0 22 0;
+#X connect 22 0 8 0;
