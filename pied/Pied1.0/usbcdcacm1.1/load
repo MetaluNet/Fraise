@@ -1,0 +1,1 @@
+pk2cmd -f../obj/cdcacm.hex -p /m /e /j /r
