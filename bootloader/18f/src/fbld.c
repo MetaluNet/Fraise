@@ -40,10 +40,10 @@ extern void Setup();
 
 //---------------  Serial macros :   -----------------
 //serial drive:
-#define	InitSerDrv()	{SERDRV_TRI=0;}
-#define	SerDrv_On()		{SERDRV_PIN=SERDRV_POL;}
-#define	SerDrv_Off()	{SERDRV_PIN=!SERDRV_POL;}
-#define	SerDrv_isOn()	(SERDRV_PIN==SERDRV_POL)
+#define	InitSerDrv()	{SERDRV_PIN = 0; SERDRV_TRI = 1;}
+#define	SerDrv_On()		{SERDRV_TRI = SERDRV_POL;}
+#define	SerDrv_Off()	{SERDRV_TRI =! SERDRV_POL;}
+#define	SerDrv_isOn()	(SERDRV_TRI == SERDRV_POL)
 
 
 //serial port:
@@ -155,8 +155,8 @@ unsigned char app_bootblock[4]; // keep 4 first bytes of app fimware (inital got
 								// to relocate them in the last 4 bytes of app prog memory space.
 int Time;
 
-#define LED LATBbits.LATB4
-#define TLED TRISBbits.TRISB4
+//#define LED LATBbits.LATB4
+//#define TLED TRISBbits.TRISB4
 
 #ifndef	LED
 char LED;

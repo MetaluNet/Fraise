@@ -37,10 +37,10 @@
 
 //---------------  Serial macros :   -----------------
 //serial drive:
-#define	InitSerDrv()	do { SERDRV_TRI = 0; } while(0)
-#define	SerDrv_On()		do { SERDRV_PIN = SERDRV_POL; } while(0)
-#define	SerDrv_Off()	do { SERDRV_PIN =! SERDRV_POL; } while(0)
-#define	SerDrv_isOn()	(SERDRV_PIN == SERDRV_POL)
+#define	InitSerDrv()	do { SERDRV_PIN = 0; SERDRV_TRI = 1; } while(0)
+#define	SerDrv_On()		do { SERDRV_TRI = SERDRV_POL; } while(0)
+#define	SerDrv_Off()	do { SERDRV_TRI =! SERDRV_POL; } while(0)
+#define	SerDrv_isOn()	(SERDRV_TRI == SERDRV_POL)
 
 //serial port:
 #if UART_PORT==1
