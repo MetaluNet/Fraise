@@ -112,19 +112,20 @@
 #define AUXSERIAL_TX K11
 #define AUXSERIAL_RX K12
 
-/*----------- I2C --------------*/
-/*#define I2C1SCLPORT C
-#define I2C1SCLBIT  3
-#define I2C1SDAPORT C
-#define I2C1SDABIT  4*/
+//---- I2C
 #define I2C1SCL K5
 #define I2C1SDA K7
 
-/*#define I2C2SCLPORT B
-#define I2C2SCLBIT  1
-#define I2C2SDAPORT B
-#define I2C2SDABIT  2*/
 #define I2C2SCL MBEN
 #define I2C2SDA K9
 
-#endif
+//---- SPI
+#define SPI1SCK K5
+#define SPI1SDI K7
+#define SPI1SDO K8
+
+#define SPI2SCK MBEN
+#define SPI2SDI K9
+#define SPI2SDO K10
+
+#endif // ifndef _VERSA1_IO_
