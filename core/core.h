@@ -193,6 +193,7 @@ unsigned char eeReadByte(unsigned char address);
 //------------------------- Time : ----------------
 extern volatile DWORD Now; 	       // time at last high interrupt
 #define elapsed(since) ((time()-(unsigned long)(since))&0x7FFFFFFF) // in time cycles
+#define elapsedISR(since) ((timeISR()-(unsigned long)(since))&0x7FFFFFFF) // in time cycles
 #define	microToTime(T) (((unsigned long)T*(FOSC/64000UL))/1000) //microseconds to time cycles
 #define	timeToMicro(T) (((unsigned long)T*(FOSC/64000UL))/1000) //time cycles to microseconds
 
