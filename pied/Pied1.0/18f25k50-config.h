@@ -27,7 +27,7 @@
  #pragma config PBADEN = ON      // PORTB A/D Enable bit (PORTB<5:0> pins are configured as analog input channels on Reset)          
  #pragma config T3CMX = RC0      // Timer3 Clock Input MUX bit (T3CKI function is on RC0)          
  #pragma config SDOMX = RB3      // SDO Output MUX bit (SDO function is on RB3)          
- #pragma config MCLRE = OFF      // Master Clear Reset Pin Enable (RE3 input pin enabled; external MCLR disabled)          
+ #pragma config MCLRE = ON      // Master Clear Reset Pin Enable (RE3 input pin enabled; external MCLR disabled)
  
  // CONFIG4L          
  #pragma config STVREN = OFF     // Stack Full/Underflow Reset (Stack full/underflow will not cause Reset)          
