@@ -16,7 +16,7 @@ CDCACM=usbcdcacm1.1/
 SRCS= $(CDCACM)/usbcdc.c $(CDCACM)/printft.c fraisemaster/fraisemaster.c main.c
       
 
-HDRS= fraisemaster/fraisemaster.h config.h prj_usb_config.h \
+HDRS= fraisemaster/fraisemaster.h config.h prj_usb_config.h 18f25k50-config.h\
 	$(CDCACM)/usbcdc_defs.h $(CDCACM)/usb_defs.h $(CDCACM)/usbcdc.h $(CDCACM)/usbpic_defs.h
 
 OBJS =	$(SRCS:%.c=%.o)
