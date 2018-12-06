@@ -1,9 +1,9 @@
-#N canvas 406 131 940 724 10;
+#N canvas 407 129 940 724 10;
 #X declare -path Fraise -stdpath Fraise;
 #X obj 22 207 fruit/receive fruit1;
 #X obj 19 141 fruit/fruit 1 fruit1 10 example1;
 #X msg 374 159 L\$1;
-#X obj 374 136 tgl 15 0 empty empty set_LED 18 7 0 10 -4034 -1 -1 1
+#X obj 374 136 tgl 15 0 empty empty set_LED 18 7 0 10 -4034 -1 -1 0
 1;
 #X obj 21 38 pied/pied 0 41424;
 #X obj 21 16 declare -path Fraise -stdpath Fraise;
@@ -18,24 +18,24 @@
 #X obj 106 328 change;
 #X msg 396 218 I0;
 #X obj 364 82 metro 150;
-#X obj 364 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 364 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 269 185 fruit/send2 fruit1;
 #X floatatom 80 434 5 0 0 0 - - -, f 5;
 #X obj 25 512 hsl 128 15 -1 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 4979 1;
+-1 -1 0 1;
 #X obj 22 394 + 32768;
 #X obj 22 416 mod 65536;
 #X obj 22 438 - 32768;
 #X obj 22 460 / 32768;
 #X obj 169 514 hsl 128 15 -1 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 11610 1;
+-1 -1 0 1;
 #X obj 166 396 + 32768;
 #X obj 166 418 mod 65536;
 #X obj 166 440 - 32768;
 #X obj 166 462 / 32768;
 #X obj 315 511 hsl 128 15 -1 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 3201 1;
+-1 -1 0 1;
 #X obj 312 393 + 32768;
 #X obj 312 415 mod 65536;
 #X obj 312 437 - 32768;
@@ -58,19 +58,19 @@
 #X obj 541 326 change;
 #X floatatom 515 432 5 0 0 0 - - -, f 5;
 #X obj 460 510 hsl 128 15 -1 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 1135 1;
+-1 -1 0 1;
 #X obj 457 392 + 32768;
 #X obj 457 414 mod 65536;
 #X obj 457 436 - 32768;
 #X obj 457 458 / 32768;
 #X obj 604 512 hsl 128 15 -1 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 5608 1;
+-1 -1 0 1;
 #X obj 601 394 + 32768;
 #X obj 601 416 mod 65536;
 #X obj 601 438 - 32768;
 #X obj 601 460 / 32768;
 #X obj 750 509 hsl 128 15 -1 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 6300 1;
+-1 -1 0 1;
 #X obj 747 391 + 32768;
 #X obj 747 413 mod 65536;
 #X obj 747 435 - 32768;
@@ -85,21 +85,19 @@
 #X obj 22 229 route 1 2;
 #X floatatom 633 297 5 0 0 0 - - -, f 5;
 #X obj 457 324 change;
-#N canvas 244 131 455 238 schematic 1;
+#N canvas 245 129 455 238 schematic 1;
 #X text 124 142 +5V---150--;
 #X text 124 162 GND---330--;
 #X text 186 147 |;
 #X text 186 157 |;
 #X text 142 170 |;
 #X text 199 96 |;
-#X text 192 107 10K;
 #X text 249 119 |;
 #X text 249 129 |;
 #X text 199 136 |;
 #X text 199 146 |;
 #X text 199 117 |;
 #X text 199 127 |;
-#X text 243 60 10K;
 #X text 249 70 |;
 #X text 249 99 |;
 #X text 249 109 |;
@@ -116,6 +114,8 @@
 #X text 103 44 K5(SCL)---220---------------SCL;
 #X text 102 90 K7(SDA)---220-------SDA;
 #X text 28 95 Versa;
+#X text 243 60 2.2K;
+#X text 192 108 2.2K;
 #X restore 520 92 pd schematic;
 #X obj 776 276 t b b;
 #X obj 776 298 timer;
