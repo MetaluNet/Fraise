@@ -29,17 +29,19 @@
 #include <spimaster.h>
 
 //CKE=1 CKP=0 SMP=0	
-#define SPImasterInit(X) do {\
-		SSP##X##STATbits.SMP = 0; \
+#define _SPImasterInit(X) do {\
+		SSP##X##STATbits.SMP = 1/*0*/; \
 		SSP##X##STATbits.CKE = 1; \
-		SSP##X##CON1.CKP = 0; \
-		SSP##X##CON1.SSP##X##EN = 1; \
-		SSP##X##CON1.SSP##X##M = 0b0001; /* SPI Master mode, clock = FOSC/16 */ \
-		pinModeDiagitalOut(SPI##X##SCK); \
-		pinModeDiagitalIn(SPI##X##SDI); \
-		pinModeDiagitalOut(SPI##X##SDO); \
+		SSP##X##CON1bits.CKP = 0; \
+		SSP##X##CON1bits.SSPEN = 1; \
+		SSP##X##CON1bits.SSPM = 0b0001; /* SPI Master mode, clock = FOSC/16 */ \
+		/*SSP##X##CON1bits.SSPM = 0b0010;*/ /* SPI Master mode, clock = FOSC/64 */ \
+		pinModeDigitalOut(SPI##X##SCK); \
+		pinModeDigitalIn(SPI##X##SDI); \
+		pinModeDigitalOut(SPI##X##SDO); \
 	} while(0);
 	
+#define SPImasterInit(X) _SPImasterInit(X)
 
 void SPImaster1Init()
 {
@@ -91,7 +93,7 @@ byte SPImaster1Transfer(byte b)
 	return SSP1BUF;
 }
 
-byte SPImaster2Transfer(byte b);
+byte SPImaster2Transfer(byte b)
 {
 	SSP2BUF = b;
 	while(!SSP2STATbits.BF);
