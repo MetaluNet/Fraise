@@ -106,7 +106,7 @@
 #define MBEN2AN	11
 
 #define MOTB_PWM 1
-
+#define MBPWM K9
 #define MOTB_CURRENT K10
 
 #define MOTB_CONFIG() do{/*init PWM1 to P1B for MOTB_PWM : */ PSTR1CON=0; PSTR1CONbits.STR1B=1;pinModeDigitalOut(K9);} while(0)
