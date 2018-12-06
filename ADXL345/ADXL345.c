@@ -47,6 +47,8 @@ void ADXL345Init(ADXL345 *dev, byte address)
 	writeTo(address, ADXL345_POWER_CTL, 0);  // Wakeup     
 	writeTo(address, ADXL345_POWER_CTL, 16); // Auto_Sleep
 	writeTo(address, ADXL345_POWER_CTL, 8);  // Measure
+//	writeTo(address, ADXL345_DATA_FORMAT, 0b00001000); // full range
+	writeTo(address, ADXL345_DATA_FORMAT, 0b00001011); // full range
 }
 
 #define GETACC(which) which##h = i2cm_readchar(); i2cm_ack(); which##l = i2cm_readchar()
