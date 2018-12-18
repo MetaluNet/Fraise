@@ -74,7 +74,7 @@ $(OBJS): %.o: %.c  Makefile $(BOARDMAKEFILE) src/eeprom.c
 	@echo ---- Compile $@ ----
 	$(CC) $(CFLAGS) $(MACROS) -c $< -o $@
 
-$(HEXFILE): ./src/fbld.c $(BOARDDIR)/boardconfig.o $(OBJS) $(BOARDMAKEFILE) Makefile
+$(HEXFILE): ./src/fbld.c $(BOARDDIR)/boardconfig.c $(OBJS) $(BOARDMAKEFILE) Makefile
 	@echo ---- Linking and building $@ ----
 	$(CC) $(CFLAGS) $(MACROS) -L $(SDCC_SHARE)/lib/pic16  -L $(SDCC_SHARE)/non-free/lib/pic16 -o $(HEXFILE) $(OBJS) $(LIBS) -Wl"-s $(CHIP).lkr"
 
