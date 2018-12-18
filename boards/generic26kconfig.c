@@ -44,7 +44,7 @@ __code char __at __CONFIG1H _conf1 = _FOSC_INTIO67_1H 	// Internal oscillator bl
 
 __code char __at __CONFIG2L _conf2 = _PWRTEN_ON_2L		// Power up timer enabled
 								&	_BOREN_ON_2L		// Brown-out Reset enabled and controlled by software (SBOREN is enabled)
-								&	_BORV_285_2L;		// VBOR set to 2.85 V nominal
+								&	_BORV_190_2L;		// VBOR set to 1.9 V nominal
 
 __code char __at __CONFIG2H _conf3 = _WDTEN_SWON_2H		// WDT is controlled by SWDTEN bit of the WDTCON register
 								&	_WDTPS_256_2H;		// 1:256 = 1.024s
