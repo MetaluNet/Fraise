@@ -100,6 +100,10 @@ void analogDeselect(unsigned char chan)
 	bitclr(Selected[chan>>3],chan&7);
 }
 
+#ifdef ANALOG_CHANNEL_PRECONF
+extern void ANALOG_CHANNEL_PRECONF(unsigned char chan);
+#endif
+
 unsigned char analogService(void)
 {
 	static unsigned char chan=0, conv=0;
@@ -130,6 +134,9 @@ unsigned char analogService(void)
 	
 	if(isSelected(chan))	{
 		ADCON0=(HWChan[chan] << 2) + 1;
+#ifdef ANALOG_CHANNEL_PRECONF
+		ANALOG_CHANNEL_PRECONF(chan);
+#endif
 		pin = Pins[chan];
 		if(pin != 255) {
 			bitset(*(&TRISA+(pin>>4)),pin&7);// set channel to digital input
