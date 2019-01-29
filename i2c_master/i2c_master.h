@@ -29,7 +29,7 @@
 
 #include <config.h>
 
-#define _I2CPARAM_SPEC	__data
+#define _I2CPARAM_SPEC	//__data
 
 
 /* I2C modes of operation */
