@@ -62,7 +62,7 @@ HEXFILE= hex/$(BOARD).hex
 
 SUFFIXES= obj lst asm o
 	
-all: clean $(HEXFILE)
+all: $(HEXFILE) clean
 	 make clean
 	
 $(BOARD): all
