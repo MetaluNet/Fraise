@@ -33,6 +33,10 @@
 #define RAMP_UINCPOW 10 // 1 increment = 1024 milli-increments (mincs) = 1024x1024 micro-increments (uincs)
 #endif
 
+#ifndef RAMP_VPOW
+#define RAMP_VPOW 10
+#endif
+
 #ifndef RAMP_MAXERROR 
 #define RAMP_MAXERROR 3 //  
 #endif
@@ -57,6 +61,7 @@ typedef struct {
 void rampInit(t_ramp *Ramp);
 void rampGoto(t_ramp *Ramp,int pos);
 void rampSetPos(t_ramp *Ramp,int pos);
+void rampSetPosMoving(t_ramp *Ramp,int pos);
 #define rampGetPos(Ramp) ((Ramp)->currentPos>>(RAMP_UINCPOW))
 void rampCompute(t_ramp *Ramp);
 void rampInput(t_ramp *Ramp);
