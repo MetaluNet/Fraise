@@ -54,6 +54,7 @@ typedef struct {
 } t_pid ;
 
 void pidInit(t_pid *Pid);
+void pidReset(t_pid *Pid);
 void pidCompute(t_pid *Pid,int err);
 void pidInput(t_pid *Pid);
 void pidDeclareEE(t_pid *Pid);

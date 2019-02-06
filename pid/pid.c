@@ -45,6 +45,11 @@ void pidInit(t_pid *Pid)
 	//Pid->MaxOut=
 }
 
+void pidReset(t_pid *Pid)
+{
+	Pid->Out=0;
+	Pid->Last=Pid->Int=0;
+}
 
 void pidCompute(t_pid *Pid,int err)
 {
@@ -70,7 +75,7 @@ void pidCompute(t_pid *Pid,int err)
 		delta=((long)err-P.Last);
 		if(delta>=MAXDELTA) delta=MAXDELTA-1;
 		else if(delta<-MAXDELTA) delta=-MAXDELTA;
-		out+=(delta<<7)*P.GainD;
+		out+=(delta<<1)*P.GainD;
 	}
 	
 	P.Last = err ;
