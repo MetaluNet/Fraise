@@ -253,4 +253,9 @@ void dcmotorDeclareEE(t_dcmotor *mot);
 #define DCMOTOR(motID) (dcmotor##motID)
 #define DCMOTOR_GETPOS(motID) (DCMOTOR(motID).VolVars.Position)
 
+#ifndef RAMP_TO_POS_POW
+#define RAMP_TO_POS_POW RAMP_UINCPOW
+#endif
+
+
 #endif // _DCMOTOR_H_

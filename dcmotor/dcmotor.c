@@ -79,7 +79,7 @@ void dcmotorCompute(t_dcmotor *mot)
 	if((S.Mode >= 2) && (dcmotorVolVars.homed)) {
 		rampCompute(&mot->PosRamp);
 
-		error = (long)(mot->PosRamp.currentPos>>(RAMP_UINCPOW)) - (dcmotorVolVars.Position) ;
+		error = (long)(mot->PosRamp.currentPos>>(RAMP_TO_POS_POW)) - (dcmotorVolVars.Position) ;
 
 		if((error < 0) && (error >= -S.PosWindow)) error = 0;
 		if((error > 0) && (error <= S.PosWindow)) error = 0;
@@ -131,10 +131,17 @@ void dcmotorInput(t_dcmotor *mot)
 		PARAM_INT(3, mot->Vars.SpeedConsign); mot->Setting.Mode = 1; break;
 		PARAM_INT(4, mot->Vars.PWMConsign); mot->Setting.Mode = 0; break;
 		PARAM_CHAR(5, mot->Setting.reversed); break;
-		PARAM_CHAR(6, c2); mot->VolVars.homed = (c2!=0); if(c2==1) {
+		PARAM_CHAR(6, c2); // reset
+			mot->VolVars.homed = (c2!=0);
+			if(c2==1) {
 				mot->VolVars.Position = 0;
 				rampSetPos(&mot->PosRamp,0);
 			}
+			break;
+		PARAM_INT(7, i); // set pos while moving
+			mot->VolVars.homed = 1;
+			mot->VolVars.Position = i;
+			rampSetPosMoving(&mot->PosRamp,i);
 			break;
 	}
 }
