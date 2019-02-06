@@ -500,6 +500,7 @@ void fraiseISR(void)
 				RCSTAxbits.ADDEN = 0;
 				if(c) FraiseStatus.RX_BRDCST = 0;
 				else FraiseStatus.RX_BRDCST = 1;
+
 				FrRXchksum = c;
 				FrRXin_tmp = FrRXin;
 				FrRXin_end = FrRXin - 1; // protect FrRXin_end
@@ -514,7 +515,6 @@ void fraiseISR(void)
 		}
 							// -----------  data :
 		c = RCREGx; // get byte
-
 		if(FraiseStatus.RX_POLL) { // had a poll signal
 			if(c == (FrID | 128)){ 	// confirmation byte of poll signal:
 				// answer poll signal :
@@ -530,7 +530,7 @@ void fraiseISR(void)
 			RCSTAxbits.ADDEN = 1;
 			return;
 		}	
-		
+
 		FrRXchksum += c;
 
 		if(FrRXin_tmp == FrRXin_end) {// RX packet complete
@@ -657,7 +657,6 @@ static char CompareName()
 static void Assign() //"N" command
 {
 	unsigned char c, c2, tmpid;
-
 	c = fraiseGetChar();
 	c2 = fraiseGetChar();
 	c -= '0'; if (c > 9) c -= 'A' - '9' - 1;
@@ -728,7 +727,11 @@ void fraiseService(void)
 				else if(c == 'I') __asm reset __endasm; //init
 			}
 #ifdef UD_RCVB
-			else fraiseReceiveBroadcast();
+			else {
+				c = fraiseGetChar();
+				FrRXout_len -= 1;
+				if     (c == 'b') fraiseReceiveBroadcast();
+			}
 #endif
 		}
 		else 			//Normal device packet
