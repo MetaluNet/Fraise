@@ -5,17 +5,21 @@
 #define MAENBIT 3
 #define MAENAN 9
 
+#define MAEN2 KZ1
+
 #define MA1PORT A
 #define MA1BIT 4
-#define MA1AN 2
+#define MA1PWM 5
+#define MA1SETUP_PWM() do{} while(0)
 
 #define MA2PORT B
 #define MA2BIT 5
-#define MA2PWM 3
-#define MA2SETUP_PWM() do{PSTR3CON=0; PSTR3CONbits.STR3A=1;} while(0)
+// needs changing boardconfig.c to do that:
+//#define MA2PWM 3
+//#define MA2SETUP_PWM() do{PSTR3CON=0; PSTR3CONbits.STR3A=1;} while(0)
 
-#define MOTA_CONFIG() do{\
-}while(0)
+#define MOTA_CONFIG() do{MA1SETUP_PWM();} while(0)
+#define MOTA_PWM MA1PWM
 
 #define MASENSEPORT A
 #define MASENSEBIT 	0
@@ -37,6 +41,8 @@
 #define MBENAN 11
 #define MBENPWM 1
 #define MBENSETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1D=1;} while(0)
+
+#define MBEN2 KZ1
 
 #define MB1PORT B
 #define MB1BIT 0
@@ -64,6 +70,8 @@
 #define MBCBIT 2
 #define MBCAN 2
 
+#define MOTB_CONFIG() do{MB2SETUP_PWM();} while(0)
+#define MOTB_PWM MB2PWM
 //--------------------------------
 
 #define LEDPORT A
