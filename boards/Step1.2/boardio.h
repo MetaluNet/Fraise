@@ -14,6 +14,8 @@
 
 #define MA2PORT B
 #define MA2BIT 5
+#define MA2PWM 2
+#define MA2SETUP_PWM() do{PSTR2CON=0; PSTR2CONbits.STR2B=1;} while(0)
 // needs changing boardconfig.c to do that:
 //#define MA2PWM 3
 //#define MA2SETUP_PWM() do{PSTR3CON=0; PSTR3CONbits.STR3A=1;} while(0)
