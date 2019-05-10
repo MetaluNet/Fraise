@@ -90,7 +90,13 @@
 #define TX1IP 			TXIP
 #endif
 
+#if DMX_SLAVE_NBCHAN > 256
+static unsigned char DMXRegisters[256];
+static unsigned char DMXRegistersB[DMX_SLAVE_NBCHAN - 256];
+#else
 static unsigned char DMXRegisters[DMX_SLAVE_NBCHAN];
+#endif
+
 #define STATE_NONE 0
 #define STATE_BREAKRCVD 1
 #define STATE_DMX 2
@@ -131,8 +137,14 @@ void DMXSlaveInit(void)
 {
 	int i;
 	
-	for(i=0;i<DMX_SLAVE_NBCHAN;i++) DMXRegisters[i]=0; //clear all channels
-	
+	for(i=0;i<DMX_SLAVE_NBCHAN;i++) {
+#if DMX_SLAVE_NBCHAN > 256
+		if(i >= 256) DMXRegistersB[i - 256] = 0;
+		else
+#endif
+			DMXRegisters[i]=0; //clear all channels
+	}
+
 	pinModeDigitalIn(DMX_SLAVE_UART_PIN);
 	BAUDCONxbits.BRG16=1;
 	Set250kB();
@@ -149,6 +161,11 @@ void DMXSlaveInit(void)
 unsigned char DMXSlaveGet(unsigned int channel)
 {
 	if(channel==0) return 0;
+	if(channel >= DMX_SLAVE_NBCHAN) return 0;
+#if DMX_SLAVE_NBCHAN > 256
+	if(channel >= 256) return DMXRegistersB[channel - 256];
+	else
+#endif
 	return DMXRegisters[channel];
 }
 
@@ -222,7 +239,13 @@ void DMXSlaveISR()
 	if(State==STATE_DMX){
 		DMXPointer++;
 		if(MaxReceivedChannel < DMXPointer) MaxReceivedChannel = DMXPointer;
-		if(DMXPointer < DMX_SLAVE_NBCHAN) DMXRegisters[DMXPointer] = Byte;
+		if(DMXPointer < DMX_SLAVE_NBCHAN) {
+#if DMX_SLAVE_NBCHAN > 256
+			if(DMXPointer >= 256) DMXRegistersB[DMXPointer - 256] = Byte;
+			else
+#endif
+			DMXRegisters[DMXPointer] = Byte;
+		}
 	}
 	//DMXSlaveHadInterrupt = 1;
 }
@@ -240,7 +263,11 @@ unsigned int DMXSlaveGetMaxReceivedChannel()
 
 void DMXSlaveSet(unsigned int channel, unsigned char value)
 {
-	if((channel<=0) || (channel > DMX_SLAVE_NBCHAN)) return;
-	DMXRegisters[channel] = value;
+	if((channel<=0) || (channel >= DMX_SLAVE_NBCHAN)) return;
+#if DMX_SLAVE_NBCHAN > 256
+	if(channel >= 256) DMXRegistersB[channel - 256] = value;
+	else
+#endif
+		DMXRegisters[channel] = value;
 }
 
