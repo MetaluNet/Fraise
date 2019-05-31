@@ -114,4 +114,27 @@
 #define K7SETUP_PWM() do{PSTR1CON=0; PSTR1CONbits.STR1B=1;} while(0)
 #define K7INT	2
 
+
+//---- Aux serial port
+#define AUXSERIAL_NUM 1
+#define AUXSERIAL_TX K5
+#define AUXSERIAL_RX K6
+
+//---- I2C
+#define I2C1SCL K2
+#define I2C1SDA K3
+
+#define I2C2SCL MB2
+#define I2C2SDA K7
+
+//---- SPI
+#define SPI1SCK K2
+#define SPI1SDI K3
+#define SPI1SDO K4
+
+#define SPI2SCK MB2
+#define SPI2SDI K7
+#define SPI2SDO MAEN
+
+
 #endif
