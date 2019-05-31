@@ -72,8 +72,8 @@
 #define MBCBIT 2
 #define MBCAN 2
 
-#define MOTB_CONFIG() do{MB2SETUP_PWM();} while(0)
-#define MOTB_PWM MB2PWM
+#define MOTB_CONFIG() do{MB1SETUP_PWM();} while(0)
+#define MOTB_PWM MB1PWM
 //--------------------------------
 
 #define LEDPORT A
