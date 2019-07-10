@@ -28,13 +28,14 @@
 #include <core.h>
 #include <spimaster.h>
 
+
 //CKE=1 CKP=0 SMP=0	
 #define _SPImasterInit(X) do {\
 		SSP##X##STATbits.SMP = 1/*0*/; \
 		SSP##X##STATbits.CKE = 1; \
 		SSP##X##CON1bits.CKP = 0; \
 		SSP##X##CON1bits.SSPEN = 1; \
-		SSP##X##CON1bits.SSPM = 0b0001; /* SPI Master mode, clock = FOSC/16 */ \
+		SSP##X##CON1bits.SSPM = SPI_BITRATE; /* SPI Master mode, clock = FOSC/16 */ \
 		/*SSP##X##CON1bits.SSPM = 0b0010;*/ /* SPI Master mode, clock = FOSC/64 */ \
 		pinModeDigitalOut(SPI##X##SCK); \
 		pinModeDigitalIn(SPI##X##SDI); \

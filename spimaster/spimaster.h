@@ -26,6 +26,15 @@
 */
 #ifndef SPIMASTER_H
 #define SPIMASTER_H
+#include <core.h>
+
+#define SPI_BR_FOSC_4 0b0000
+#define SPI_BR_FOSC_16 0b0001
+#define SPI_BR_FOSC_64 0b0010
+
+#ifndef SPI_BITRATE
+#define SPI_BITRATE SPI_BR_FOSC_16
+#endif
 
 void SPImaster1Init();
 void SPImaster2Init();
