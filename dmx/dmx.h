@@ -80,6 +80,7 @@ void DMXService(); ///< @brief Module service routine, to be called by the main 
 void DMXSet(unsigned int channel, unsigned char value);
 //@}
 
+extern unsigned int DMXframeCount;
 /** @} 
 */
 

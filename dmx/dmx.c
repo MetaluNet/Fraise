@@ -85,6 +85,7 @@
 #endif
 
 unsigned char DMXRegisters[DMX_NBCHAN];
+unsigned int DMXframeCount;
 
 void Set250kB(void)
 {
@@ -119,6 +120,8 @@ void DMXInit(void)
 	TXSTAxbits.TX9D = 1;
 
 	RCSTAxbits.SPEN = 1;
+	
+	DMXframeCount = 0;
 }
 
 void DMXSet(unsigned int channel, unsigned char value)
@@ -151,7 +154,10 @@ void DMXService()
 		channel = 1;
 	} else {
 		TXREGx = DMXRegisters[channel++];
-		if(channel == DMX_NBCHAN) channel = -3;
+		if(channel == DMX_NBCHAN) {
+			channel = -3;
+			DMXframeCount++;
+		}
 	}
 }
 
