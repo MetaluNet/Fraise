@@ -37,10 +37,17 @@
 
 //---------------  Serial macros :   -----------------
 //serial drive:
+#if 1
 #define	InitSerDrv()	do { SERDRV_PIN = 0; SERDRV_TRI = 1; } while(0)
 #define	SerDrv_On()		do { SERDRV_TRI = SERDRV_POL; } while(0)
 #define	SerDrv_Off()	do { SERDRV_TRI =! SERDRV_POL; } while(0)
 #define	SerDrv_isOn()	(SERDRV_TRI == SERDRV_POL)
+#else
+#define	InitSerDrv()	do { SERDRV_PIN = 1; SERDRV_TRI = 0; } while(0)
+#define	SerDrv_On()		do { SERDRV_PIN = SERDRV_POL; } while(0)
+#define	SerDrv_Off()	do { SERDRV_PIN =! SERDRV_POL; } while(0)
+#define	SerDrv_isOn()	(SERDRV_PIN == SERDRV_POL)
+#endif
 
 //serial port:
 #if UART_PORT==1
@@ -113,9 +120,9 @@ static void Serial_Init_Receiver() {
 }
 
 #define Serial_Init_Driver() do {\
-	SerDrv_On();		\
 	RCxIE = 0;			\
 	RCSTAxbits.CREN = 0;\
+	SerDrv_On();		\
 } while(0)
 
 #define Serial_Is_Driver() SerDrv_isOn()
@@ -476,7 +483,7 @@ void fraiseISR(void)
 		return;
 	}
 	
-	if(RCxIF) {
+	if(RCxIE && RCxIF) {
 		if(RCSTAxbits.OERR){
 			FraiseStatus.RX_OERR = 1;
 			Serial_Init_Receiver();
