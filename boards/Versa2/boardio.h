@@ -76,6 +76,7 @@
 #define MAPWMPORT A
 #define MAPWMBIT 4
 #define MAPWMAN 5
+#define MAPWMPWM 5
 #define MAPWMSETUP_PWM() do{} while(0)
 
 #define MOTA_CURRENT K3
