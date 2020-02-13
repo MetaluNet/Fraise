@@ -119,11 +119,19 @@ void main() {
 
 //--------------------- Interrupts : -------------------------------
 
+//#define SAVETBLPRT() unsigned char savedTBLPTR = TBLPTR, savedTBLPTRL = TBLPTRL, savedTBLPTRH = TBLPTRH, savedTBLPTRU = TBLPTRU, savedTABLAT = TABLAT
+//#define RESTORETBLPRT() TBLPTR = savedTBLPTR, TBLPTRL = savedTBLPTRL, TBLPTRH = savedTBLPTRH, TBLPTRU = savedTBLPTRU, TABLAT = savedTABLAT
+#define SAVETBLPRT() POSTDEC1 = TBLPTR, POSTDEC1 = TBLPTRL, POSTDEC1 = TBLPTRH, POSTDEC1 = TBLPTRU, POSTDEC1 = TABLAT, POSTDEC1 = FSR1L, POSTDEC1 = FSR1H
+#define RESTORETBLPRT() FSR1H = PREINC1, FSR1L = PREINC1, TABLAT = PREINC1, TBLPTRU = PREINC1, TBLPTRH = PREINC1, TBLPTRL = PREINC1, TBLPTR = PREINC1
+
 void high_ISR(void)
 //#ifdef SDCC
- __shadowregs __interrupt 1
+ //__shadowregs 
+ __interrupt 1
 //#endif
 {
+	SAVETBLPRT();
+	
 	Now.word1= TMR0U;
 	LOWER_LSB(Now)=TMR0L;
 	LOWER_MSB(Now)=TMR0H;
@@ -139,6 +147,7 @@ void high_ISR(void)
 #ifdef UD_HIGH
 	highInterrupts();
 #endif
+	RESTORETBLPRT();
 }
 
 
@@ -148,11 +157,13 @@ void low_ISR(void)
  __interrupt 2
 //#endif
 {	
+	SAVETBLPRT();
 	fraiseISR();
 	
 #ifdef UD_LOW
 	lowInterrupts();
 #endif
+	RESTORETBLPRT();
 }
 
 
