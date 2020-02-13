@@ -51,7 +51,7 @@ CFLAGS= -I. -I./lib -I$(SDCC_SHARE)/include/pic16 -I$(SDCC_SHARE)/non-free/inclu
 MACROS= -DFOSC=$(FOSC) -DBLD_START=$(BLD_START) -DAPP_START=$(APP_START) \
 		-DUART_PORT=$(UART_PORT) -DSERDRV_PIN=$(SERDRV_PIN) \
 		-DSERDRV_TRI=$(SERDRV_TRI) -DSERDRV_POL=$(SERDRV_POL) \
-		-DCONFIG_SETUP=$(CONFIG_SETUP) -DBOOTLOADER
+		-DCONFIG_SETUP=$(CONFIG_SETUP) -DBOOTLOADER -DBOOT_TIME=$(BOOT_TIME)
 #-I$(SDCC_SHARE)/non-free/include/pic16		
 
 #LIBS= libsdcc.lib libc18f.lib libio$(CHIP).lib pic$(CHIP).lib
@@ -74,7 +74,7 @@ $(OBJS): %.o: %.c  Makefile $(BOARDMAKEFILE) src/eeprom.c
 	@echo ---- Compile $@ ----
 	$(CC) $(CFLAGS) $(MACROS) -c $< -o $@
 
-$(HEXFILE): ./src/fbld.c $(BOARDDIR)/boardconfig.c $(OBJS) $(BOARDMAKEFILE) Makefile
+$(HEXFILE): ./src/fbld.c ./src/fbld.o $(BOARDDIR)/boardconfig.c $(OBJS) $(BOARDMAKEFILE) Makefile
 	@echo ---- Linking and building $@ ----
 	$(CC) $(CFLAGS) $(MACROS) -L $(SDCC_SHARE)/lib/pic16  -L $(SDCC_SHARE)/non-free/lib/pic16 -o $(HEXFILE) $(OBJS) $(LIBS) -Wl"-s $(CHIP).lkr"
 

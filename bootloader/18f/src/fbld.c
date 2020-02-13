@@ -38,6 +38,11 @@
 extern void Setup();
 #endif
 
+// bootloader exit time
+#ifndef BOOT_TIME
+#define BOOT_TIME 4000
+#endif
+
 //---------------  Serial macros :   -----------------
 //serial drive:
 #define	InitSerDrv()	{SERDRV_PIN = 0; SERDRV_TRI = 1;}
@@ -946,7 +951,7 @@ endif
 			}
 		}
 		
-		if((!Flags.VERIFIED)&&(Time>160)) startapp(); //4s timeout.
+		if((!Flags.VERIFIED)&&(Time>(BOOT_TIME / 25))) startapp(); //default 4s timeout.
 	}
 }
 
