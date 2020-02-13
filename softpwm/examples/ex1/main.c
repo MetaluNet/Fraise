@@ -19,7 +19,7 @@ void setup(void) {
 	delayStart(mainDelay, 5000); 	// init the mainDelay to 5 ms
 
 //----------- softpwm setup ----------------
-	softpwmInit();		// init analog module
+	softpwmInit();		// init softpwm module
 }
 
 // ---------- Main loop ------------
