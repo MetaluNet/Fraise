@@ -69,6 +69,7 @@
 #define BCLxIF 			PIR3bits.BCL2IF
 #endif
 
+char i2cm_errno = 0;
 
 void i2cm_init(unsigned char mode, unsigned char slew, unsigned char addr_brd)
 {
@@ -115,6 +116,7 @@ void i2cm_idle(void)
     unsigned int i = MAXLOOP;
 
     while((--i > 0) && ( (SSPxCON2 & 0x1f) | (SSPxSTATbits.R_W))) SERVICE();
+    i2cm_errno = (i == 0);
 }
 
 void i2cm_start(void)
@@ -123,6 +125,7 @@ void i2cm_start(void)
   i2cm_idle();
   SSPxCON2bits.SEN = 1;
   while ((--i > 0) && SSPxCON2bits.SEN) SERVICE();
+  i2cm_errno = (i == 0);
 }
 
 void i2cm_restart(void)
@@ -137,7 +140,9 @@ void i2cm_stop(void)
   unsigned int i = MAXLOOP;
   i2cm_idle();
   SSPxCON2bits.PEN = 1;
-  while ((--i > 0) && SSPxCON2bits.PEN) SERVICE();
+  //i2cm_idle();
+  /*while ((--i > 0) && SSPxCON2bits.PEN) SERVICE();
+  i2cm_errno = (i == 0);*/
 }
 
 void i2cm_ack(void)
@@ -147,7 +152,8 @@ void i2cm_ack(void)
   SSPxIF = 0;
   SSPxCON2bits.ACKDT = 0;
   SSPxCON2bits.ACKEN = 1;
-  while ((--i > 0) && !SSPxIF) SERVICE(); 
+  while ((--i > 0) && !SSPxIF) SERVICE();
+  i2cm_errno = (i == 0);
 }
 
 void i2cm_nack(void)
@@ -167,6 +173,7 @@ unsigned char i2cm_readchar(void)
   i2cm_idle();
   SSPxCON2bits.RCEN = 1;
   while((--i > 0) &&  !i2cm_drdy()) SERVICE();
+  i2cm_errno = (i == 0);
   return ( SSPxBUF );
 }
 
@@ -199,7 +206,9 @@ char i2cm_writechar(unsigned char dat)
     return -1;
   } else {
     i2cm_idle();
-    return 0;
+    //while( !SSPxIF );
+    if( SSPxCON2bits.ACKSTAT || (i2cm_errno != 0)) return -1;
+    else return 0;
   }
 }
 
@@ -233,9 +242,10 @@ char i2cm_writestr(unsigned char *ptr)
 
 /*--------------------------------------*/
 
-void i2cm_begin(unsigned char address, unsigned char doread)
+char i2cm_begin(unsigned char address, unsigned char doread)
 {
 	i2cm_start();
-	i2cm_writechar( (address<<1) | (doread != 0) );
+	if(i2cm_errno != 0) return -1;
+	return i2cm_writechar( (address<<1) | (doread != 0) );
 }
 

@@ -79,11 +79,12 @@ char i2cm_writechar(unsigned char dat);
 char i2cm_writestr(unsigned char *ptr);
 
 /* begin communication to I2C module */
-void i2cm_begin(unsigned char address, unsigned char doread);
+char i2cm_begin(unsigned char address, unsigned char doread);
 
 /* configure I2C port for operation */
 void i2cm_init(unsigned char mode, unsigned char slew, unsigned char addr_brd);
 
 void i2cm_close(void);
 
+extern char i2cm_errno;
 #endif	/* __I2C_H__ */
