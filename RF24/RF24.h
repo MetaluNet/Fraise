@@ -13,6 +13,10 @@
  * RF24 Fraise module declarations
  */
 
+/** @defgroup RF24 nRF24L01+ module
+ *  2.4GHz wireless communication.
+ */
+
 #ifndef __RF24_H__
 #define __RF24_H__
 
@@ -438,8 +442,7 @@ bool RF24_isChipConnected();
    * @param[out] tx_fail The send failed, too many retries (MAX_RT)
    * @param[out] rx_ready There is a message waiting to be read (RX_DS)
    */
-  //void RF24whatHappened(bool& tx_ok,bool& tx_fail,bool& rx_ready);
-
+  void RF24_whatHappened(bool* tx_ok,bool* tx_fail,bool* rx_ready);
   /**
    * Non-blocking write to the open writing pipe used for buffered writes
    *
@@ -859,6 +862,16 @@ bool RF24_isChipConnected();
   
   extern uint32_t RF24_csDelay;
   
+  void RF24_toggle_features(void);
+  
+  uint8_t RF24_read_registers(uint8_t reg, uint8_t* buf, uint8_t len);
+  uint8_t RF24_read_register(uint8_t reg);
+  void RF24_read_pipes_addresses(uint8_t *buf); // buf length must be at least 5+5+4=14  
+  uint8_t RF24_flush_rx(void);
+  uint8_t RF24_flush_tx(void);
+
+
+
   /**@}*/
 
 

@@ -121,7 +121,7 @@ static void endTransaction() {
 
 /****************************************************************************/
 
-static uint8_t read_registers(uint8_t reg, uint8_t* buf, uint8_t len)
+uint8_t RF24_read_registers(uint8_t reg, uint8_t* buf, uint8_t len)
 {
   uint8_t status;
 
@@ -312,9 +312,22 @@ bool RF24_init(void)
   csDelay = 5;
   pipe0_reading_address[0]=0;
 
+  /*SPIMASTERINIT();
   pinModeDigitalOut(RF24_CE);
   pinModeDigitalOut(RF24_CSN);
 
+  delay(5);
+  ce(LOW);
+  csn(HIGH);
+  delay(5);*/
+
+  ce(LOW);
+  csn(HIGH);
+  pinModeDigitalOut(RF24_CE);
+  pinModeDigitalOut(RF24_CSN);
+
+//  ce(HIGH);
+//  csn(LOW);
   ce(LOW);
   csn(HIGH);
 
@@ -331,10 +344,13 @@ bool RF24_init(void)
   // Technically we require 4.5ms + 14us as a worst case. We'll just call it 5ms for good measure.
   // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
   delay( 5 ) ;
+  //delay( 20 ) ;
 
   // Reset NRF_CONFIG and enable 16-bit CRC.
   write_register( NRF_CONFIG, 0x0C ) ;
 
+  write_register(EN_RXADDR,0); // disable all pipes
+  
   // Set 1500uS (minimum for 32B payload in ESB@250KBPS) timeouts, to make testing a little easier
   // WARNING: If this is ever lowered, either 250KBS mode with AA is broken or maximum packet
   // sizes must never be used. See documentation for a more complete explanation.
@@ -343,13 +359,15 @@ bool RF24_init(void)
   // Reset value is MAX
   //setPALevel( RF24_PA_MAX ) ;
 
+  write_register(RF_SETUP, 0b00001110 );
   // check for connected module and if this is a p nRF24l01 variant
   //
+  //return;
   if( RF24_setDataRate( RF24_250KBPS ) )
   {
     p_variant = true ;
   }
-  setup = read_register(RF_SETUP);
+  //setup = read_register(RF_SETUP);
   /*if( setup == 0b00001110 )     // register default for nRF24L01P
   {
     p_variant = true ;
@@ -363,7 +381,7 @@ bool RF24_init(void)
   //setCRCLength( RF24_CRC_16 ) ;
 
   // Disable dynamic payloads, to match dynamic_payloads_enabled setting - Reset value is 0
-  RF24_toggle_features();
+  //RF24_toggle_features(); // no effect on 24L01+
   write_register(FEATURE,0 );
   write_register(DYNPD,0);
   dynamic_payloads_enabled = false;
@@ -1211,7 +1229,21 @@ void RF24_disableCRC( void )
 /****************************************************************************/
 void RF24_setRetries(uint8_t delay, uint8_t count)
 {
- write_register(SETUP_RETR,(delay&0xf)<<ARD | (count&0xf)<<ARC);
+  write_register(SETUP_RETR,(delay&0xf)<<ARD | (count&0xf)<<ARC);
 }
 
+uint8_t RF24_read_register(uint8_t reg)
+{
+	return read_register(reg);
+}
+
+void RF24_read_pipes_addresses(uint8_t *buf) // buf length must be at least 5+5+4=14
+{
+	RF24_read_registers(child_pipe[0], buf, 5);
+	RF24_read_registers(child_pipe[1], buf+5, 5);
+	RF24_read_registers(child_pipe[2], buf+10, 1);
+	RF24_read_registers(child_pipe[3], buf+11, 1);
+	RF24_read_registers(child_pipe[4], buf+12, 1);
+	RF24_read_registers(child_pipe[5], buf+13, 1);
+}
 
