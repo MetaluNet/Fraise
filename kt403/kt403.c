@@ -136,6 +136,7 @@ static void kt403_write(byte b)
 	TXREGx = b;
 }
 
+
 void kt403_Init()
 {
 	digitalSet(KT403_UART_TX);
@@ -223,7 +224,11 @@ void kt403_lowISR()
     }*/
 }
 
-
+void kt403_deInit()
+{
+	RCSTAxbits.CREN = 0;
+	RCxIE = 0;
+}
 
 /**************************************************************** 
  * Function Name: SelectPlayerDevice

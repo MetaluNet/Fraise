@@ -43,6 +43,7 @@
 #define _KT403_H
 void kt403_Init();
 void kt403_lowISR();
+void kt403_deInit();
 
 void kt403_SelectPlayerDevice(byte device);
 void kt403_SpecifyMusicPlay(word index);
