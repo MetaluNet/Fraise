@@ -343,9 +343,13 @@ bool RF24_init(void)
   // Enabling 16b CRC is by far the most obvious case if the wrong timing is used - or skipped.
   // Technically we require 4.5ms + 14us as a worst case. We'll just call it 5ms for good measure.
   // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
-  delay( 5 ) ;
-  //delay( 20 ) ;
-
+  //delay( 5 ) ;
+  delay( 20 ) ;
+  
+  RF24_reset(); // reset all registers
+  
+  delay( 5 );
+  
   // Reset NRF_CONFIG and enable 16-bit CRC.
   write_register( NRF_CONFIG, 0x0C ) ;
 
@@ -447,6 +451,14 @@ void RF24_startListening(void)
   //delayMicroseconds(100);
 }
 
+void RF24_startListeningFast(void) // no ack, no pipe0
+{
+  RF24_powerUp();
+  write_register(NRF_CONFIG, read_register(NRF_CONFIG) | _BV(PRIM_RX));
+  write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
+  ce(HIGH);
+}
+
 /****************************************************************************/
 static const uint8_t child_pipe_enable[] =
 {
@@ -461,15 +473,19 @@ void RF24_stopListening(void)
   
   if(read_register(FEATURE) & _BV(EN_ACK_PAY)){
     delayMicroseconds(txDelay); //200
-	RF24_flush_tx();
+    RF24_flush_tx();
   }
   //flush_rx();
   write_register(NRF_CONFIG, ( read_register(NRF_CONFIG) ) & ~_BV(PRIM_RX) );
  
   write_register(EN_RXADDR,read_register(EN_RXADDR) | _BV(child_pipe_enable[0])); // Enable RX on pipe0
-  
-  //delayMicroseconds(100);
+}
 
+void RF24_stopListeningFast(void) // if no ack
+{  
+  ce(LOW);
+  write_register(NRF_CONFIG, ( read_register(NRF_CONFIG) ) & ~_BV(PRIM_RX) );
+  write_register(EN_RXADDR,read_register(EN_RXADDR) | _BV(child_pipe_enable[0])); // Enable RX on pipe0
 }
 
 /****************************************************************************/
@@ -1246,4 +1262,38 @@ void RF24_read_pipes_addresses(uint8_t *buf) // buf length must be at least 5+5+
 	RF24_read_registers(child_pipe[4], buf+12, 1);
 	RF24_read_registers(child_pipe[5], buf+13, 1);
 }
+
+void RF24_reset(void)
+{
+  const char init_RX_P0[] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
+  const char init_RX_P1[] = {0xC2, 0xC2, 0xC2, 0xC2, 0xC2};
+
+  write_register(NRF_CONFIG, 0b00001000);
+  write_register(EN_AA, 0b00111111);
+  write_register(EN_RXADDR, 0b00000011);
+  write_register(SETUP_AW, 0b00000011);
+  write_register(SETUP_RETR, 0b00000011);
+  write_register(RF_CH, 0b00000010);
+  write_register(RF_SETUP, 0b00001110);
+  write_register(NRF_STATUS, 0b00001110);
+  write_register(OBSERVE_TX, 0); // RO...
+  write_register(RPD, 0); // RO...
+  write_registers(RX_ADDR_P0, init_RX_P0, 5);
+  write_registers(RX_ADDR_P1, init_RX_P1, 5);
+  write_register(RX_ADDR_P2, 0xC3);
+  write_register(RX_ADDR_P3, 0xC4);
+  write_register(RX_ADDR_P4, 0xC5);
+  write_register(RX_ADDR_P5, 0xC6);
+  write_registers(TX_ADDR, init_RX_P0, 5);
+  write_register(RX_PW_P0, 0);
+  write_register(RX_PW_P1, 0);
+  write_register(RX_PW_P2, 0);
+  write_register(RX_PW_P3, 0);
+  write_register(RX_PW_P4, 0);
+  write_register(RX_PW_P5, 0);
+  write_register(FIFO_STATUS, 0b00010001);
+  write_register(DYNPD, 0);
+  write_register(FEATURE, 0);
+}
+
 

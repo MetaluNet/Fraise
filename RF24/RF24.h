@@ -76,7 +76,7 @@ bool RF24_isChipConnected();
    * @endcode
    */
   void RF24_startListening(void);
-
+  void RF24_startListeningFast(void);
   /**
    * Stop listening for incoming messages, and switch to transmit mode.
    *
@@ -87,7 +87,7 @@ bool RF24_isChipConnected();
    * @endcode
    */
   void RF24_stopListening(void);
-
+  void RF24_stopListeningFast(void);
   /**
    * Check whether there are bytes available to be read
    * @code
@@ -869,6 +869,7 @@ bool RF24_isChipConnected();
   void RF24_read_pipes_addresses(uint8_t *buf); // buf length must be at least 5+5+4=14  
   uint8_t RF24_flush_rx(void);
   uint8_t RF24_flush_tx(void);
+  void RF24_reset(void); // set every register to its reset value
 
 
 
