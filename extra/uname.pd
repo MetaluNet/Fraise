@@ -1,0 +1,7 @@
+#N canvas 1063 240 450 271 12;
+#X obj 46 54 inlet;
+#X msg 46 78 list _ _ _ _ x86_64;
+#X obj 46 102 outlet;
+#X text 132 24 [hcs/uname] fallback for windows;
+#X connect 0 0 1 0;
+#X connect 1 0 2 0;

@@ -1,14 +1,16 @@
-#N canvas 386 507 396 342 10;
-#X declare -stdpath moonlib;
-#X declare -stdpath hcs;
-#X declare -stdpath ggee;
+#N canvas 417 198 396 360 10;
 #X declare -lib ../extra/s2f -lib ../extra/slist;
-#X declare -lib ../extra/getdir -lib ../extra/shell;
 #X declare -lib ../extra/comport;
-#X declare -lib ../extra/folder_list -lib ../extra/stat -lib ../extra/uname
-;
-#X declare -stdpath zexy;
 #X declare -lib ../extra/zexy -lib zexy;
+#X declare -path zexy;
+#X declare -path ggee;
+#X declare -path hcs;
+#X declare -path moonlib;
+#X declare -path comport;
+#X declare -lib ../extra/getdir -lib ../extra/shell -lib ../extra/system
+;
+#X declare -lib ../extra/folder_list -lib ../extra/stat -lib ../extra/uname
+-path ../extra;
 #X obj 21 51 cnv 10 150 30 empty \$0-stastocan-rcv empty 20 12 0 14
 -166441 -1 0;
 #X obj 20 51 tgl 15 0 \$0-on-snd \$0-on-rcv off 3 7 1 8 -166441 -166441
@@ -457,7 +459,7 @@
 #X restore 15 107 pd comport;
 #X obj 36 52 cnv 15 135 12 empty \$0-piedvercan firmware_version: 2
 7 1 10 -262130 -66577 0;
-#N canvas 664 163 195 375 \$0-utils 0;
+#N canvas 664 163 195 359 \$0-utils 0;
 #X obj 4 4 cnv 15 170 350 empty empty empty 20 12 0 14 -57730 -66577
 0;
 #X obj 10 9 bng 20 250 50 0 \$0-listdevices-snd \$0-listdevices-rcv
@@ -609,10 +611,10 @@ list_serial_devices 22 10 0 12 -262144 -1 -262144;
 #X connect 24 0 25 0;
 #X restore 15 168 pd UI;
 #X obj 143 238 netreceive \$2;
-#X obj 43 85 nbx 5 14 -1e+37 1e+37 0 0 empty \$0-outrate out -18 6
+#X obj 43 85 nbx 5 14 -1e+037 1e+037 0 0 empty \$0-outrate out -18
+6 0 8 -262144 -1 -1 0 256;
+#X obj 114 85 nbx 5 14 -1e+037 1e+037 0 0 empty \$0-inrate in -18 6
 0 8 -262144 -1 -1 0 256;
-#X obj 114 85 nbx 5 14 -1e+37 1e+37 0 0 empty \$0-inrate in -18 6 0
-8 -262144 -1 -1 0 256;
 #N canvas 154 360 495 183 interprete 0;
 #X obj 68 21 inlet;
 #X obj 68 124 s \$0-make-done;
@@ -632,32 +634,31 @@ list_serial_devices 22 10 0 12 -262144 -1 -262144;
 #X connect 6 3 5 0;
 #X connect 7 0 8 0;
 #X restore 143 259 pd interprete;
-#N canvas 41 116 560 372 tosystem 0;
+#N canvas 806 203 560 372 tosystem 0;
 #X msg 238 283 echo \$2/make.sh \$1 \$3 | at now;
 #X obj 30 22 inlet tosystem;
 #X obj 384 165 list prepend nohup;
 #X obj 30 243 list trim;
-#X obj 135 292 print;
 #X obj 197 234 list prepend start -MIN bash -c;
 #X obj 30 182 list append "| at now;
 #X obj 30 159 list prepend echo ";
 #X obj 177 183 list append ";
 #X obj 176 161 list prepend start bash -c ";
-#X obj 30 281 shell;
-#X obj 30 318 l system;
 #X obj 30 90 intern/demux_os;
-#X connect 1 0 12 0;
+#X obj 289 77 uname;
+#X obj 30 281 shell;
+#X connect 1 0 9 0;
 #X connect 2 0 3 0;
-#X connect 3 0 10 0;
-#X connect 6 0 3 0;
-#X connect 7 0 6 0;
-#X connect 8 0 3 0;
-#X connect 9 0 8 0;
-#X connect 12 0 2 0;
-#X connect 12 1 9 0;
-#X connect 12 2 2 0;
+#X connect 3 0 11 0;
+#X connect 5 0 3 0;
+#X connect 6 0 5 0;
+#X connect 7 0 3 0;
+#X connect 8 0 7 0;
+#X connect 9 0 2 0;
+#X connect 9 1 8 0;
+#X connect 9 2 2 0;
 #X restore 142 209 pd tosystem;
-#N canvas 19 591 419 259 Bootloader/Compiler 0;
+#N canvas 147 435 444 261 Bootloader/Compiler 0;
 #N canvas 844 375 498 407 enter-boot-quit 0;
 #X msg 123 204 0;
 #X obj 123 225 s \$0-verified;
@@ -1467,17 +1468,19 @@ if watchdog fires., f 41;
 #X connect 68 0 66 1;
 #X connect 70 0 69 0;
 #X restore 125 109 pd autoReconnect;
-#N canvas 2 95 657 225 DECLARE-LIBS 0;
-#X obj 66 34 declare -stdpath moonlib;
-#X obj 93 73 declare -stdpath hcs;
-#X obj 86 117 declare -stdpath ggee;
+#N canvas 579 121 705 225 DECLARE-LIBS 0;
 #X obj 243 34 declare -lib ../extra/s2f -lib ../extra/slist;
-#X obj 241 117 declare -lib ../extra/getdir -lib ../extra/shell;
-#X obj 241 168 declare -lib ../extra/comport;
-#X obj 242 72 declare -lib ../extra/folder_list -lib ../extra/stat
--lib ../extra/uname;
-#X obj 86 142 declare -stdpath zexy;
-#X obj 242 142 declare -lib ../extra/zexy -lib zexy;
+#X obj 244 143 declare -lib ../extra/comport;
+#X obj 244 117 declare -lib ../extra/zexy -lib zexy;
+#X obj 65 108 declare -path zexy;
+#X obj 66 85 declare -path ggee;
+#X obj 69 60 declare -path hcs;
+#X obj 66 34 declare -path moonlib;
+#X obj 65 131 declare -path comport;
+#X obj 243 92 declare -lib ../extra/getdir -lib ../extra/shell -lib
+../extra/system, f 70;
+#X obj 243 57 declare -lib ../extra/folder_list -lib ../extra/stat
+-lib ../extra/uname -path ../extra;
 #X restore 18 289 pd DECLARE-LIBS;
 #N canvas 5 75 450 300 testBitRate 0;
 #X obj 157 184 s \$0-pied-rcv;

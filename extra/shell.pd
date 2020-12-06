@@ -1,0 +1,6 @@
+#N canvas 288 266 450 271 12;
+#X obj 46 54 inlet;
+#X obj 46 117 outlet;
+#X obj 46 78 system;
+#X text 132 24 [ggee/shell] fallback for windows;
+#X connect 0 0 2 0;
