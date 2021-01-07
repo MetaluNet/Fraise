@@ -1,0 +1,7 @@
+*.pd -merge
+
+.gitattributes export-ignore
+.gitignore export-ignore
+doc/* export-ignore
+doc/protocol.md !export-ignore
+
