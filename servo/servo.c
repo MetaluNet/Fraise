@@ -107,13 +107,13 @@ void servoService(void)
 {
 	unsigned int val;
 	
+	if(TIMER_ON) return;
 	if(delayFinished(servoDelay)) {
 		servoRewind();
 		delayStart(servoDelay, SERVO_LOOP_TIME);
 	}	
 
 	if(Count>7) return;
-	if(TIMER_ON) return;
 	
 	if(Val[Count]==0) { 
 		Count++;
