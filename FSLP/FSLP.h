@@ -52,9 +52,9 @@ see: https://www.pololu.com/product/2730
  These parameters can be set in the config.h of your firmware.
 */
 //@{
-/// @brief FSLP_D2 and FSLP_SL must be analog input capable. FSLP_R0 is connected to FSLP_SL through 4.7k
+/// @brief FSLP_D2 and FSLP_SL must be analog input capable. FSLP_R0 must be connected to FSLP_SL through 4.7k
 #if !(defined(FSLP_D1) && defined(FSLP_D2) && defined(FSLP_SL) && defined(FSLP_R0))
-#error you must define FSLP_D1, FSLP_D2, FSLP_SL and FSLP_R0! FSLP_D2 and FSLP_SL must be analog input capable. R0 is connected to SL through 4.7k
+#error you must define FSLP_D1, FSLP_D2, FSLP_SL and FSLP_R0! FSLP_D2 and FSLP_SL must be analog input capable. R0 must be connected to SL through 4.7k
 #endif
 
 #ifndef FSLP_D2CHAN
@@ -70,7 +70,8 @@ see: https://www.pololu.com/product/2730
 #endif
 
 #ifndef ANALOG_CHANNEL_PRECONF
-#define ANALOG_CHANNEL_PRECONF FSLP_analog_preconf
+#error you must define ANALOG_CHANNEL_PRECONF! 
+#error Add in your config.h: #define ANALOG_CHANNEL_PRECONF FSLP_analog_preconf
 #endif
 
 //@}

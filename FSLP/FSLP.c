@@ -25,6 +25,7 @@
 # MA  02110-1301, USA.
 */
 #include "FSLP.h"
+#include <analog.h>
 
 void FSLP_analog_preconf(unsigned char chan)
 {
