@@ -1,0 +1,28 @@
+#N canvas 760 96 425 354 10;
+#X obj 21 155 inlet;
+#X obj 21 270 outlet;
+#X obj 21 241 pack f f, f 10;
+#X text 20 13 analog/normalize ANALOG_FILTER : normalize values coming
+from analog/parse to [0 \; 1] range.;
+#X text 20 48 ANALOG_FILTER must the same values as the one configured
+in firmware's config.h.;
+#X obj 21 177 unpack f f;
+#X obj 78 208 / 1;
+#X obj 93 101 loadbang;
+#X obj 93 122 f \$1;
+#X obj 93 184 <<;
+#X obj 93 163 list prepend 1;
+#X obj 93 142 + 10;
+#X obj 68 102 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X connect 0 0 5 0;
+#X connect 2 0 1 0;
+#X connect 5 0 2 0;
+#X connect 5 1 6 0;
+#X connect 6 0 2 1;
+#X connect 7 0 8 0;
+#X connect 8 0 11 0;
+#X connect 9 0 6 1;
+#X connect 10 0 9 0;
+#X connect 11 0 10 0;
+#X connect 12 0 8 0;
