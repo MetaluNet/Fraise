@@ -59,7 +59,7 @@ $(PROJ).hex: $(OBJS) $(LINKER_SCRIPT) $(CRT).o
 disass:
 	$(DIS) -p p$(CHIP) $(PROJ).hex > $(PROJ).lis
 
-progpk2: all
+progpk2:
 	pk2cmd -f$(PROJ).hex -p /m /e /j /r
 
 clean:
