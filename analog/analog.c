@@ -117,8 +117,10 @@ unsigned char analogService(void)
 // v = oldv-oldv/N+ADres = ((ADres*N)+oldv*(N-1))/N : v = N*lowpass[N](ADres) N=2^ANALOG_FILTER
 		pin = Pins[chan];
 		if(pin != 255) {
-			bitclr(*(&TRISA+(pin>>4)),pin&7);
-			bitclr(*(&LATA+(pin>>4)),pin&7);
+			__critical{
+				bitclr(*(&TRISA+(pin>>4)),pin&7);
+				bitclr(*(&LATA+(pin>>4)),pin&7);
+			}
 		}
 		Value[chan] = v - (v>>ANALOG_FILTER) + ADRESL+(ADRESH<<8); 
 		if(Scaling == 1) {
@@ -139,7 +141,7 @@ unsigned char analogService(void)
 #endif
 		pin = Pins[chan];
 		if(pin != 255) {
-			bitset(*(&TRISA+(pin>>4)),pin&7);// set channel to digital input
+			__critical{ bitset(*(&TRISA+(pin>>4)),pin&7); }// set channel to digital input
 			bitset(*(__data unsigned char*)((int)&ANSELA + (pin>>4)),pin&7);// set channel to analog input
 			CTMUCONHbits.IDISSEN = 1;		// Drain any charge on the A/D circuit
 			Nop(); Nop(); 
@@ -151,7 +153,7 @@ unsigned char analogService(void)
 				Nop(); Nop(); Nop(); Nop();
 				Nop(); Nop(); Nop(); Nop();
 				Nop(); Nop(); Nop(); Nop();
-				Nop(); Nop(); Nop(); Nop();	
+				Nop(); Nop(); Nop(); Nop();
 				CTMUCONLbits.EDG1STAT = 0;	//Clear edge1 - Stop Charge
 			}			
 		}
