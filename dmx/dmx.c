@@ -84,7 +84,13 @@
 #define TX1IP 			TXIP
 #endif
 
-unsigned char DMXRegisters[DMX_NBCHAN];
+#if DMX_NBCHAN > 256
+static unsigned char DMXRegisters[256];
+static unsigned char DMXRegistersB[DMX_NBCHAN - 256];
+#else
+static unsigned char DMXRegisters[DMX_NBCHAN];
+#endif
+
 unsigned int DMXframeCount;
 
 void Set250kB(void)
@@ -107,8 +113,14 @@ void DMXInit(void)
 {
 	int i;
 	
-	for(i = 0; i < DMX_NBCHAN; i++) DMXRegisters[i] = 0; //clear all channels
-	
+	for(i = 0; i < DMX_NBCHAN; i++) {
+#if DMX_NBCHAN > 256
+		if(i >= 256) DMXRegistersB[i - 256] = 0;
+		else
+#endif
+			DMXRegisters[i]=0; //clear all channels
+	}
+
 	digitalSet(DMX_UART_PIN);
 	pinModeDigitalOut(DMX_UART_PIN);
 
@@ -127,6 +139,12 @@ void DMXInit(void)
 void DMXSet(unsigned int channel, unsigned char value)
 {
 	if(channel == 0) return;
+	if(channel >= DMX_NBCHAN) return;
+
+#if DMX_NBCHAN > 256
+	if(channel >= 256) DMXRegistersB[channel - 256] = value;
+	else
+#endif
 	DMXRegisters[channel] = value;
 }
 
@@ -153,7 +171,11 @@ void DMXService()
 		TXREGx = 0;
 		channel = 1;
 	} else {
-		TXREGx = DMXRegisters[channel++];
+#if DMX_NBCHAN > 256
+		if(channel >= 256) TXREGx = DMXRegistersB[channel++ - 256];
+		else
+#endif
+			TXREGx = DMXRegisters[channel++];
 		if(channel == DMX_NBCHAN) {
 			channel = -3;
 			DMXframeCount++;
