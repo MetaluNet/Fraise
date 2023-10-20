@@ -95,7 +95,11 @@ unsigned int softpwmGet(unsigned char chan)
 	return Value[chan];
 }
 
+#ifdef SOFTPWM_INVERT
+#define UPDATE_PIN(n,p) if(time < Value[n]) digitalClear(p); else digitalSet(p);
+#else
 #define UPDATE_PIN(n,p) if(time < Value[n]) digitalSet(p); else digitalClear(p);
+#endif
 
 #if SOFTPWM_INTPRI == 1
 void softpwmHighInterrupt(void)
