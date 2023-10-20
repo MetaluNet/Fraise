@@ -117,11 +117,9 @@ void fraiseSendCopy(); ///< Copy the RX buffer to TX buffer, in char mode, from 
 /// in case **n**, assign next byte in the message to **p**
 #define PARAM_CHAR(n,p) case n: p = fraiseGetChar();
 /// in case **n**, assign next 16 bit integer in the message to **p**
-#define PARAM_INT(n,p) case n: p = fraiseGetChar() << 8; p += fraiseGetChar();
+#define PARAM_INT(n,p) case n: p = fraiseGetInt();
 /// in case **n**, assign next 32 bit integer in the message to **p**
-#define PARAM_LONG(n,p) case n: p = ((unsigned long)( \
-	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar()) ) << 16 | \
-	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar();
+#define PARAM_LONG(n,p) case n: p = fraiseGetLong();
 
 /// in case **n**, set **i** to the value of parameter **p**
 #define GETPARAM(n, p, i) case n: i = p; break
