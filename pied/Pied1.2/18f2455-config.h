@@ -1,7 +1,8 @@
 // PIC18LF2455 Configuration Bit Settings          
             
  // CONFIG1L          
- #pragma config PLLDIV = 4 			// Divide by 4 (16 MHz oscillator input)
+ //#pragma config PLLDIV = 4 			// Divide by 4 (16 MHz oscillator input)
+ #pragma config PLLDIV = 1 			// Divide by 1 (4 MHz oscillator input)
  #pragma config CPUDIV = OSC1_PLL2	// [Primary Oscillator Src: /1][96 MHz PLL Src: /2].
  #pragma config USBDIV = 2			// USB clock source comes from the 96 MHz PLL divided by 2.
  

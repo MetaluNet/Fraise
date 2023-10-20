@@ -6,7 +6,7 @@ CHIP=18f2455
 
 
 SDCCHOME = ../../bin
-SDCC = $(SDCCHOME)/linux64/sdcc
+SDCC = $(SDCCHOME)/linux64/sdcc-4.0.0
 SDCCFLAGS = -mpic16 -p$(CHIP) --disable-warning 85 --std-sdcc99 --obanksel=3 --use-non-free \
 			-I$(SDCCHOME)/share/include/pic16 -I$(SDCCHOME)/share/non-free/include/pic16 \
 			-L$(SDCCHOME)/share/non-free/lib/pic16 -L$(SDCCHOME)/share/lib/pic16
@@ -59,8 +59,11 @@ $(PROJ).hex: $(OBJS) $(LINKER_SCRIPT) $(CRT).o
 disass:
 	$(DIS) -p p$(CHIP) $(PROJ).hex > $(PROJ).lis
 
-progpk2:
-	pk2cmd -f$(PROJ).hex -p /m /e /j /r
+progpk2-4MHz:
+	pk2cmd -f$(PROJ)_4MHz.hex -p /m /e /j /r
+
+progpk2-16MHz:
+	pk2cmd -f$(PROJ)_16MHz.hex -p /m /e /j /r
 
 clean:
 	rm -f $(OBJS) $(ASMS) $(LSTS) core .depend depend $(PROJ).cod $(PROJ).lst *.o *.asm *.lst *.map *.cod
