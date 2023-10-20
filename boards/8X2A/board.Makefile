@@ -25,3 +25,4 @@ SERDRV_POL=0
 #does config.c have setup ?
 CONFIG_SETUP=1
 
+BOOT_TIME=1000
