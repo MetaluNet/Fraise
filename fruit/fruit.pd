@@ -1,10 +1,6 @@
-#N canvas 682 281 542 405 10;
-#X declare -lib ../extra/getdir;
-#X declare -stdpath ggee;
-#X obj 21 69 cnv 15 150 25 empty \$0-stastocan-rcv empty 20 12 0 14
--166441 -1 0;
-#X obj 100 73 cnv 15 70 20 empty \$0-pied_can-rcv pied_inactif 2 12
-1 12 -166441 -1 0;
+#N canvas 843 141 426 375 10;
+#X obj 21 69 cnv 15 150 25 empty \$0-stastocan-rcv empty 20 12 0 14 #e8e828 #000000 0;
+#X obj 100 73 cnv 15 70 20 empty \$0-pied_can-rcv pied_actif 2 12 1 12 #e8e828 #000000 0;
 #X obj 220 309 r \$0-fruitpresent;
 #N canvas 836 233 450 543 rename 0;
 #X obj 112 135 s \$0-2Fr2;
@@ -96,43 +92,27 @@
 #X connect 3 0 2 0;
 #X connect 4 0 0 0;
 #X restore 22 262 pd assign;
-#X obj 46 77 bng 15 250 50 0 \$0-showutils-snd \$0-showutils-rcv utils
-17 7 0 10 -4034 -1 -1;
+#X obj 46 77 bng 15 250 50 0 \$0-showutils-snd \$0-showutils-rcv utils 17 7 0 10 #00fc04 #000000 #000000;
 #N canvas 109 612 324 131 \$0-utils 0;
-#X obj 1 1 cnv 15 320 100 empty empty empty 20 12 0 14 -57730 -66577
-0;
-#X obj 179 38 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:0
--15 20 1 10 -4034 -1 -4034;
-#X obj 179 9 bng 15 250 50 0 \$0-rename \$0-rename-rcv RENAME:fruit1
--15 20 1 10 -258113 -1 -258113;
-#X obj 116 82 cnv 10 120 15 \$0-progressbg-snd \$0-progressbg-rcv empty
-30 -10 0 10 -83269 -257985 0;
-#X obj 136 82 cnv 5 100 15 \$0-progressfg-snd \$0-progressfg-rcv empty
-105 8 0 10 -241291 -241291 0;
-#X obj 118 82 bng 15 250 50 0 \$0-program \$0-program-rcv PROGRAM:example1-Versa2.hex
-0 -8 1 10 -241291 -1 -241291;
-#X obj 21 7 bng 15 250 50 0 \$0-progboot empty PROG_BOOTLOADER -15
-20 1 10 -159808 -1 -159808;
-#X obj 4 37 cnv 15 100 60 empty empty empty 20 12 0 14 -99865 -66577
-0;
-#X obj 8 41 bng 15 250 50 0 \$0-make empty MAKE 17 8 1 10 -4032 -1
--4032;
-#X obj 11 59 hsl 90 15 0 127 0 0 \$0-make-rambg-snd \$0-make-rambg-rcv
-empty -2 8 0 10 -191407 -191407 -1 0 1;
-#X obj 11 79 hsl 90 15 0 127 0 0 \$0-make-rombg-snd \$0-make-rombg-rcv
-empty -2 8 0 10 -191407 -191407 -1 0 1;
-#X obj 9 60 cnv 1 93 13 \$0-make-ram-snd \$0-make-ram-rcv empty 2 8
-0 10 -2816 -1 0;
-#X obj 9 80 cnv 1 93 13 \$0-make-rom-snd \$0-make-rom-rcv empty 2 8
-0 10 -1984 -1 0;
+#X obj 1 1 cnv 15 320 100 empty empty empty 20 12 0 14 #381804 #404040 0;
+#X obj 179 38 bng 15 250 50 0 \$0-assign \$0-assign-rcv ASSIGN_ID:10 -15 20 1 10 #00fc04 #000000 #00fc04;
+#X obj 179 9 bng 15 250 50 0 \$0-rename \$0-rename-rcv RENAME:fruit1 -15 20 1 10 #fc0400 #000000 #fc0400;
+#X obj 116 82 cnv 10 120 15 \$0-progressbg-snd \$0-progressbg-rcv empty 30 -10 0 10 #505410 #f8fc00 0;
+#X obj 136 82 cnv 5 100 15 \$0-progressfg-snd \$0-progressfg-rcv empty 105 8 0 10 #e8e828 #e8e828 0;
+#X obj 118 82 bng 15 250 50 0 \$0-program \$0-program-rcv PROGRAM:example1-Versa2.hex 0 -8 1 10 #e8e828 #000000 #e8e828;
+#X obj 21 7 bng 15 250 50 0 \$0-progboot empty PROG_BOOTLOADER -15 20 1 10 #9c00fc #000000 #9c00fc;
+#X obj 4 37 cnv 15 100 60 empty empty empty 20 12 0 14 #606060 #404040 0;
+#X obj 8 41 bng 15 250 50 0 \$0-make empty MAKE 17 8 1 10 #00f8fc #000000 #00f8fc;
+#X obj 11 59 hsl 90 15 0 127 0 0 \$0-make-rambg-snd \$0-make-rambg-rcv empty -2 8 0 10 #b8b8b8 #b8b8b8 #000000 0 1;
+#X obj 11 79 hsl 90 15 0 127 0 0 \$0-make-rombg-snd \$0-make-rombg-rcv empty -2 8 0 10 #b8b8b8 #b8b8b8 #000000 0 1;
+#X obj 9 60 cnv 1 93 13 \$0-make-ram-snd \$0-make-ram-rcv empty 2 8 0 10 #00acfc #000000 0;
+#X obj 9 80 cnv 1 93 13 \$0-make-rom-snd \$0-make-rom-rcv empty 2 8 0 10 #0078fc #000000 0;
 #X restore 22 210 pd \$0-utils;
 #N canvas 699 508 473 361 Fr2_interface 0;
 #X obj 25 11 r Fr2;
-#X obj 141 235 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 141 235 tgl 15 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 25 32 route \$1;
-#X obj 24 119 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 24 119 tgl 15 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 141 190 del 100;
 #X obj 141 169 t b f;
 #X obj 141 213 f;
@@ -152,8 +132,7 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X obj 337 168 r \$0-fruitpresent;
 #X obj 141 147 route present wrerror;
 #X obj 203 187 s \$0-wrerror;
-#X obj 273 236 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
+#X obj 273 236 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 24 226 list prepend \$1;
 #X obj 24 253 list trim;
 #X connect 0 0 2 0;
@@ -230,8 +209,7 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X obj 17 125 s \$0-pied_can-rcv;
 #X msg 17 70 color 1 13 22 \, label pied_inactif;
 #X msg 36 98 color 15 13 22 \, label pied_actif;
-#X obj 272 32 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 272 32 tgl 15 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 17 43 sel 0 1;
 #X connect 0 0 5 0;
 #X connect 2 0 1 0;
@@ -250,8 +228,7 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X obj 44 185 i;
 #X obj 44 206 change;
 #X msg 33 255 label \$1%;
-#X obj 186 57 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 0 1;
+#X obj 186 57 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 44 140 f;
 #X obj 246 276 s \$0-progressfg-rcv;
 #X msg 246 253 vis_size \$1 15;
@@ -328,13 +305,11 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X msg 270 85 100;
 #X obj 251 17 loadbang;
 #X obj 252 41 b;
-#X obj 227 25 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 227 25 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 312 18 r \$0-UImeminit;
-#X obj 317 88 hsl 128 15 0 100 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 0 1;
+#X obj 317 88 hsl 128 15 0 100 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X msg 121 214 vis_size \$1 13;
-#X floatatom 163 254 5 0 0 0 - - -;
+#X floatatom 163 254 5 0 0 0 - - - 0;
 #X obj 121 187 * 0.93;
 #X msg 299 224 vis_size \$1 13;
 #X obj 299 197 * 0.93;
@@ -375,8 +350,7 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X connect 25 0 24 0;
 #X connect 26 0 24 0;
 #X restore 238 280 pd make;
-#X obj 334 20 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 334 20 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 264 229 s \$0-rename-rcv;
 #X msg 264 206 label RENAME:\$1;
 #X msg 298 162 label ASSIGN_ID:\$1;
@@ -438,8 +412,7 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X obj 44 133 sel 1 0;
 #X obj 158 173 s \$0-fruitpresent;
 #X msg 158 153 0;
-#X obj 127 245 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
+#X obj 127 245 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 44 109 change -1;
 #X obj 44 88 &&;
 #X obj 55 64 t b f;
@@ -462,8 +435,7 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X connect 14 0 2 0;
 #X restore 23 287 pd select;
 #N canvas 154 602 335 253 program 0;
-#X obj 42 28 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 42 28 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 90 102 symbol \$4;
 #X obj 90 81 loadbang;
 #X obj 62 125 pack s s s;
@@ -486,8 +458,7 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X connect 10 0 3 0;
 #X restore 22 333 pd program;
 #N canvas 580 556 450 300 make 0;
-#X obj 48 14 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 48 14 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 100 126 symbol \$4;
 #X obj 100 105 loadbang;
 #X obj 72 149 pack s s s;
@@ -496,8 +467,7 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X obj 72 213 s \$0-2Fr2;
 #X msg 72 177 Boot make \$3 \$1/\$2;
 #X obj 72 11 r \$0-make;
-#X obj 190 81 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 190 81 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X text 190 176 make Fruitname SourcePath;
 #X obj 113 38 s \$0-UImeminit;
 #X obj 72 37 t b b;
@@ -519,16 +489,14 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X connect 14 0 3 0;
 #X restore 23 310 pd make;
 #N canvas 31 558 450 300 progbootloader 0;
-#X obj 62 48 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 62 48 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 110 122 symbol \$4;
 #X obj 110 101 loadbang;
 #X obj 82 145 pack s s s;
 #X obj 180 102 loadbang;
 #X obj 180 123 symbol \$2;
 #X obj 82 209 s \$0-2Fr2;
-#X obj 196 67 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 196 67 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000;
 #X obj 82 47 r \$0-progboot;
 #X msg 82 173 Boot progboot \$3 \$1/\$2;
 #X obj 82 73 symbol;
@@ -547,17 +515,10 @@ empty -2 8 0 10 -191407 -191407 -1 0 1;
 #X connect 11 0 10 1;
 #X restore 76 310 pd progbootloader;
 #X obj 188 32 inlet on;
-#X text 18 9 usage: Fr2Fruit piedid fruitname fruitid firmware dont_poll
-;
+#X text 18 9 usage: Fr2Fruit piedid fruitname fruitid firmware dont_poll;
 #X obj 200 56 loadbang;
 #X obj 200 100 == 0;
 #X obj 200 78 f \$5;
-#X obj 297 32 cnv 15 100 100 empty empty non-vanilla 5 12 0 14 -233017
--66577 0;
-#X obj 306 60 loadbang;
-#X obj 306 104 s \$0-dir;
-#X text 295 134 (only for progbootloader \, make \, and program),
-f 26;
 #N canvas 7 175 298 320 init_status 0;
 #X obj 70 45 loadbang;
 #X obj 70 197 s \$0-2Fr2;
@@ -573,26 +534,28 @@ f 26;
 #X connect 6 0 4 0;
 #X connect 6 0 5 0;
 #X restore 22 135 pd init_status;
-#X obj 25 77 tgl 15 0 \$0-on-snd \$0-on-rcv on 3 7 1 8 -258699 -258699
--262144 1 1;
+#X obj 25 77 tgl 15 0 \$0-on-snd \$0-on-rcv on 3 7 1 8 #fc2828 #fc2828 #fcfcfc 0 1;
 #X obj 188 124 s \$0-on-rcv;
-#X obj 301 168 declare -lib ../extra/getdir;
-#X obj 306 82 getdir 1;
-#X obj 301 188 declare -stdpath ggee;
-#X obj 421 32 inlet config;
+#X obj 315 34 inlet config;
 #N canvas 1 81 450 300 config 0;
 #X obj 37 37 inlet;
 #X obj 37 58 route wrerror_suspend_time;
 #X obj 37 79 s \$0-wrerror_suspend_time;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
-#X restore 421 53 pd config;
+#X restore 315 55 pd config;
+#X obj 188 202 pdcontrol;
+#X msg 188 182 dir 1;
+#X obj 188 162 loadbang;
+#X obj 188 222 s \$0-dir;
+#X text 174 238 (for progbootloader \, make \, and program), f 20;
 #X connect 2 0 10 0;
-#X connect 15 0 26 0;
+#X connect 15 0 22 0;
 #X connect 17 0 19 0;
-#X connect 18 0 26 0;
+#X connect 18 0 22 0;
 #X connect 19 0 18 0;
-#X connect 21 0 28 0;
-#X connect 28 0 22 0;
-#X connect 30 0 31 0;
+#X connect 23 0 24 0;
+#X connect 25 0 28 0;
+#X connect 26 0 25 0;
+#X connect 27 0 26 0;
 #X coords 0 -1 1 1 152 45 1 20 50;
