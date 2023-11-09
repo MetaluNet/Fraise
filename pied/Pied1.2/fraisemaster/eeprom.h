@@ -22,7 +22,7 @@ void ee_write_byte(unsigned char address, unsigned char _data){
     while(EECON1bits.WR){
         __asm nop __endasm;}
     if(EECON1bits.WRERR){
-        printf("ERROR: writing to EEPROM failed!\n");
+        printf("lERROR: writing to EEPROM failed!\n");
     }
     EECON1bits.WREN = 0;
     INTCONbits.GIEH = 1;  // enable interrupts

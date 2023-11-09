@@ -73,6 +73,7 @@ union {
 		unsigned FBLDON : 1;		// booloader mode
 		unsigned OERR : 1;
 		unsigned FERR : 1;
+		unsigned BLDSTART : 1;		// signal the start of a bootloader line
 	};
 } FraiseStatus;
 
@@ -267,11 +268,11 @@ void FrSendMessagetoUsb(void)
 	*/
 	if(FraiseStatus.OERR) {
 		FraiseStatus.OERR = 0;
-		printf((STRING)"OERR !!\n");
+		printf((STRING)"lserial overrun error\n");
 	}
 	if(FraiseStatus.FERR) {
 		FraiseStatus.FERR = 0;
-		printf((STRING)"FERR !!\n");
+		printf((STRING)"lserial framing error\n");
 	}
 
 	if(FraiseMessage == fmessNONE) return;
@@ -421,11 +422,14 @@ void FrGetLineFromUsb(void)
 		else if(c == 'L') { // get log
 			printf((STRING)"\ns fraise log :\n");
 			c2 = 0;
-			printf((STRING)"FraiseState : %d ; FraiseStatus: %d\n", (int)FraiseState, (int)FraiseStatus);
+			printf((STRING)"lFraiseState : %d FraiseStatus: %d\n", (int)FraiseState, (int)FraiseStatus);
 			for(n = 1; n <= MaxPolledChild; n++) {
 				if (TST_CHILD(n)) {
-					printf((STRING)"%d:%d ", n, TST_CHILDOK(n) != 0);
-					if((++c2) % 16 == 0) putchar('\n');
+					printf((STRING)"lfruit%d:%d ", n, TST_CHILDOK(n) != 0);
+					if((++c2) % 16 == 0) {
+						putchar('\n');
+						putchar('l');
+					}
 				}
 			}
 			putchar('\n');
@@ -435,7 +439,7 @@ void FrGetLineFromUsb(void)
 			FraiseStatus.FBLDON = 0;
 			FraiseState = fIDLE;
 			Serial_Init_None();
-			printf((STRING)"Quit bootloader mode.\n");
+			printf((STRING)"lQuit bootloader mode.\n");
 			goto discard; // return;
 		}
 		else if(c == 'V') { // get version string
@@ -497,7 +501,7 @@ void FrGetLineFromUsb(void)
 
 			if(c == 'F') {
 				FraiseStatus.FBLDON = 1;
-				printf((STRING)"Enter bootloader mode.\n");
+				printf((STRING)"lEnter bootloader mode.\n");
 			}
 			else FraiseStatus.FBLDON = 0;
 			goto fill_packet;
@@ -580,13 +584,13 @@ discard:
 }
 
 //------------- time constants and macros --------------------------------------
-#define T_2SERBYTES				(256UL - ((65UL * 12UL) / 16UL))		// For 80 us TMR2 tick , 20 * 4 us, 15 us before
-#define T_1ms					(256UL - ((600UL * 12UL / 3UL) / 16UL))	// postscaler = 3
-#define InitTimer1ms() {PIE1bits.TMR2IE = 0; T2CON = 31; TMR2 = T_1ms; PIR1bits.TMR2IF = 0;}
-#define ResetTimer1ms() {TMR2 = T_1ms; PIR1bits.TMR2IF = 0;}
-#define InitTimer(time) {PIE1bits.TMR2IE = 0; T2CON = 7; /*no post*/ TMR2 = time; PIR1bits.TMR2IF = 0; PIE1bits.TMR2IE = 1;}
-#define TimerOut() (PIR1bits.TMR2IF)
-#define StopTimer() {T2CON = 3; PIE1bits.TMR2IE = 0; /*stop tmr2*/ PIR1bits.TMR2IF = 0;}
+#define T_2SERBYTES			(256UL - ((65UL * 12UL) / 16UL))		// For 80 us TMR2 tick , 20 * 4 us, 15 us before
+#define T_1ms				(256UL - ((600UL * 12UL / 3UL) / 16UL))	// postscaler = 3
+#define InitTimer1ms()		{PIE1bits.TMR2IE = 0; T2CON = 31; TMR2 = T_1ms; PIR1bits.TMR2IF = 0;}
+#define ResetTimer1ms()		{TMR2 = T_1ms; PIR1bits.TMR2IF = 0;}
+#define InitTimer(time)		{PIE1bits.TMR2IE = 0; T2CON = 7; /*no post*/ TMR2 = time; PIR1bits.TMR2IF = 0; PIE1bits.TMR2IE = 1;}
+#define TimerOut()			(PIR1bits.TMR2IF)
+#define StopTimer()			{T2CON = 3; PIE1bits.TMR2IE = 0; /*stop tmr2*/ PIR1bits.TMR2IF = 0;}
 
 void FraiseISR()
 {
@@ -693,6 +697,7 @@ void FraiseISR()
 				if(FraiseStatus.FBLDON) {
 					Serial_Init_Receiver();
 					FraiseState = fBLIN;
+					FraiseStatus.BLDSTART = 1;
 				}
 				else {
 					InitTimer(T_2SERBYTES);
@@ -711,6 +716,7 @@ void FraiseISR()
 			InitTimer(T_2SERBYTES); // 2 bytes wait inside of hardware serial tx buffer
 			FraiseState = fBLIN; // goto to BLIN state.
 			FrRXin = FrRXout = 0;
+			FraiseStatus.BLDSTART = 1;
 		}
 		return;
 	}	// endif(FraiseState == fBLOUT)
@@ -724,9 +730,11 @@ void FraiseISR()
 			return;
 		}
 		if(PIR1bits.RCIF) {
+			if(FraiseStatus.BLDSTART) FrRXbuf[FrRXin++] = 'b';
 			c = RCREG;
 			FrRXbuf[FrRXin] = c;
 			FrRXin++;
+			if(c == '\n') FraiseStatus.BLDSTART = 1;
 			return;
 		}
 		return;
