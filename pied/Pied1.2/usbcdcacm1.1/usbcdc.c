@@ -79,7 +79,7 @@ __code unsigned char device_descriptor[] = { //
     0xD8, 0x04, // idVendor lsb, idVendor msb
     0x62, 0xEF, // idProduct lsb, idProduct msb
     0x00, 0x01, // bcdDevice lsb, bcdDevice msb
-    0x01, 0x00, // iManufacturer, iProduct
+    0x01, 0x02, // iManufacturer, iProduct
     0x00, 0x01 // iSerialNumber (none), bNumConfigurations*/
     
 };
