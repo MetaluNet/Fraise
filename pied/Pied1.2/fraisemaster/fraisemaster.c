@@ -363,6 +363,7 @@ void FrGetLineFromUsb(void)
 {
 	unsigned char len, c, c2, n;
 	unsigned char i;
+	static unsigned char ee_unlock = 0;
 
 	if(!FrGotLineFromUsb) goto discard;
 
@@ -371,6 +372,7 @@ void FrGetLineFromUsb(void)
 
 	len = LineFromUsbLen;
 	i = 0;
+	if(ee_unlock > 0) ee_unlock--;
 
 	c = GETNEXTCHAR(); // 1st byte = command (or hi nibble of address)
 
@@ -444,6 +446,11 @@ void FrGetLineFromUsb(void)
 			n = ee_read_byte(ID_EE_ADDRESS);
 			printf ((STRING)"sID%c%c\n", HI_CHAR(n), LO_CHAR(n));
 		}
+		else if(c == 'U') { // unlock eeprom
+			if(GETNEXTCHAR() == 'N' && GETNEXTCHAR() == 'L' && GETNEXTCHAR() == 'O' && GETNEXTCHAR() == 'C' && GETNEXTCHAR() == 'K') {
+				ee_unlock = 2;
+			}
+		}
 		else if(c == 'W') { // write id
 			c = GETNEXTCHAR();
 			c -= '0';
@@ -453,7 +460,7 @@ void FrGetLineFromUsb(void)
 			if (c2 > 9) c2 -= 'A' - '9' - 1;
 			if((c > 15) || (c2 > 15)) goto discard; // invalid packet
 			n = c2 + (c << 4);
-			ee_write_byte(ID_EE_ADDRESS, n);
+			if(ee_unlock != 0) ee_write_byte(ID_EE_ADDRESS, n);
 		}
 		else if(c == 'E') { // echo
 			while(LINE_HAS_CHAR()) {
