@@ -1,0 +1,2 @@
+OS linux
+BINPATH linuxarm

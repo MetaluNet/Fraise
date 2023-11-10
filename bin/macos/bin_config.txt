@@ -1,0 +1,2 @@
+OS macos
+BINPATH macos
