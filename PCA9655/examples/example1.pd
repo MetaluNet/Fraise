@@ -1,20 +1,19 @@
-#N canvas 404 308 638 579 10;
+#N canvas 404 308 430 397 10;
 #X declare -path Fraise;
 #X obj 220 216 fruit/receive fruit1;
 #X obj 19 141 fruit/fruit 1 fruit1 10 example1;
 #X msg 128 300 L\$1;
-#X obj 128 277 tgl 15 0 empty empty set_LED 18 7 0 10 #00fc04 #000000
-#000000 0 1;
+#X obj 128 277 tgl 15 0 empty empty set_LED 18 7 0 10 #00fc04 #000000 #000000 0 1;
 #X obj 23 326 fruit/send2 fruit1;
-#X obj 21 38 pied/pied 0 41424;
 #X obj 21 16 declare -path Fraise;
 #X obj 220 237 print;
 #X msg 23 264 c 1 c \$1;
 #X msg 23 213 0;
 #X msg 55 212 255;
-#X connect 0 0 7 0;
+#X obj 21 38 pied/pied 1;
+#X connect 0 0 6 0;
 #X connect 2 0 4 1;
 #X connect 3 0 2 0;
-#X connect 8 0 4 0;
-#X connect 9 0 8 0;
-#X connect 10 0 8 0;
+#X connect 7 0 4 0;
+#X connect 8 0 7 0;
+#X connect 9 0 7 0;

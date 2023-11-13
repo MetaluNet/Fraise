@@ -1,45 +1,40 @@
 #N canvas 629 276 654 383 10;
-#X declare -stdpath Fraise;
+#X declare -path Fraise;
 #X obj 19 141 fruit/fruit 1 fruit1 10 example1;
 #X obj 292 305 fruit/send2 fruit1;
-#X obj 21 11 declare -stdpath Fraise;
 #X obj 507 216 fruit/receive fruit1;
-#X obj 292 117 hradio 15 1 0 8 empty empty index 0 -8 0 10 -262144
--1 -1 1;
-#X obj 21 38 pied/pied 0 41424;
-#X obj 499 34 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 292 117 hradio 15 1 0 8 empty empty index 0 -8 0 10 #fcfcfc #000000 #000000 0;
+#X obj 499 34 tgl 15 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 507 240 route playing;
-#X obj 507 260 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 507 260 tgl 15 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X msg 163 265 c 41 c \$1;
 #X msg 166 237 32;
 #X msg 198 237 250;
 #X msg 137 237 20;
-#X floatatom 172 209 5 0 30 0 - - -;
+#X floatatom 172 209 5 0 30 0 - - - 0;
 #X obj 499 76 metro 1000;
 #X text 209 20 WT2003S-16S MP3 player example for Versa2;
-#X text 207 37 Connect KT403 through: AUXSERIAL_TX (K11 for Versa)
-AUXSERIAL_RX (K12 for Versa), f 33;
+#X text 207 37 Connect KT403 through: AUXSERIAL_TX (K11 for Versa) AUXSERIAL_RX (K12 for Versa), f 33;
 #X msg 292 197 c 40 i \$1;
 #X msg 348 231 c 42 c \$1;
-#X obj 363 198 hradio 15 1 0 4 empty empty loop(none/one/all/rand)
-0 -8 0 10 -262144 -1 -1 1;
+#X obj 363 198 hradio 15 1 0 4 empty empty loop(none/one/all/rand) 0 -8 0 10 #fcfcfc #000000 #000000 0;
 #X msg 367 259 c 43;
 #X msg 367 277 c 44;
 #X text 402 258 play/pause;
 #X text 403 278 stop;
-#X connect 3 0 7 0;
-#X connect 4 0 17 0;
-#X connect 6 0 14 0;
-#X connect 7 0 8 0;
-#X connect 9 0 1 0;
-#X connect 10 0 9 0;
-#X connect 11 0 9 0;
-#X connect 12 0 9 0;
-#X connect 13 0 9 0;
-#X connect 17 0 1 0;
+#X obj 21 38 pied/pied 1;
+#X obj 21 11 declare -path Fraise;
+#X connect 2 0 5 0;
+#X connect 3 0 15 0;
+#X connect 4 0 12 0;
+#X connect 5 0 6 0;
+#X connect 7 0 1 0;
+#X connect 8 0 7 0;
+#X connect 9 0 7 0;
+#X connect 10 0 7 0;
+#X connect 11 0 7 0;
+#X connect 15 0 1 0;
+#X connect 16 0 1 0;
+#X connect 17 0 16 0;
 #X connect 18 0 1 0;
-#X connect 19 0 18 0;
-#X connect 20 0 1 0;
-#X connect 21 0 1 0;
+#X connect 19 0 1 0;
