@@ -3,7 +3,7 @@
 # thanks to http://blog.gockelhut.com/2014/09/automatic-documentation-publishing-with.html
 
 # Settings
-REPO_PATH=https://github.com/MetaluNet/Fraise-doc.git
+REPO_PATH=git@github.com:MetaluNet/Fraise-doc.git
 HTML_PATH=html
 COMMIT_USER="Documentation Builder"
 COMMIT_EMAIL="_antoine_@metalu.net"
@@ -19,6 +19,9 @@ cd ${HTML_PATH}
 if [ `git config remote.origin.url` != ${REPO_PATH} ] ; then cd -; echo "ERROR cloning ${REPO_PATH} !" ;exit ; fi
 git rm -rf .
 cd -
+
+mkdir ${HTML_PATH}/doc/img
+cp img/* ${HTML_PATH}/doc/img
 
 # Generate the HTML documentation.
 doxygen
