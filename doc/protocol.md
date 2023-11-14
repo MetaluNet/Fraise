@@ -10,10 +10,10 @@ The master controller is connected to a computer, usually via USB.
 
 The bitrate of the Fraise bus is currently fixed to **250 kbits/sec**.
 
-Communication is based on (1 start bit + 9 bits + 1 stop bit) words;
-if bit 9 is set, the 8 lower bits are considered to be an address byte, or ID, which is used to select one of the microcontrollers.
-ID are comprised between 1 and 126. ID 127 is reserved for future use.
-Words with bit 9 cleared are data bytes, which are only read by the previously addressed **fruit**.
+Communication is based on [1 start bit + 9 bits + 1 stop bit] words;
+if bit 9 is set, the 8 lower bits represent an address byte, or ID, which is used to select one of the **fruits**.
+ID must be between 1 and 126. ID 127 is reserved for future use.
+Words with bit 9 cleared are data bytes, which are read by the addressed **fruit**.
 
 Transfers occur by packets of up to 31 effective data bytes. Packets can be of two types: raw bytes or characters string.
 
@@ -35,16 +35,16 @@ Pied-to-fruit communication
 ### normal output
 
 The **pied** initiates transmission by sending the **fruit** ID byte with bit 9 on, followed by
-a length byte (with possibly bit 8 set to signal a string packet).
+a length byte where bit 8 is set if the packet is a string packet.
 The message continues with the data bytes, then ends with a checksum byte.
-The **fruit** acknowledges the packet by sending a ’0’ byte.
+The **fruit** acknowledges the packet by sending a null byte.
 
 (in this chapter, # means next character has bit 9 set)
 
 ```
 packet: #NLD(...)DS
 - #N = fruit ID + bit9
-- L = 128*c + l: bit8 = c = packet is character string, l = number of following data bytes (31 max).
+- L = 128 * c + l:  c (bit8) = packet is character string, l = number of following data bytes (31 max).
 - D(...)D = l data bytes.
 - S = -sum (modulo 256) of all bytes before S (N+L+D+...+D).
 ```
@@ -54,16 +54,16 @@ packet: #NLD(...)DS
 
 ### broadcast output
 
-If ID is 0, then all the **fruits** decode the packet; no **fruit** has to acknowledge.
+If ID is 0, all the **fruits** decode the packet; no **fruit** has to acknowledge.
 
-Special broadcast commands are provided to assign a **fruit** to an ID, or to establish a 8 bits communication for bootloader purpose.
+Special broadcast commands are provided to assign an ID to a **fruit**, or to establish a 8 bits communication for bootloader purpose.
 The first data byte is the broadcast command:
 
 - `’I’` = all reInit
 - `’F’ + NAME` = tell the **fruit** called NAME to switch to bootloader.
-Note: the **fruit** always boots in bootloader mode, and jumps to application after 1 second or as soon as it receives a byte with bit 9 set.
-- `’N’ + ID + NAME` = assign **fruit** NAME to an ID Number (1 to 127);
-here ID is written in hexadecimal ascii e.g: "N10Fruit" -> **fruit** called "Fruit" is given ID = 16.
+Note: the **fruit** also boots in bootloader mode, and jumps to application after 1 second or as soon as it receives a byte with bit 9 set.
+- `’N’ + ID + NAME` = assign ID (1 to 127) to **fruit** NAME;
+here ID is written in hexadecimal ascii e.g: "N0AFruit" -> **fruit** named "Fruit" is given ID = 10.
 - `’B’` = broadcast string
 - `’b’` = broadcast raw bytes
 
@@ -76,7 +76,7 @@ Fruit-to-pied communication
 **Fruits** are polled sequentially, between transmissions of pied-to-fruits packets.
 The **pied** initiates transmission:
 The first byte is the ID of tested **fruit**, with bit 9 set to signal a start byte, and bit 8 set to signal a poll message. Then ID + 128 is repeated with bit 9 cleared, in order to secure addressing.
-If the **fruit** has nothing to transmit, it returns ’0’. Otherwise it sends a packet, which is acknowledged by the **pied**.
+If the **fruit** has nothing to transmit, it returns a null byte. Otherwise it sends a packet, which is acknowledged by the **pied**.
 
 
 (# means next character has bit 9 set)
@@ -85,7 +85,8 @@ If the **fruit** has nothing to transmit, it returns ’0’. Otherwise it sends
 
 ```
 packet: #MM
-- #M = fruit ID + bit8(128) + bit9 (M = #M - bit9)
+- #M = fruit ID + bit8(128) + bit9
+-  M = fruit ID + bit8(128)
 ```
 
 **Fruit** number ID must answer before 1 ms.
@@ -95,23 +96,23 @@ packet: #MM
 
 ```
 packet: LD(...)DS
-- L = 128 * c + l: bit8 = c = packet is character string, l = number of following data bytes (31 max).
+- L = 128 * c + l: c (bit8) = packet is character string, l = number of following data bytes (31 max).
 - D(...)D = l data bytes.
 - S = -sum (modulo 256) of all bytes before S (L + D + ... + D).
 ```
 
-The **pied** then returns ’0’ to acknowledge the packet, or ’1’ to signal a checksum error.
+The **pied** then returns `0` to acknowledge the packet, or `1` to signal a checksum error.
 
 
-### fruit nop answer
+### fruit "nothing to report" answer
 
 ```
 packet: 0 (one null byte)
 ```
-No checksum byte in this case, nor acknowledge from the **pied**.
+No checksum byte in this case; the **pied** does not have to acknowledge.
 
 
-Bootloder communication
+Bootloader communication
 -----------------------
 
 Bit 9 is always cleared.
@@ -132,7 +133,7 @@ the **fruit** must answer `’V’` (additionnaly, the **fruit** now locks in bo
 
 After 100ms without receiving anything from the **pied**, the **fruit** discards waiting received bytes, and next received byte will start a new line.
 
-The **fruit** initially boots to bootloader mode; bootloader switches to application:
+The **fruit** initially boots in bootloader mode; bootloader switches to application:
 - when it receives a ’A’
 - or when it receives an non-zero address byte (bit 9 on)
 - or 1 second after power-up if it has not been verified.
@@ -148,37 +149,42 @@ The **pied** is connected to the host computer via USB.
 
 ### output to fruit
 
+The host sends an addressed message to the **pied**, which forward it to the **fruit**.
+
 `"0100\n" -> *0x01 0x01 0x00 0xFE`: send 0 to **fruit** ID 1.  
 `"81Hi\n" -> *0x01 0x82 0x48 0x69 0xCC`: send "Hi" to **fruit** ID 1.
 
-The **pied** answers to host `"sTnn\n"` if **fruit** nn didn’t answer (timeout),
-or `"sann\n"` if it refused to acknowledge the packet (packet error or buffer full).
+The **pied** reports errors to the host: 
+- `"sTnn\n"` if **fruit** nn didn’t answer (timeout)
+- `"sann\n"` if the **fruit** refused to acknowledge the packet (packet error or buffer full).
 
 
 ### broadcast output
 
-`"!BI\n" -> *0x00 0x82 0x42 0x49 0xF3`: send "I" to all **fruits**.  
-`"!b00\n" -> *0x00 0x01 0x00 0xFF`: send 0 to all **fruits**.
+The host can ask the **pied** to send a message to all the **fruits**:
+
+`"!BI\n" -> *0x00 0x82 0x42 0x49 0xF3`: send "I" to all **fruits** ("string" message).  
+`"!b00\n" -> *0x00 0x01 0x00 0xFF`: send 0 to all **fruits** ("raw bytes" message).
 
 
 ### polling for input
 
-`"#S04\n"`: set polling for **fruit** ID 4  
-`"#C04\n"`: clear polling for **fruit** ID 4
+The host can enable or not the active polling of each fruit.
 
-polling: with 0xmm = (0xnn | 0x80), periodically send *0xmm 0xmm, then wait for answer from **fruit** nn.
+`"#S04\n"`: start polling **fruit** ID 4  
+`"#C04\n"`: stop polling **fruit** ID 4
 
-When **fruit** nn answers for the first time, print to USB: `"sCnn\n"` (**fruit** nn is connected).
-When **fruit** nn stops answering, print to USB: `"scnn\n"`.
+When **fruit** nn answers for the first time, the **pied** sends to USB: `"sCnn\n"` (meaning: **fruit** nn is now connected).
+When **fruit** nn stops answering, the **pied** sends to USB: `"scnn\n"`.
 
 If the **pied** received a corrupted packet from **fruit** nn (checksum error), it signals this error by `"sxnn\n"`.
 
-When the **pied** receives a packet from **fruit** nn, it transmits it to host prefixed with "NN", where NN equals to nn, plus 0x80 if message is a character string.
+When the **pied** successfully receives a packet from **fruit** nn, it forwards it to host prefixed with "NN", where NN equals to nn, plus 0x80 if the message is a character string.
 
 
 ### control
 
-`"!N04Fruit1\n"`: assign to fruit called "Fruit1" ID 04.  
+`"!N04Fruit1\n"`: assign ID 04 to fruit called "Fruit1".  
 `"#i\n"`: reinit the **pied** (clears polling for all **fruits**).  
 `"#V\n"`: query the firmware version of the **pied**, which answers (currently) `"#V UsbFraise 2.1.6 (SpareTimeLabs/SDCC) A.Rousseau 2023\n"`  
 `"#R\n"`: query the piedID (usually 1), the **pied** answers `"#ID01\n"`  
@@ -193,11 +199,16 @@ The piedID allows to distinguish several pieds connected to several USB ports.
 `"!FFruit1\n"`: ask "Fruit1" to jump to bootloader.
 
 Additionnaly, the **pied** switches to bootloading mode:  
-it transmits directly every line (’\n’ terminated, must not begin with "#" or "!") from host to the bus,
+it forwards directly every line (’\n’ terminated, must not begin with "#" or "!") from the host to the bus,
 then listens to the bus for any answer from the **fruit**, and puts this answer back to host, adding the 'b' character at the beginning of each line.
+
+Example messages to bootloader:
 
 `"RENAME:Fruit1\n"`: rename "Fruit1" ALL (!!!) connected **fruits** being in bootloader mode (that's why a single **fruit** should be connected before doing this).  
 `"A\n"`: ask the **fruit** to run Application (quit bootloader mode)  
+
+Quit bootloading mode:
+
 `"#F\n"`: ask the **pied** to quit bootloading mode
 
 
