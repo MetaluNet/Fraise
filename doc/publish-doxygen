@@ -20,7 +20,7 @@ if [ `git config remote.origin.url` != ${REPO_PATH} ] ; then cd -; echo "ERROR c
 git rm -rf .
 cd -
 
-mkdir ${HTML_PATH}/doc/img
+mkdir -p ${HTML_PATH}/doc/img
 cp img/* ${HTML_PATH}/doc/img
 
 # Generate the HTML documentation.
