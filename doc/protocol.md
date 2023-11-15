@@ -1,21 +1,21 @@
 
-Fraise Protocol v 2.1.2
-=====================
-*(Antoine Rousseau 2013-2023)*
+# Fraise Protocol (v2.1.2) {#protocol}
+
 
 **Fraise** is a half-duplex asynchronous serial communication protocol.
 
-Up to 126 devices (called **fruits**) can be connected to the master controller (which is called **pied**), via a common bus.
+Up to 126 devices (called **fruits**) can be connected to the master controller (which is called **pied**), via a common bus.  
 The master controller is connected to a computer, usually via USB.
 
 The bitrate of the Fraise bus is currently fixed to **250 kbits/sec**.
 
 Communication is based on [1 start bit + 9 bits + 1 stop bit] words;
-if bit 9 is set, the 8 lower bits represent an address byte, or ID, which is used to select one of the **fruits**.
-ID must be between 1 and 126. ID 127 is reserved for future use.
+if bit 9 is set, the 8 lower bits represent an address byte, or ID, which is used to select one of the **fruits**.  
+ID must be between 1 and 126. ID 127 is reserved for future use.  
 Words with bit 9 cleared are data bytes, which are read by the addressed **fruit**.
 
-Transfers occur by packets of up to 31 effective data bytes. Packets can be of two types: raw bytes or characters string.
+Transfers occur by packets of up to 31 effective data bytes.  
+Packets can be of two types: raw bytes or characters string.
 
 Each **fruit** stores an **ID** (8 bit) and a **NAME** (max 16 char string) in eeprom.
 Devices connected to the same bus are not allowed to share the same ID or NAME.
@@ -35,8 +35,8 @@ Pied-to-fruit communication
 ### normal output
 
 The **pied** initiates transmission by sending the **fruit** ID byte with bit 9 on, followed by
-a length byte where bit 8 is set if the packet is a string packet.
-The message continues with the data bytes, then ends with a checksum byte.
+a length byte where bit 8 is set if the packet is a string packet.  
+The message continues with the data bytes, then ends with a checksum byte.  
 The **fruit** acknowledges the packet by sending a null byte.
 
 (in this chapter, # means next character has bit 9 set)
@@ -56,7 +56,7 @@ packet: #NLD(...)DS
 
 If ID is 0, all the **fruits** decode the packet; no **fruit** has to acknowledge.
 
-Special broadcast commands are provided to assign an ID to a **fruit**, or to establish a 8 bits communication for bootloader purpose.
+Special broadcast commands are provided to assign an ID to a **fruit**, or to establish a 8 bits communication for bootloader purpose.  
 The first data byte is the broadcast command:
 
 - `’I’` = all reInit
@@ -73,9 +73,9 @@ here ID is written in hexadecimal ascii e.g: "N0AFruit" -> **fruit** named "Frui
 Fruit-to-pied communication
 ------------------------------
 
-**Fruits** are polled sequentially, between transmissions of pied-to-fruits packets.
-The **pied** initiates transmission:
-The first byte is the ID of tested **fruit**, with bit 9 set to signal a start byte, and bit 8 set to signal a poll message. Then ID + 128 is repeated with bit 9 cleared, in order to secure addressing.
+**Fruits** are polled sequentially, between transmissions of pied-to-fruits packets.  
+The **pied** initiates transmission: the first byte is the ID of tested **fruit**, with bit 9 set to signal the start of the packet, and bit 8 set to signal a poll message.  
+Then ID + 128 is repeated with bit 9 cleared, in order to secure addressing.  
 If the **fruit** has nothing to transmit, it returns a null byte. Otherwise it sends a packet, which is acknowledged by the **pied**.
 
 
@@ -115,9 +115,9 @@ No checksum byte in this case; the **pied** does not have to acknowledge.
 Bootloader communication
 -----------------------
 
-Bit 9 is always cleared.
-Bootloader packets start with the number of following bytes (length byte).
-The last byte is the checksum (the sum of all bytes including length and checksum, modulo 256, must be zero).
+Bit 9 is always cleared.  
+Bootloader packets start with the number of following bytes (length byte).  
+The last byte is the checksum (the sum of all bytes including length and checksum, modulo 256, must be zero).  
 The first byte after the length byte indicates the command:
 
 - `’R’` = rename command: message must be "RENAME:" + NAME; **fruit** answers `’R’`.
@@ -154,7 +154,8 @@ The host sends an addressed message to the **pied**, which forward it to the **f
 `"0100\n" -> *0x01 0x01 0x00 0xFE`: send 0 to **fruit** ID 1.  
 `"81Hi\n" -> *0x01 0x82 0x48 0x69 0xCC`: send "Hi" to **fruit** ID 1.
 
-The **pied** reports errors to the host: 
+The **pied** reports errors to the host:
+
 - `"sTnn\n"` if **fruit** nn didn’t answer (timeout)
 - `"sann\n"` if the **fruit** refused to acknowledge the packet (packet error or buffer full).
 
@@ -217,6 +218,8 @@ Quit bootloading mode:
 The **pied** can send informational messages to the USB host, for debugging purpose. Each log line if prefixed with the 'l' character.
 
 ------------------
-LICENSE: CC-BY-ND
-This document is placed under the terms of the Creative Commons Attribution-NoDerivatives 4.0 International Public License
+*Antoine Rousseau - metalu.net 2013-2023*
+
+LICENSE: CC-BY-ND  
+This document is placed under the terms of the Creative Commons Attribution-NoDerivatives 4.0 International Public License  
 http://creativecommons.org/licenses/by-nd/4.0/legalcode
