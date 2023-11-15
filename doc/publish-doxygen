@@ -20,11 +20,23 @@ if [ `git config remote.origin.url` != ${REPO_PATH} ] ; then cd -; echo "ERROR c
 git rm -rf .
 cd -
 
+# make a copy of the Fraise directory here, where we can tweak it a bit
+rm -Rf doxy_copy/
+mkdir -p doxy_copy/
+cd ..
+git archive --prefix=Fraise/ HEAD | (cd doc/doxy_copy && tar xf -)
+cd -
+mv doxy_copy/Fraise/doc/protocol.md doxy_copy/Fraise
+sed -i 's#(doc/protocol.md)#(@ref protocol)#' doxy_copy/Fraise/README.md
+
 mkdir -p ${HTML_PATH}/doc/img
 cp img/* ${HTML_PATH}/doc/img
+# cp protocol.md html/doc
 
 # Generate the HTML documentation.
 doxygen
+
+if [ x$1 == "xnogit" ] ; then exit; fi
 
 # Create and commit the documentation repo.
 cd ${HTML_PATH}
