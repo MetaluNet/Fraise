@@ -5,13 +5,13 @@
 # [**Fraise**](https://github.com/MetaluNet/Fraise) is:
 
 
--	a protocol establishing a communication between multiple micro-controller boards and a host computer
+-	a protocol establishing a communication between multiple microcontroller boards and a host computer
 -	a C firmware library implementing the Fraise protocol plus various hardware-specific modules
 -	a integrated multi-platform environment hosted by [Pure Data](http://www.puredata.info) (Pd) for interacting with Fraise boards
 
 Fraise boards are currently powered by Microchip's PIC18F26K22 8-bit microcontrollers, which have similar capabilities to Arduino's ATmega328.  
 
-The Fraise protocol is based on asynchronous serial communication. Thanks to a carefully selected, moderate bitrate (250 kbs), the micro-controller boards can be located hundreds of meter away from the computer (400 meters total bus length), when connected through RS485 transceivers (called Fraiseivers).  
+The Fraise protocol is based on asynchronous serial communication. Thanks to a carefully selected, moderate bitrate (250 kbs), the microcontroller boards can be located hundreds of meter away from the computer (400 meters total bus length), when connected through RS485 transceivers (called Fraiseivers).  
 
 
 The firmware is compiled with [SDCC](http://sdcc.sourceforge.net) and [gputils](http://gputils.sourceforge.net); Fraise ships with the compiler's binaries, and automates all the compilation and flashing processes from the Pd patches.
@@ -33,7 +33,7 @@ then logout (close your session) and re-login.
 
 Fraise relies on two externals, which bring functionalities that are not (yet) supported by Pd natively:
 
--	ggee/shell, or motex/system on Windows, to allow execution of a batch file
+-	ggee/shell, or motex/system on Windows, to allow Pd to run the compiler
 -	comport, to access USB serial devices
 
 These externals are included in the Fraise distribution for most platforms, so you shouldn't have to install anything.
