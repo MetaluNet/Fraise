@@ -7,13 +7,21 @@ VERSION=`git describe --abbrev=0`
 #rm -Rf publish-deken/
 mkdir -p publish-deken/
 
+OSes="linux64 linuxarm macos windows"
+
 declare -A deken_arch
 deken_arch[linux64]=Linux-amd64-32
 deken_arch[linuxarm]=Linux-armv7-32
 deken_arch[macos]=Darwin-amd64-32
 deken_arch[windows]=Windows-amd64-32
 
-for os in linux64 linuxarm macos windows; do
+declare -A extra_ext
+extra_ext[linux64]=".l_amd64"
+extra_ext[linuxarm]=".l_arm"
+extra_ext[macos]=".d_amd64 .pd_darwin .d_fat"
+extra_ext[windows]=".w64 .dll shell.pd system-help.pd"
+
+for os in $OSes; do
 	rm -Rf publish-deken/Fraise
 	cd ..
 
@@ -31,9 +39,14 @@ for os in linux64 linuxarm macos windows; do
 	mv Fraise/bin/$os/bin_config.txt Fraise/bin/
 	DEKEN_ARCH=${deken_arch[$os]}
 
-	if [ $os != windows ]; then
-		rm Fraise/extra/*.w64 Fraise/extra/*.dll
-	fi
+	rm -f Fraise/extra/*.l_arm64 # no linux arm64 target yet
+	for otheros in $OSes; do
+		if [ $otheros != $os ] ; then
+			for ext in ${extra_ext[$otheros]}; do
+				rm -f Fraise/extra/*$ext
+			done
+		fi
+	done
 
 	deken package --version $VERSION Fraise
 
@@ -44,7 +57,7 @@ for os in linux64 linuxarm macos windows; do
 	fi
 
 	if [ x$1 != xnoupload ] ; then
-		deken upload --no-source-error "Fraise[v$VERSION].dek"
+		deken upload --no-source-error "Fraise[v$VERSION]($DEKEN_ARCH).dek"
 	fi
 	
 	cd ..
