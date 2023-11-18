@@ -4,15 +4,14 @@
 # $2 = pdsend port
 
 (
-	FRAISEH=`dirname $0`/../
-	FRAISE=`readlink -f $FRAISEH`
+	FRAISEDIR=$(readlink -f `dirname $0`/../..)
 	PROJ=`basename $1`
 	BOARDLINE=`grep BOARD $1/main.c`
 	BOARD=${BOARDLINE##*BOARD}
 	BOARD=${BOARD##* }
 
 	PK2CMD=pk2cmd
-	HEXFILE=`dirname $0`/18f/hex/$BOARD.hex
+	HEXFILE=$FRAISEDIR/boards/$BOARD/$BOARD.hex
 	echo Proj: $PROJ
 	echo Board: $BOARD
 	echo Hexfile: $HEXFILE

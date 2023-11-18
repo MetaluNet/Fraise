@@ -39,9 +39,9 @@ extern void Setup();
 #endif
 
 // bootloader exit time
-#ifndef BOOT_TIME
+/*#ifndef BOOT_TIME
 #define BOOT_TIME 4000
-#endif
+#endif*/
 
 //---------------  Serial macros :   -----------------
 //serial drive:
