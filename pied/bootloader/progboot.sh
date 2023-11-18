@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# $1 = directory to make
+# $1 = directory where the fruit firmware source is
 # $2 = pdsend port
 
 (
@@ -11,11 +11,11 @@
 	BOARD=${BOARDLINE##*BOARD}
 	BOARD=${BOARD##* }
 
+	PK2CMD=pk2cmd
+	HEXFILE=`dirname $0`/18f/hex/$BOARD.hex
 	echo Proj: $PROJ
 	echo Board: $BOARD
-
-	PK2CMD=pk2cmd
-	HEXFILE=`dirname $0`/../bootloader/18f/hex/$BOARD.hex
+	echo Hexfile: $HEXFILE
 	$PK2CMD -P -M -F$HEXFILE
 
 ) | sed 's/$/;/' | pdsend $2
