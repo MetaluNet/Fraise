@@ -19,7 +19,7 @@ declare -A extra_ext
 extra_ext[linux64]=".l_amd64"
 extra_ext[linuxarm]=".l_arm"
 extra_ext[macos]=".d_amd64 .pd_darwin .d_fat"
-extra_ext[windows]=".w64 .dll shell.pd system-help.pd"
+extra_ext[windows]=".w64 .dll shell.pd system-help.pd .m_amd64"
 
 for os in $OSes; do
 	rm -Rf publish-deken/Fraise
@@ -31,23 +31,26 @@ for os in $OSes; do
 
 	echo $VERSION > Fraise/VERSION.txt
 
-	mv Fraise/bin Fraise/bin_tmp
-	mkdir Fraise/bin
-	mv Fraise/bin_tmp/$os Fraise/bin_tmp/share Fraise/bin
-	rm -Rf Fraise/bin_tmp
+	cd Fraise/pied/
+		# keep only compiler binaries for this OS:
+		mv bin bin_tmp
+		mkdir bin
+		mv bin_tmp/$os bin_tmp/share bin
+		rm -Rf bin_tmp
+		mv bin/$os/bin_config.txt bin/
 
-	mv Fraise/bin/$os/bin_config.txt Fraise/bin/
+		# keep only externals for this OS:
+		rm -f extra/*.l_arm64 # no linux arm64 target yet
+		for otheros in $OSes; do
+			if [ $otheros != $os ] ; then
+				for ext in ${extra_ext[$otheros]}; do
+					rm -f extra/*$ext
+				done
+			fi
+		done
+	cd ../..
+
 	DEKEN_ARCH=${deken_arch[$os]}
-
-	rm -f Fraise/extra/*.l_arm64 # no linux arm64 target yet
-	for otheros in $OSes; do
-		if [ $otheros != $os ] ; then
-			for ext in ${extra_ext[$otheros]}; do
-				rm -f Fraise/extra/*$ext
-			done
-		fi
-	done
-
 	deken package --version $VERSION Fraise
 
 	mv "Fraise[v$VERSION](Sources).dek"        "Fraise[v$VERSION]($DEKEN_ARCH).dek"
