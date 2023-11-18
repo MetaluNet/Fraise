@@ -1,9 +1,9 @@
 #N canvas 878 113 474 468 10;
-#X declare -lib ../extra/comport;
 #X declare -path ggee;
 #X declare -path comport;
-#X declare -lib ../extra/shell -lib ../extra/system;
-#X declare -path ../extra;
+#X declare -path extra;
+#X declare -lib extra/comport;
+#X declare -lib extra/shell -lib extra/system;
 #X obj 21 46 cnv 10 150 53 empty \$0-stastocan-rcv empty 20 12 0 14 #000000 #000000 0;
 #X obj 15 238 outlet;
 #X obj 15 193 r \$0-pied;
@@ -577,7 +577,7 @@
 #X connect 41 1 38 1;
 #X restore 15 107 pd comport;
 #X obj 21 61 cnv 10 80 10 empty \$0-piedvercan empty 2 7 1 10 #000000 #000000 0;
-#N canvas 880 49 413 260 \$0-utils 0;
+#N canvas 585 19 413 260 \$0-utils 0;
 #X obj 4 3 cnv 16 370 230 empty empty Pieds\ detected: 20 12 0 14 #000000 #faff00 0;
 #X obj 245 6 bng 16 250 50 0 \$0-find_pieds-snd \$0-find_pieds-rcv (update) -60 8 0 12 #fcfcfc #000000 #fcfcfc;
 #X obj 11 212 tgl 16 0 \$0-dontclean-snd \$0-dontclean-rcv don't\ clean\ after\ compile\ (debug) 20 8 0 10 #606060 #faff00 #7c7c7c 0 1;
@@ -959,7 +959,7 @@
 #X connect 5 1 4 0;
 #X connect 5 2 1 0;
 #X restore 142 209 pd tosystem;
-#N canvas 137 487 444 261 Bootloader/Compiler 0;
+#N canvas 813 380 444 261 Bootloader/Compiler 1;
 #N canvas 653 423 498 407 enter-boot-quit 0;
 #X msg 123 204 0;
 #X obj 123 225 s \$0-verified;
@@ -1742,11 +1742,11 @@
 #X connect 80 0 1 0;
 #X restore 125 109 pd autoReconnect;
 #N canvas 80 53 512 153 DECLARE-LIBS 0;
-#X obj 181 65 declare -lib ../extra/comport;
 #X obj 31 45 declare -path ggee;
 #X obj 31 64 declare -path comport;
-#X obj 181 46 declare -lib ../extra/shell -lib ../extra/system;
-#X obj 31 25 declare -path ../extra;
+#X obj 31 25 declare -path extra;
+#X obj 181 65 declare -lib extra/comport;
+#X obj 181 46 declare -lib extra/shell -lib extra/system;
 #X restore 18 289 pd DECLARE-LIBS;
 #N canvas 442 192 450 300 testBitRate 0;
 #X obj 157 184 s \$0-pied-rcv;
@@ -2170,10 +2170,10 @@
 #X connect 41 0 42 0;
 #X restore 325 109 pd persistent_settings;
 #X obj 333 191 cnv 13 70 13 empty \$0-piedIDcan piedID:\ -1 2 7 1 12 #c4fcc4 #404040 0;
-#X obj 20 46 tgl 15 0 \$0-on-snd \$0-on-rcv on 3 7 1 8 #fc2828 #fc2828 #fcfcfc 0 1;
+#X obj 20 46 tgl 15 0 \$0-on-snd \$0-on-rcv off 3 7 1 8 #a0a0a0 #a0a0a0 #404040 0 1;
 #X obj 20 30 inlet;
 #X obj 25 86 hsl 55 12 0 10000 0 0 \$0-inrate-slider \$0-inrate-slider in:45 0 6 0 10 #000000 #000000 #000000 0 1;
-#X obj 88 86 hsl 55 12 0 10000 0 0 \$0-outrate-slider \$0-outrate-slider out:12 0 6 0 10 #000000 #000000 #000000 0 1;
+#X obj 88 86 hsl 55 12 0 10000 0 0 \$0-outrate-slider \$0-outrate-slider out:0 0 6 0 10 #000000 #000000 #000000 0 1;
 #X text 148 84 B/s;
 #X obj 163 435 print find_device;
 #X obj 163 391 r \$0-find_device_log;
