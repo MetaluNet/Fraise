@@ -6,7 +6,7 @@
 MAINFRAISE=../../..
 
 SDCC_SHARE=$(MAINFRAISE)/pied/bin/share
-SDCC=$(MAINFRAISE)/pied/bin/linux/sdcc
+SDCC=$(MAINFRAISE)/pied/bin/linux64/sdcc
 CC=$(SDCC)
 PK2CMD= pk2cmd
 SHELL=/bin/bash
@@ -53,9 +53,9 @@ LIBS= libsdcc.lib libc18f.lib
 
 SUFFIXES= obj lst asm o cod
 
-all: $(HEXFILE) clean
+all: clean $(HEXFILE)
 	 make clean
-	
+
 $(BOARD): all
 
 $(BOARDMAKEFILE): 
