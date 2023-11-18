@@ -92,7 +92,7 @@ void analogSelectAdcTouch(unsigned char chan,unsigned char hwchan, unsigned char
 {
 	bitset(Selected[chan>>3],chan&7);
 	HWChan[chan]=hwchan;
-	Pins[chan]=(((unsigned int)(port-&PORTA)&7)<<4) + (bit&7);
+	Pins[chan]=(((unsigned int)(port-(int)(&PORTA))&7)<<4) + (bit&7);
 }
 
 void analogDeselect(unsigned char chan)
