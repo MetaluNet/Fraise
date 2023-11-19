@@ -24,51 +24,51 @@
 //add your hardware here
 void SetupBoard(void) {
 #ifdef __18F2455
-    //disable some defaults
-    ADCON1 |= 0b1111; //all pins digital
-    CVRCON = 0b00000000;
+	//disable some defaults
+	ADCON1 |= 0b1111; //all pins digital
+	CVRCON = 0b00000000;
 #endif
-    LATC = 0x00;
-    TRISC = 0xFF;
+	LATC = 0x00;
+	TRISC = 0xFF;
 
 
 // 18k25k50 specific: ----------------------
 #ifdef __18F25K50
-	OSCCON2bits.PLLEN = 0;    // Changes in SPLLMULT are ignored unless pll is disabled          
-	OSCTUNEbits.SPLLMULT = 1; // PLL: x3 multiplier  Set this before enabling PLL          
+	OSCCON2bits.PLLEN = 0;    // Changes in SPLLMULT are ignored unless pll is disabled
+	OSCTUNEbits.SPLLMULT = 1; // PLL: x3 multiplier  Set this before enabling PLL
 
-	OSCCON = 0x70;          
-	//OSCCONbits.SCS = 0;     //Primary clock determined by FOSC<3:0> in CONFIG1H          
-	//OSCCONbits.IRCF = 7;    // Internal RC Oscillator HFINTOSC = 16 MHz          
-	//OSCCONbits.IDLEN = 0;   // Device enters Sleep mode on SLEEP instruction          
+	OSCCON = 0x70;
+	//OSCCONbits.SCS = 0;     //Primary clock determined by FOSC<3:0> in CONFIG1H
+	//OSCCONbits.IRCF = 7;    // Internal RC Oscillator HFINTOSC = 16 MHz
+	//OSCCONbits.IDLEN = 0;   // Device enters Sleep mode on SLEEP instruction
 
-	OSCCON2 = 0x10;          
-	//OSCCON2bits.INTSRC = 0; // Low power INTRC as 31.25 reference          
-	//OSCCON2bits.SOSCGO = 0; // No secondary oscillator unless otherewise requested          
-	//OSCCON2bits.PRISD = 0;  // Enable primary oscillator          
-	//OSCCON2bits.PLLEN = 1;  // Use PLL.          
+	OSCCON2 = 0x10;
+	//OSCCON2bits.INTSRC = 0; // Low power INTRC as 31.25 reference
+	//OSCCON2bits.SOSCGO = 0; // No secondary oscillator unless otherewise requested
+	//OSCCON2bits.PRISD = 0;  // Enable primary oscillator
+	//OSCCON2bits.PLLEN = 1;  // Use PLL.
 
 	while (OSCCON2bits.PLLRDY != 1) {}
 
-	OSCCON2bits.PRISD = 1; // Disable primary oscillator          
-	// The following is "probably" not necessary since not doing clock switching          
-	//Delay10KTCYx(3);  // 2.5 milliseconds for 12 MHz instruction clock        
+	OSCCON2bits.PRISD = 1; // Disable primary oscillator
+	// The following is "probably" not necessary since not doing clock switching
+	//Delay10KTCYx(3);  // 2.5 milliseconds for 12 MHz instruction clock
 
-	// Enable HFINTOSC to be tuned by the USB clock          
-	ACTCON = 0x90;          
-	//ACTCONbits.ACTEN = 1;        
-	//ACTCONbits.ACTSRC = 1;   
-    // disable analog for USART pins
-    ANSELCbits.ANSC6 = 0;
-    ANSELCbits.ANSC7 = 0;
+	// Enable HFINTOSC to be tuned by the USB clock
+	ACTCON = 0x90;
+	//ACTCONbits.ACTEN = 1;
+	//ACTCONbits.ACTSRC = 1;
+	// disable analog for USART pins
+	ANSELCbits.ANSC6 = 0;
+	ANSELCbits.ANSC7 = 0;
 #endif
 //---------------------------------
 
-    
+
 	// Initalize switchs and leds
-    mInitAllLEDs();
-    //mInitSwitch();
-    mInitSerDrv();
+	mInitAllLEDs();
+	//mInitSwitch();
+	mInitSerDrv();
 }
 //void USBSuspend(void);
 
@@ -79,9 +79,9 @@ void SetupBoard(void) {
 
 PUTCHAR(c)
 {
-   //putc_cdc(c);
-   	usbcdc_putchar(c);
-	if (c=='\n')
+	//putc_cdc(c);
+	usbcdc_putchar(c);
+	if (c == '\n')
 		usbcdc_flush();
 
 }
@@ -96,15 +96,15 @@ PUTCHAR(c)
 
 void main(void)
 {
-    BYTE RecvdByte;
-    
+	BYTE RecvdByte;
+
 	SetupBoard();
 	mLED_1_Off();
 	mLED_2_Off();
 
 	//while(1);
-    // Use our own special output function for STDOUT:
-    //stdout = _H_USER; 
+	// Use our own special output function for STDOUT:
+	//stdout = _H_USER;
 	stdout = STREAM_USER;
 //    initCDC(); // setup the CDC state machine
 
@@ -123,13 +123,13 @@ void main(void)
 
 	while (usbcdc_device_state != CONFIGURED)
 
-    
-	mLED_2_On();
-    
-    FraiseInit();
+
+		mLED_2_On();
+
+	FraiseInit();
 
 // Main echo loop
-    do {
+	do {
 
 // If USB_INTERRUPT is not defined each loop should have at least one additional call to the usb handler to allow for control transfers.
 //#ifndef USB_INTERRUPTS
@@ -139,29 +139,32 @@ void main(void)
 // Receive and send method 1
 // The CDC module will call usb_handler each time a BULK CDC packet is sent or received.
 // If there is a byte ready will return with the number of bytes available and received byte in RecvdByte
-        /*if (poll_getc_cdc(&RecvdByte))
-            putc_cdc(RecvdByte);*/
-        //putchar(getchar());
-            
-        if(!FrGotLineFromUsb) {
-            while(usbcdc_rd_ready()) {
-                RecvdByte = usbcdc_getchar();
-                if(RecvdByte=='\n') {
-                    FrGotLineFromUsb=1;
-                    //printf((const far rom char*)"rcvd line !\n");
-                    break;
-                }
-                else if(LineFromUsbLen<(sizeof(LineFromUsb)-1))
-                    LineFromUsb[LineFromUsbLen++]=RecvdByte;
-            }
-        }
+		/*if (poll_getc_cdc(&RecvdByte))
+		    putc_cdc(RecvdByte);*/
+		//putchar(getchar());
 
-        if(UIRbits.SOFIF==1) { FraiseSOF(); UIRbits.SOFIF=0; }
+		if(!FrGotLineFromUsb) {
+			while(usbcdc_rd_ready()) {
+				RecvdByte = usbcdc_getchar();
+				if(RecvdByte == '\n') {
+					FrGotLineFromUsb = 1;
+					//printf((const far rom char*)"rcvd line !\n");
+					break;
+				}
+				else if(LineFromUsbLen < (sizeof(LineFromUsb) - 1))
+					LineFromUsb[LineFromUsbLen++] = RecvdByte;
+			}
+		}
 
-        FraiseService();
+		if(UIRbits.SOFIF == 1) {
+			FraiseSOF();
+			UIRbits.SOFIF = 0;
+		}
+
+		FraiseService();
 
 
-    } while (1);
+	} while (1);
 
 } //end main
 
@@ -181,11 +184,11 @@ void InterruptHandlerLow(void) __interrupt 2
 
 
 void InterruptHandlerHigh(void) __shadowregs __interrupt 1
-{ //Also legacy mode interrupt.
-    //usb_handler();
-    //ClearGlobalUsbInterruptFlag();
-    FraiseISR();
-    /*if(PIR2bits.USBIF)
+{	//Also legacy mode interrupt.
+	//usb_handler();
+	//ClearGlobalUsbInterruptFlag();
+	FraiseISR();
+	/*if(PIR2bits.USBIF)
 	{
 		usbcdc_handler();
 		PIR2bits.USBIF=0;

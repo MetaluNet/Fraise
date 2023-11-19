@@ -25,13 +25,6 @@
 #ifndef FRAISEMASTER_H
 #define FRAISEMASTER_H
 
-/** E X T E R N S ************************************************************/
-
-/** P U B L I C  P R O T O T Y P E S *****************************************/
-#ifndef BYTE
-//typedef unsigned char BYTE;
-#endif
-
 void FraiseInit(void);
 
 void FraiseService(void); // to be called by main loop
@@ -44,7 +37,5 @@ void FrGetLineFromUsb(void);
 extern unsigned char LineFromUsb[LINE_FROM_USB_MAXLEN];
 extern unsigned char LineFromUsbLen;
 extern unsigned char FrGotLineFromUsb;
-//extern volatile unsigned char PollCount;
-//void FrSendtoUsb(void);
 
 #endif //FRAISEMASTER_H

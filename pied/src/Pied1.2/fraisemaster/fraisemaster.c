@@ -119,26 +119,25 @@ unsigned char AckChild; 		//child which must send a ACK now
 #define bitclr(var,bitno) ((var) &= ~(1 << (bitno)))
 #define bittst(var,bitno) ((var) & (1 << (bitno)))
 
-#define SET_CHILD(num) bitset(Children[(num)>>3],((num)&7))
-#define CLR_CHILD(num) bitclr(Children[(num)>>3],((num)&7))
-#define TST_CHILD(num) bittst(Children[(num)>>3],((num)&7))
+#define SET_CHILD(num) bitset(Children[(num) >> 3],((num) & 7))
+#define CLR_CHILD(num) bitclr(Children[(num) >> 3],((num) & 7))
+#define TST_CHILD(num) bittst(Children[(num) >> 3],((num) & 7))
 
-#define SET_CHILDOK(num) bitset(ChildrenOK[(num)>>3],((num)&7))
-#define CLR_CHILDOK(num) bitclr(ChildrenOK[(num)>>3],((num)&7))
-#define TST_CHILDOK(num) bittst(ChildrenOK[(num)>>3],((num)&7))
+#define SET_CHILDOK(num) bitset(ChildrenOK[(num) >> 3], ((num) & 7))
+#define CLR_CHILDOK(num) bitclr(ChildrenOK[(num) >> 3], ((num) & 7))
+#define TST_CHILDOK(num) bittst(ChildrenOK[(num) >> 3], ((num) & 7))
 
-#define SET_POLLEDCHILD() ( Children[_PolledChild>>3]|= _bit_PolledChild )
-#define CLR_POLLEDCHILD() ( Children[_PolledChild>>3]&= ~_bit_PolledChild )
-#define TST_POLLEDCHILD() ( Children[_PolledChild>>3]& _bit_PolledChild )
+#define SET_POLLEDCHILD() (Children[_PolledChild >> 3] |= _bit_PolledChild)
+#define CLR_POLLEDCHILD() (Children[_PolledChild >> 3] &= ~_bit_PolledChild)
+#define TST_POLLEDCHILD() (Children[_PolledChild >> 3] & _bit_PolledChild)
 
-#define SET_POLLEDCHILDOK() ( ChildrenOK[_PolledChild>>3]|= _bit_PolledChild )
-#define CLR_POLLEDCHILDOK() ( ChildrenOK[_PolledChild>>3]&= ~_bit_PolledChild )
-#define TST_POLLEDCHILDOK() ( ChildrenOK[_PolledChild>>3]& _bit_PolledChild )
+#define SET_POLLEDCHILDOK() (ChildrenOK[_PolledChild >> 3] |= _bit_PolledChild)
+#define CLR_POLLEDCHILDOK() (ChildrenOK[_PolledChild >> 3] &= ~_bit_PolledChild)
+#define TST_POLLEDCHILDOK() (ChildrenOK[_PolledChild >> 3] & _bit_PolledChild)
 
 //-------------- byte to HEX string -----------------------------------
-#define HI_CHAR(N) ( ((N)>>4)<10?((N)>>4)+'0':((N)>>4)-10+'A' )
-#define LO_CHAR(N) ( ((N)&15)<10?((N)&15)+'0':((N)&15)-10+'A' )
-
+#define HI_CHAR(N) (((N) >> 4) < 10 ? ((N) >> 4) + '0' : ((N) >> 4) - 10 + 'A')
+#define LO_CHAR(N) (((N) & 15) < 10 ? ((N) & 15) + '0' : ((N) & 15) - 10 + 'A')
 
 //---------------serial macros ---------------------------------------
 void Serial_Init_Receiver(void)
@@ -153,17 +152,17 @@ void Serial_Init_Receiver(void)
 	mSerDrv_Off();
 }
 
-#define Serial_Init_Driver() {\
-	RCSTAbits.CREN=0;	\
-	mSerDrv_On();		\
-	PIE1bits.RCIE=0;		\
+#define Serial_Init_Driver() {	\
+	RCSTAbits.CREN = 0;			\
+	mSerDrv_On();				\
+	PIE1bits.RCIE = 0;			\
 }
 
 #define Serial_Init_None() {\
-	RCSTAbits.CREN=0;	\
-	mSerDrv_Off();		\
-	PIE1bits.RCIE=0;        \
-	PIE1bits.TXIE=0;        \
+	RCSTAbits.CREN = 0;		\
+	mSerDrv_Off();			\
+	PIE1bits.RCIE = 0;		\
+	PIE1bits.TXIE = 0;		\
 }
 
 #define Serial_Is_Receiver() (PIE1bits.RCIE)
@@ -259,13 +258,15 @@ void FrSendtoUsb(void)
 /*-----------------------------------------------------------------------------------*/
 void FrSendMessagetoUsb(void)
 {
-	/*	 fmessNONE
-		,fmessFOUND  // polled device has been found
-		,fmessLOST   // polled device has been lost
-		,fmessCHKSUM // checksum error on a packet from polled device
-		,fmessNACK   // destination device didn't acknowledge packet (packet error | buffer full)
-		,fmessTOUT   // destination device didn't acknowledge packet (timeout)
+	/*
+		fmessNONE
+		fmessFOUND  // polled device has been found
+		fmessLOST   // polled device has been lost
+		fmessCHKSUM // checksum error on a packet from polled device
+		fmessNACK   // destination device didn't acknowledge packet (packet error | buffer full)
+		fmessTOUT   // destination device didn't acknowledge packet (timeout)
 	*/
+
 	if(FraiseStatus.OERR) {
 		FraiseStatus.OERR = 0;
 		printf((STRING)"lserial overrun error\n");
@@ -331,34 +332,34 @@ void FrSendMessagetoUsb(void)
 /*          Analyse packet from usb, build a packet to send to fraise if applicable. */
 /*-----------------------------------------------------------------------------------*/
 
-#define FrTXPacketInit(b) { FrTXpacket_i=1 ; FrTXchksum=FrTXpacket[0]=(b);}
-#define FrTXPacketData(b) { FrTXchksum+=FrTXpacket[FrTXpacket_i]=(b);FrTXpacket_i++;}
-#define FrTXPacketClose() { FrTXpacket[FrTXpacket_i]=-(char)FrTXchksum; FrTXpacket_len=FrTXpacket_i+1; }
+#define FrTXPacketInit(b) {FrTXpacket_i = 1; FrTXchksum = FrTXpacket[0] = (b);}
+#define FrTXPacketData(b) {FrTXchksum += FrTXpacket[FrTXpacket_i] = (b); FrTXpacket_i++;}
+#define FrTXPacketClose() {FrTXpacket[FrTXpacket_i] = -(char)FrTXchksum; FrTXpacket_len = FrTXpacket_i + 1;}
 
 #define FrTXPacketLaunch()			\
 {									\
 	Serial_Init_Driver();			\
-	TXSTAbits.TX9D=1;				\
-	TXREG=AckChild=FrTXpacket[0];	\
-	TXSTAbits.TX9D=0;				\
-	FrTXpacket_i=1;					\
-	FraiseState=fOUT;				\
-	PIE1bits.TXIE=1;				\
+	TXSTAbits.TX9D = 1;				\
+	TXREG=AckChild = FrTXpacket[0];	\
+	TXSTAbits.TX9D = 0;				\
+	FrTXpacket_i = 1;				\
+	FraiseState = fOUT;				\
+	PIE1bits.TXIE = 1;				\
 }
 
 #define FrTXPacketLaunchBl()	\
 {								\
 	Serial_Init_Driver();		\
-	TXREG=FrTXpacket[0];		\
-	FrTXpacket_i=1;				\
-	FraiseState=fBLOUT;			\
-	PIE1bits.TXIE=1;			\
+	TXREG = FrTXpacket[0];		\
+	FrTXpacket_i = 1;			\
+	FraiseState = fBLOUT;		\
+	PIE1bits.TXIE = 1;			\
 }
 
 #define GETNEXTCHAR() LineFromUsb[i++]
 #define PEEKNEXTCHAR() LineFromUsb[i]
 #define SKIPNEXTCHAR() i++
-#define LINE_HAS_CHAR() (i<LineFromUsbLen)
+#define LINE_HAS_CHAR() (i < LineFromUsbLen)
 
 void FrGetLineFromUsb(void)
 {
@@ -378,7 +379,7 @@ void FrGetLineFromUsb(void)
 	c = GETNEXTCHAR(); // 1st byte = command (or hi nibble of address)
 
 	if(c == '#') {
-	// ****************** system command , begining by '#':   **********************
+		// ****************** system command, begining by '#':   **********************
 		if(len < 2) goto discard;
 		c = GETNEXTCHAR(); // what is the command ?
 		if(c == 'S') { // start device pulling
@@ -488,7 +489,7 @@ void FrGetLineFromUsb(void)
 		goto discard; // unknown system command ; discard packet.
 	}
 	else if(c == '!') {
-	// ****************** broadcast tx , begining by '!':  *****************
+		// ****************** broadcast tx, begining by '!':  *****************
 		len -= 1; // discard '!' byte
 		if(len < 1) goto discard;
 
@@ -516,7 +517,7 @@ void FrGetLineFromUsb(void)
 	}
 
 	if(FraiseStatus.FBLDON) {
-	// ****************** message is to be sent to fruit's bootloader *****************
+		// ****************** message is to be sent to fruit's bootloader *****************
 		FrTXPacketInit(len + 1);
 		FrTXPacketData(c);
 
@@ -555,7 +556,8 @@ void FrGetLineFromUsb(void)
 
 fill_packet:
 	if(FraiseStatus.TXCHAR) len |= 128;
-	else len >>= 1; // if not TXCHAR, data len in serial stream will be half than at text input (e.g two text bytes "00" -> one null byte )
+	else len >>= 1; // if not TXCHAR, data len in serial stream will be half than at text input 
+					// (e.g two text bytes "00" -> one null byte )
 	FrTXPacketData(len);
 
 	if(FraiseStatus.TXCHAR) {
