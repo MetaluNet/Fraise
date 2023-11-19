@@ -1,70 +1,58 @@
 /*********************************************************************
- *               Test Fraise on Versa1.0 
+ *                Fraise fruit example
  *********************************************************************/
 
-#define BOARD Versa1
+#define BOARD Versa2
 
 #include <fruit.h>
 
-unsigned char period = 200; // number of 5 ms time slices between prints of "Hello"
-unsigned char t = 0, t2 = 0;
-t_delay mainDelay;
+t_delay printDelay;
+t_time printPeriod = 500000; 				// default print period to 0.5 second (500000 microsecond)
+unsigned char count;
 
-void setup(void) {		
-//----------- Setup ----------------
-	fruitInit();
-			
-	pinModeDigitalOut(LED); 	// set the LED pin mode to digital out
-	digitalClear(LED);		// clear the LED
-	delayStart(mainDelay, 5000); 	// init the mainDelay to 5 ms
-	
-	pinModeDigitalIn(K1);
+//-------- the setup() function is called once at startup
+void setup() {
+	fruitInit();							// initialize the board and the Fraise library
+	pinModeDigitalOut(LED); 				// set the LED pin to digital out mode
+	digitalClear(LED);						// clear the LED
+	pinModeDigitalIn(K1);					// set pin K1 to digital input mode
 }
 
+// ------- the loop() function is called indefinitely
 void loop() {
-// ---------- Main loop ------------
-	fraiseService();	// listen to Fraise events
+	fraiseService();						// listen to Fraise events
 
-	if(delayFinished(mainDelay)) // when mainDelay triggers :
+	if(delayFinished(printDelay))			// when printDelay triggers:
 	{
-		delayStart(mainDelay, 5000); 	// re-init mainDelay
-		t = t + 1;			// increment period counter	
-		if(t >= period){		// if counter overflows :
-			t = 0;				 // clear counter
-			t2 = t2 + 1;			 // increment aux counter 
-			printf("CHello! t2= %d K1= %d\n", t2, digitalRead(K1));// print Hello + aux counter value
-		}
+		delayStart(printDelay, printPeriod);// re-start printDelay
+		count = count + 1;					// increment count
+		printf("Ccount %d\n", count);		// print count value
+		printf("CK1 %d\n", digitalRead(K1));// print the state of input pin K1
 	}
 }
 
-// Receiving
-
-void fraiseReceiveChar() // receive text
+// ------- the fraiseReceiveChar() function is called when a "text" message arrived
+void fraiseReceiveChar() 					// receive text message.
 {
-	unsigned char c;
-	
-	c=fraiseGetChar();
-	if(c=='L'){		//switch LED on/off 
-		c=fraiseGetChar();
-		digitalWrite(LED, c!='0');		
+	unsigned char c = fraiseGetChar();		// get the first character of the message.
+	if(c == 'L') {							// if the first char is 'L',
+		c = fraiseGetChar();				// get the next one;
+		digitalWrite(LED, c != '0');		// if it's the char '0', switch off the LED (otherwide switch it on)
 	}
-	else if(c=='E') { 	// echo text (send it back to host)
-		printf("C");
-		c = fraiseGetLen(); 			// get length of current packet
-		while(c--) printf("%c",fraiseGetChar());// send each received byte
-		putchar('\n');				// end of line
-	}	
+	else if(c == 'E') { 					// if the first char is 'E', echo the message (send it back to host):
+		printf("C");						// start a text message
+		c = fraiseGetLen(); 				// get the length of the incoming packet
+		while(c--) printf("%c", fraiseGetChar());// print each byte of the incoming packet
+		putchar('\n');						// append end of line to send the message
+	}
 }
 
-void fraiseReceive() // receive raw bytes
+// ------- the fraiseReceive() function is called when a "raw bytes" message arrived
+void fraiseReceive() 						// receive raw bytes
 {
-	unsigned char c;
-	
-	c=fraiseGetChar();	// get the first byte
-
-	switch(c) {
-		PARAM_CHAR(1,period); break; 	// if the first byte is 1 then set period 
-						//to the value of the next byte
+	unsigned char c = fraiseGetChar();		// get the first byte of the message
+	if(c == 1) {							// if it's equal to 1,
+		printPeriod = fraiseGetLong();		// set printPeriod to the next long int in the incoming message.
 	}
 }
 
