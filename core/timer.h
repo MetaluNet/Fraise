@@ -10,7 +10,7 @@
 #define TIMER_PNUM 1
 #elif TIMER == 3
 #define TIMER_PNUM 2
-#else 
+#else
 #define TIMER_PNUM 5
 #endif
 

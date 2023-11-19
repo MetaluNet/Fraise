@@ -118,7 +118,7 @@
 #define MOTC_CONFIG() do{\
     /* init PWM1 to pulse MOTC_IN1 (P1D) : */ PSTR1CON=0; PSTR1CONbits.STR1D=1; \
 }while(0)
- 
+
 // MOTOR D :
 #define MD1PORT	B
 #define MD1BIT	3
@@ -134,7 +134,7 @@
 
 #define MOTD_PWM 2
 #define MOTD_CONFIG() do{}while(0)
- 
+
 //---- Aux serial port :
 #define AUXSERIAL_NUM 1
 #define AUXSERIAL_TX K5

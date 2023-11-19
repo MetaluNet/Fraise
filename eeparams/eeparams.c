@@ -19,9 +19,9 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Copyright (c) Antoine Rousseau   2009-2013   
+ * Copyright (c) Antoine Rousseau   2009-2013
  ********************************************************************/
- 
+
 #include "eeparams.h"
 
 #define EEUSER 28 // first free eeprom address, after space reserved for ID, NAME and PREFIX.
@@ -44,12 +44,16 @@ char EELoadChar()
 
 int EELoadInt()
 {
-	return (EE_READBYTE_NEXT()<<8)|EE_READBYTE_NEXT();
+	return (EE_READBYTE_NEXT() << 8)
+	       | EE_READBYTE_NEXT();
 }
 
-long EELoadLong() //untested
+long EELoadLong()
 {
-	return ((unsigned long)EE_READBYTE_NEXT()<<24)|((unsigned long)EE_READBYTE_NEXT()<<16)|(EE_READBYTE_NEXT()<<8)|EE_READBYTE_NEXT();
+	return ((unsigned long)EE_READBYTE_NEXT() << 24)
+	       | ((unsigned long)EE_READBYTE_NEXT() << 16)
+	       | (EE_READBYTE_NEXT() << 8)
+	       | EE_READBYTE_NEXT();
 }
 
 
@@ -62,15 +66,15 @@ void EESaveChar(unsigned char data)
 
 void EESaveInt(int data)
 {
-	EE_WRITEBYTE_NEXT(data>>8);
-	EE_WRITEBYTE_NEXT(data&255);
+	EE_WRITEBYTE_NEXT(data >> 8);
+	EE_WRITEBYTE_NEXT(data & 255);
 }
 
-void EESaveLong(long data) //untested
+void EESaveLong(long data)
 {
-	EE_WRITEBYTE_NEXT(data>>24);
-	EE_WRITEBYTE_NEXT(data>>16);
-	EE_WRITEBYTE_NEXT(data>>8);
+	EE_WRITEBYTE_NEXT(data >> 24);
+	EE_WRITEBYTE_NEXT(data >> 16);
+	EE_WRITEBYTE_NEXT(data >> 8);
 	EE_WRITEBYTE_NEXT(data);
 }
 
@@ -79,20 +83,20 @@ void EESaveLong(long data) //untested
 
 void EEdeclareChar(unsigned char *data)
 {
-	if(eeoperation==EE_RD) *data=EELoadChar();
-	else if(eeoperation==EE_WR) EESaveChar(*data);
+	if(eeoperation == EE_RD) *data = EELoadChar();
+	else if(eeoperation == EE_WR) EESaveChar(*data);
 }
 
 void EEdeclareInt(unsigned int *data)
 {
-	if(eeoperation==EE_RD) *data=EELoadInt();
-	else if(eeoperation==EE_WR) EESaveInt(*data);
+	if(eeoperation == EE_RD) *data = EELoadInt();
+	else if(eeoperation == EE_WR) EESaveInt(*data);
 }
 
 void EEdeclareLong(unsigned long *data)
 {
-	if(eeoperation==EE_RD) *data=EELoadLong();
-	else if(eeoperation==EE_WR) EESaveLong(*data);
+	if(eeoperation == EE_RD) *data = EELoadLong();
+	else if(eeoperation == EE_WR) EESaveLong(*data);
 }
 
 
@@ -100,8 +104,8 @@ void EEdeclareLong(unsigned long *data)
 
 void EEwriteMain()
 {
-	eeoperation=EE_WR;
-	eeaddress=EEUSER;
+	eeoperation = EE_WR;
+	eeaddress = EEUSER;
 #ifdef UD_EE
 	EEdeclareMain();
 #endif
@@ -109,8 +113,8 @@ void EEwriteMain()
 
 void EEreadMain()
 {
-	eeoperation=EE_RD;
-	eeaddress=EEUSER;
+	eeoperation = EE_RD;
+	eeaddress = EEUSER;
 #ifdef UD_EE
 	EEdeclareMain();
 #endif

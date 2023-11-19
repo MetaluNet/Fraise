@@ -63,18 +63,18 @@ char fraiseGetInterruptEnable(void);
 /** @{ */
 /** @brief Put a message into the Fraise TX queue
     @param buf Address of the bytes buffer; the buffer must start with either 'C' (string message) or 'B' (raw bytes)
-    @param len Number of bytes in the buffer 
-    @return 0 : success 
+    @param len Number of bytes in the buffer
+    @return 0 : success
     @return -1 : TX queue overload
     @return -2 : TX buffer format error
 */
-char fraiseSend(const unsigned char *buf,unsigned char len);
+char fraiseSend(const unsigned char *buf, unsigned char len);
 
 /** @name Broadcast output */
 /** @{ */
 /** @brief Broadcast a message to every connected fruit; this fonction is blocking (it returns when the message is sent)
     @param buf Address of the bytes buffer; the buffer must start with either 'C' (string message) or 'B' (raw bytes)
-    @param len Number of bytes in the buffer 
+    @param len Number of bytes in the buffer
 */
 void fraiseSendBroadcast(const unsigned char *buf, unsigned char len);
 
@@ -109,7 +109,7 @@ void fraiseSendCopy(); ///< Copy the RX buffer to TX buffer, in char mode, from 
 	(((unsigned int)fraiseGetChar()) << 8) + fraiseGetChar()) ///< @brief Get next 32 bit long integer from receive buffer.
 
 //@}
-	
+
 /** \name  Input macros (parameters set/get)
 	To be used in a switch() block.
 */
@@ -125,7 +125,7 @@ void fraiseSendCopy(); ///< Copy the RX buffer to TX buffer, in char mode, from 
 #define GETPARAM(n, p, i) case n: i = p; break
 //@}
 
-/** @} 
+/** @}
 */
 
 #endif //FRAISEDEV_H

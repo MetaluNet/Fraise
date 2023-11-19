@@ -19,13 +19,13 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Copyright (c) Antoine Rousseau   2015   
+ * Copyright (c) Antoine Rousseau   2015
  ********************************************************************/
- 
+
 #include "fruit.h"
 
 void fruitInit(void)
 {
-	coreInit();	
+	coreInit();
 	fraiseInit();
 }

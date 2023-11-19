@@ -44,80 +44,80 @@ typedef unsigned long   dword;          // 32-bit
 
 typedef union _BYTE
 {
-    /*byte _byte;*/
-    struct {
-		unsigned _byte:8;    // by calling something._byte, you get the whole bitfield as 8-bit number
+	/*byte _byte;*/
+	struct {
+		unsigned _byte: 8;   // by calling something._byte, you get the whole bitfield as 8-bit number
 	};
-    struct
-    {
-        unsigned b0:1;
-        unsigned b1:1;
-        unsigned b2:1;
-        unsigned b3:1;
-        unsigned b4:1;
-        unsigned b5:1;
-        unsigned b6:1;
-        unsigned b7:1;
-    };
+	struct
+	{
+		unsigned b0: 1;
+		unsigned b1: 1;
+		unsigned b2: 1;
+		unsigned b3: 1;
+		unsigned b4: 1;
+		unsigned b5: 1;
+		unsigned b6: 1;
+		unsigned b7: 1;
+	};
 } BYTE;
 
 typedef union _WORD
 {
-    word _word;
-    struct
-    {
-        byte byte0;
-        byte byte1;
-    };
-    struct
-    {
-        BYTE Byte0;
-        BYTE Byte1;
-    };
-    struct
-    {
-        BYTE LowB;
-        BYTE HighB;
-    };
-    struct
-    {
-        byte v[2];
-    };
+	word _word;
+	struct
+	{
+		byte byte0;
+		byte byte1;
+	};
+	struct
+	{
+		BYTE Byte0;
+		BYTE Byte1;
+	};
+	struct
+	{
+		BYTE LowB;
+		BYTE HighB;
+	};
+	struct
+	{
+		byte v[2];
+	};
 } WORD;
 #define LSB(a)      ((a).v[0])
 #define MSB(a)      ((a).v[1])
 
 typedef union _DWORD
 {
-    dword _dword;
-    struct
-    {
-        byte byte0;
-        byte byte1;
-        byte byte2;
-        byte byte3;
-    };
-    struct
-    {
-        word word0;
-        word word1;
-    };
-    struct
-    {
-        BYTE Byte0;
-        BYTE Byte1;
-        BYTE Byte2;
-        BYTE Byte3;
-    };
-    struct
-    {
-        WORD Word0;
-        WORD Word1;
-    };
-    struct
-    {
-        byte v[4];
-    };
+	dword _dword;
+	struct
+	{
+		byte byte0;
+		byte byte1;
+		byte byte2;
+		byte byte3;
+	};
+	struct
+	{
+		word word0;
+		word word1;
+	};
+	struct
+	{
+		BYTE Byte0;
+		BYTE Byte1;
+		BYTE Byte2;
+		BYTE Byte3;
+	};
+	struct
+	{
+		WORD Word0;
+		WORD Word1;
+	};
+	struct
+	{
+		byte v[4];
+	};
 } DWORD;
 #define LOWER_LSB(a)    ((a).v[0])
 #define LOWER_MSB(a)    ((a).v[1])
