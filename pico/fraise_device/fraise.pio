@@ -1,0 +1,162 @@
+;
+; Copyright (c) 2023 metalu.net
+;
+; SPDX-License-Identifier: BSD-3-Clause
+;
+
+.program fraise
+.side_set 1 opt pindirs
+
+; RP2040 PIO implementation of the Fraise protocol, based on 9n1 UART
+; (see https://github.com/MetaluNet/Fraise/blob/master/doc/protocol.md).
+; The receiver handles framing errors and waits for a high bit9 before accepting data.
+; The application can switch the state machine to packet transmit mode; the first word
+; that the state machine reads from the TX FIFO is used to encode the length of the packet.
+; When the packet has been fully transmitted, the state machine automatically switches
+; back to receiver mode.
+; This program is derived from the pio/uart_rx and pio/uart_tx pico_examples.
+; 
+; IN pin 0 and JMP pin are both mapped to the GPIO used as UART RX.
+; OUT pin 0 and side-set pin 0 are both mapped to UART TX pin.
+; SET pin 0 is mapped to DRV pin.
+
+; In RX mode, the y register is used as a flag, indicating that a message has started:
+; y is set when a high bit9 has been detected (and validated by stop bit).
+; The first byte (with bit9 high) is the address of the message. 
+; Bytes with a low bit9 will pushed to the RX FIFO only if y is set.
+; If the message address doesn't match our one (or 0 for broadcast), the application
+; can ask the PIO to stop pushing the following bytes by calling fraise_program_reset_rx(),
+; which will clear the y register.
+
+rxinit:
+    set pindirs 0    side 0     ; Release DRV and TX pins
+    set y 0                     ; Clear y (don't push data until the start of a new message)
+.wrap_target
+rxstart:
+    wait 0 pin 0            [4] ; Stall until start bit is asserted.
+    set x, 7                [6] ; Preload bit counter, then delay until halfway through
+rxbitloop:                      ; the first data bit (12 cycles incl wait, set).
+    in pins, 1                  ; Shift data bit into ISR.
+    jmp x-- rxbitloop       [6] ; Loop 8 times, each loop iteration is 8 cycles.
+    mov x pins              [3] ; Store bit 9 in x.
+get_bit9:
+    in x, 1                     ; Shift bit 9 into ISR.
+    jmp !x test_y               ; Bit 9 is low, skip next instruction.
+    set y 1                     ; High bit 9 (message start): set y.
+test_y:
+    jmp !y discard              ; Discard current byte if y isn't set.
+    jmp pin good_stop           ; Check stop bit (should be high).
+ferr:
+    irq 4 rel                   ; Framing error. Set a sticky flag.
+discard:
+    wait 1 pin 0                ; Wait for line to return to idle state.
+    set y 0                     ; Clear y (don't push data until the start of a new message)
+    jmp rxstart                 ; Don't push data if we didn't see good framing.
+good_stop:
+    push                        ; Push ISR to FIFO.
+    .wrap                       ; No delay before returning to start; a little slack is
+                                ; important in case the TX clock is slightly too fast.
+
+; On TX mode, y is used to count the sent bytes, allowing to automatically
+; return to RX mode when all bytes are sent.
+
+PUBLIC txstart:
+    set pindirs 1    side 0     ; Activate DRV pin, release TX pin
+    pull                        ; Get first byte,
+    mov y osr                   ; move it to y (byte counter)
+txnext:
+    pull                        ; Stall with line in idle state
+    mov osr ! osr               ; invert OSR since we are driving TX pin dir with a pull-up with TX pin = 0,
+                                ; so if pindir = 1 then out_level = 0, if pindir = 0 then out_level = 1.
+    set x, 8         side 1 [7] ; Preload bit counter, assert start bit for 8 clocks
+txbitloop:                      ; This loop will run 9 times (9n1 UART)
+    out pindirs, 1              ; Shift 1 bit from OSR to the first OUT pin
+    jmp x-- txbitloop       [6] ; Each loop iteration is 8 cycles.
+    jmp y-- txnext   side 0 [7] ; Assert stop bit, the goto send remaining bytes if any, otherwise return to rx.
+ ; wrap to the beginning
+    jmp rxinit
+
+% c-sdk {
+#include "hardware/clocks.h"
+#include "hardware/gpio.h"
+
+#define FRAISE_BAUDRATE 250000
+
+static uint jmp_tx; // Jump to TX instruction
+static uint clr_y;  // Clear y instruction (discard next bytes)
+
+static inline void fraise_program_init(PIO pio, uint sm, uint offset, uint rxpin, uint txpin, uint drvpin) {
+    pio_sm_config c = fraise_program_get_default_config(offset);
+
+    // Setup RX
+    pio_sm_set_consecutive_pindirs(pio, sm, rxpin, 1, false);
+    pio_gpio_init(pio, rxpin);
+    gpio_pull_up(rxpin);
+
+    sm_config_set_in_pins(&c, rxpin); // for WAIT, IN
+    sm_config_set_jmp_pin(&c, rxpin); // for JMP
+    // Shift to right, autopush disabled
+    sm_config_set_in_shift(&c, true, false, 32);
+
+    // Setup TX
+    pio_sm_set_pins_with_mask(pio, sm, 0, (1u << txpin) | (1u << drvpin)); // init tx and drv pins as LOW
+    pio_sm_set_pindirs_with_mask(pio, sm, 0, (1u << txpin) | (1u << drvpin)); // init tx and drv pindirs as INPUT
+    pio_gpio_init(pio, txpin);
+    pio_gpio_init(pio, drvpin);
+    // OUT shifts to right, no autopull
+    sm_config_set_out_shift(&c, true, false, 32);
+    // We are mapping both OUT and side-set to the same pin, because sometimes
+    // we need to assert user data onto the pin (with OUT) and sometimes
+    // assert constant values (start/stop bit)
+    sm_config_set_out_pins(&c, txpin, 1);
+    sm_config_set_sideset_pins(&c, txpin);
+    sm_config_set_set_pins(&c, drvpin, 1);
+
+// encode instructions
+    jmp_tx = pio_encode_jmp (offset + fraise_offset_txstart);
+    clr_y = pio_encode_set (pio_y, 0);
+
+// clock
+    // SM transmits 1 bit per 8 execution cycles.
+    float div = (float)clock_get_hz(clk_sys) / (8 * FRAISE_BAUDRATE);
+    sm_config_set_clkdiv(&c, div);
+    
+// finish
+    pio_sm_init(pio, sm, offset, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+
+// Discard following bytes, until next message starts (with a high bit9)
+static inline void fraise_program_discard_rx(PIO pio, uint sm) {
+    pio_sm_exec_wait_blocking (pio, sm, clr_y);
+    pio_sm_clear_fifos(pio, sm);
+}
+
+// Switch to packet transmit mode: ask sm to switch to tx mode, push 'length' word to FIFO, and enable interrupts.
+static inline void fraise_program_start_tx(PIO pio, uint sm, uint8_t count) {
+    pio_sm_clear_fifos(pio, sm);
+    pio_sm_exec_wait_blocking (pio, sm, jmp_tx);
+    pio_sm_put(pio, sm, (uint32_t)(count - 1)); // first word is (length - 1)
+}
+
+// Switch to packet transmit mode: ask sm to switch to tx mode, push 'length' word to FIFO, and enable interrupts.
+static inline void fraise_program_start_tx_with_interrupt(PIO pio, uint sm, uint irq_index, uint8_t count) {
+    fraise_program_start_tx(pio, sm, count);
+    pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_tx_fifo_not_full + sm, true);
+}
+
+static inline void fraise_program_disable_tx_interrupt(PIO pio, uint sm, uint irq_index) {
+    pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_tx_fifo_not_full + sm, false);
+}
+
+// Get a 9-bit char from RX FIFO (no check that data is available!)
+static inline uint16_t fraise_program_getc(PIO pio, uint sm) {
+    return (uint16_t)(pio->rxf[sm] >> 23);
+}
+
+// Put a 9-bit char to TX FIFO (no check that the FIFO is full!)
+static inline void fraise_program_putc(PIO pio, uint sm, char c) {
+    pio_sm_put(pio, sm, (uint32_t)c);
+}
+
+%}

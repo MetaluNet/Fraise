@@ -1,0 +1,339 @@
+/**
+ * Copyright (c) 2023 metalu.net
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "pico/stdlib.h"
+#include "pico/util/queue.h"
+#include "pico/async_context_threadsafe_background.h"
+#include "pico/async_context_poll.h"
+
+#include "hardware/pio.h"
+#include "fraise.pio.h"
+#include "fraise_device.h"
+#include "fraise_buffers.h"
+
+// This program
+// - Uses a PIO state machine to receive 9-bit data (message starts with an address having bit 9 high)
+// - Uses an interrupt to determine when the PIO FIFO has some data
+// - Discards the message if the address doesn't match, or on framing error
+// - Saves characters in a queue
+// - Uses an async context to dispatch the message to the 4 possible fraise_receive* callbacks,
+//   when notified by the irq or manually polled by the application using fraise_poll().
+
+// If the received message was a "poll" message (address with a 128 offset), the next message to send 
+// (if any) is fetched from the tx buffer, and transmitted to the state machine which is switched to transmit mode.
+
+#define RX_FIFO_SIZE 256
+
+static PIO pio;
+static uint sm;
+static uint pgm_offset; // Offset of the program in the pio
+static int8_t pio_irq;  // The irq used by the sm
+static uint irq_index;  // The offset of pio_irq relatively to PIO0_IRQ_0 or PIO1_IRQ_0
+
+static uint irq_count, irq_rx_count; // Debugging counters
+
+static void async_worker_func(async_context_t *async_context, async_when_pending_worker_t *worker);
+
+static queue_t rx_fifo; // queue for the incoming messages.
+// Two async contexts (only one will be used) that will dispatch the incoming messages
+// to the 4 fraise_receive* callbacks;
+// one is notified by the irq, this other one must be manually polled by the application.
+static async_context_threadsafe_background_t background_context;
+static async_context_poll_t poll_context;
+static async_context_t *context_core;
+// The worker that will be assigned to the async context:
+static async_when_pending_worker_t worker = { .do_work = async_worker_func };
+
+static uint8_t FraiseID = 10; // default Fraise ID is 10
+
+typedef enum {
+    FS_OFF,
+    FS_LISTEN,
+    FS_POLL,
+    FS_RECEIVE,
+    FS_SEND,
+    FS_WAITACK,
+} fraise_state_t;
+
+static fraise_state_t state = FS_LISTEN;
+
+// IRQ called when the pio rx rx_fifo is not empty, or if the tx rx_fifo is not full
+static void fraise_irq(void) {
+    static uint8_t rx_checksum;
+    static uint8_t rx_bytes;
+    static uint8_t rx_msg_length;
+    static uint8_t tx_bytes_to_send;
+    static bool rx_is_broadcast;
+    static bool rx_is_char;
+
+    irq_count++;
+
+    while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
+        irq_rx_count++;
+        uint16_t c = fraise_program_getc(pio, sm);
+        if(pio_interrupt_get(pio, 4)) { // Framing error! Discard.
+            fraise_program_discard_rx(pio, sm);
+            state = FS_LISTEN;
+            continue;
+        }
+        if(c > 255) state = FS_LISTEN;                      // bit 9 signals the start of a new message
+        switch(state) {
+            case FS_LISTEN:
+                if((c == FraiseID + 0x100)                  // If we are the destination of the message,
+                    || (c == 0x100)) {                      // or if the message is "broadcast" (destinated to everyone),
+                    state = FS_RECEIVE;                     // start receiving the message.
+                    rx_bytes = 1;
+                    rx_checksum = c;
+                    rx_is_broadcast = (c == 0x100);
+                    if (!queue_try_add(&rx_fifo, &c)) panic("rx_fifo full");
+                } else if(c == FraiseID + 0x180) {          // The message is a "poll" signal.
+                    state = FS_POLL;
+                } else fraise_program_discard_rx(pio, sm);  // We're not interested in this message.
+                break;
+            case FS_POLL:
+                if(c == FraiseID + 0x80) {                  // "poll" signal is confirmed.
+                    tx_bytes_to_send = txbuf_read_init();   // Do we have a message to send?
+                    if(tx_bytes_to_send == 0) {             // No: send 0.
+                        fraise_program_start_tx(pio, sm, 1);
+                        fraise_program_putc(pio, sm, 0);
+                        state = FS_LISTEN;
+                    } else {                                // Yes: start transmitting, enabling tx_fifo_not_full interrupt.
+                        state = FS_SEND;
+                        fraise_program_start_tx_with_interrupt(pio, sm, irq_index, tx_bytes_to_send);
+                    }
+                } else state = FS_LISTEN;
+                break;
+            case FS_RECEIVE:
+                rx_checksum += c;
+                rx_bytes++;
+                if(rx_bytes == 2) {
+                    rx_msg_length = c & 63;
+                    rx_is_char = (c & 128) != 0;
+                }
+                else if(rx_bytes == rx_msg_length + 3) {    // We have received the whole message.
+                    if(rx_checksum == 0) {                  // If the checksum is good,
+                        async_context_set_work_pending(context_core, &worker);  // notify the async worker,
+                        if(!rx_is_broadcast) {              // and it wasn't a broadcast message, send 0 (ack)
+                            fraise_program_start_tx(pio, sm, 1);
+                            fraise_program_putc(pio, sm, 0);
+                        }
+                    } else {
+                        if(!rx_is_broadcast) {              // If the checksum is wrong and the message wasn't broadcast,
+                            fraise_program_start_tx(pio, sm, 1); // send 1 (nack).
+                            fraise_program_putc(pio, sm, 1);
+                        }
+                    }
+                    state = FS_LISTEN;
+                    break;
+                }
+                if (!queue_try_add(&rx_fifo, &c)) panic("rx_fifo full"); // Push current byte to the queue.
+                break;
+            case FS_WAITACK:
+                if(c == 0) txbuf_read_finish();             // Remove the current message from the tx buffer if it has been acknowledged.
+                state = FS_LISTEN;
+                break;
+        }
+    }
+
+    while((state == FS_SEND) && !pio_sm_is_tx_fifo_full(pio, sm)) {
+        fraise_program_putc(pio, sm, txbuf_read_getc());
+        tx_bytes_to_send--;
+        if(tx_bytes_to_send == 0) {                         // The message has been fully pushed to TX FIFO:
+            fraise_program_disable_tx_interrupt(pio, sm, irq_index); // Stop triggering interrupt when tx rx_fifo not full
+#define PIED_IS_BUGGED // pied doesn't reply ack...
+#ifdef PIED_IS_BUGGED
+            txbuf_read_finish();                            // Remove the current message from the tx buffer.
+            state = FS_LISTEN;
+#else
+            state = FS_WAITACK;
+#endif
+        }
+    }
+}
+
+// Process incoming messages
+static void async_worker_func(async_context_t *async_context, async_when_pending_worker_t *worker) {
+    static bool message_is_chars;
+    static bool message_is_broadcast;
+    static char message[64];
+    static int message_length;
+    static uint8_t message_count;
+
+    while(!queue_is_empty(&rx_fifo)) {
+        uint16_t c;
+        if (!queue_try_remove(&rx_fifo, &c)) {
+            panic("rx_fifo empty");
+        }
+        if(c > 255) { // message start
+            message_is_broadcast = (c & 255) == 0;
+            message_length = -1;
+        } else {
+            if(message_length == -1) {
+                message_length = c & 63;
+                message_is_chars = (c & 128) != 0;
+                message_count = 0;
+            } else if(message_count < message_length){
+                message[message_count++] = c;
+                if(message_count == message_length) {
+                    if(message_is_chars) message[message_count] = 0; // finish string
+                    if(message_is_broadcast) {
+                        if(message_is_chars) fraise_receivechars_broadcast(message, message_count);
+                        else fraise_receivebytes_broadcast(message, message_count);
+                    } else {
+                        if(message_is_chars) fraise_receivechars(message, message_count);
+                        else fraise_receivebytes(message, message_count);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Find a free pio and state machine and load the program into it.
+// Returns false if this fails
+static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *offset) {
+    // Find a free pio
+    *pio_hw = pio1;
+    if (!pio_can_add_program(*pio_hw, program)) {
+        *pio_hw = pio0;
+        if (!pio_can_add_program(*pio_hw, program)) {
+            *offset = -1;
+            return false;
+        }
+    }
+    *offset = pio_add_program(*pio_hw, program);
+    // Find a state machine
+    *sm = (int8_t)pio_claim_unused_sm(*pio_hw, false);
+    if (*sm < 0) {
+        return false;
+    }
+    return true;
+}
+
+int fraise_setup(uint rxpin, uint txpin, uint drvpin, bool background_rx) {
+    // Create a queue so the irq can save the data somewhere
+    queue_init(&rx_fifo, 2, RX_FIFO_SIZE);
+
+    // Setup an async context and worker to perform work when needed
+    if(background_rx) {
+        if (!async_context_threadsafe_background_init_with_defaults(&background_context)) {
+            panic("failed to setup context");
+        } else context_core = &background_context.core;
+    } else {
+        if (!async_context_poll_init_with_defaults(&poll_context)) {
+            panic("failed to setup context");
+        } else context_core = &poll_context.core;
+    }
+    async_context_add_when_pending_worker(context_core, &worker);
+
+    // Set up the state machine we're going to use.
+    if (!init_pio(&fraise_program, &pio, &sm, &pgm_offset)) {
+        panic("failed to setup pio");
+    }
+    fraise_program_init(pio, sm, pgm_offset, rxpin, txpin, drvpin);
+
+    // Find a free irq
+    static_assert(PIO0_IRQ_1 == PIO0_IRQ_0 + 1 && PIO1_IRQ_1 == PIO1_IRQ_0 + 1, "");
+    pio_irq = (pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0;
+    if (irq_get_exclusive_handler(pio_irq)) {
+        pio_irq++;
+        if (irq_get_exclusive_handler(pio_irq)) {
+            panic("All IRQs are in use");
+        }
+    }
+
+    // Enable interrupt
+    irq_add_shared_handler(pio_irq, fraise_irq, PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY); // Add a shared IRQ handler
+    irq_set_enabled(pio_irq, true); // Enable the IRQ
+    irq_index = pio_irq - ((pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0); // Get index of the IRQ
+    pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, true); // Set pio to tell us when the FIFO is NOT empty
+}
+
+void fraise_setID(uint8_t id) {
+    FraiseID = id;
+}
+
+void fraise_unsetup() {
+    // Disable interrupt
+    pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, false);
+    irq_set_enabled(pio_irq, false);
+    irq_remove_handler(pio_irq, fraise_irq);
+
+    // Cleanup pio
+    pio_sm_set_enabled(pio, sm, false);
+    pio_remove_program(pio, &fraise_program, pgm_offset);
+    pio_sm_unclaim(pio, sm);
+
+    async_context_remove_when_pending_worker(context_core, &worker);
+    async_context_deinit(context_core);
+    queue_free(&rx_fifo);
+}
+
+void fraise_poll_rx(){
+    async_context_poll(context_core);
+}
+
+bool fraise_puts(char* msg){
+    if (!txbuf_write_init()) {
+        printf("tx buffer full!\n");
+        return false;
+    }
+    char c;
+    while(c = *msg++) txbuf_write_putc(c);
+    txbuf_write_finish(true);
+    return true;
+}
+
+bool fraise_putbytes(char* data, uint8_t len){
+    if (!txbuf_write_init()) {
+        printf("tx buffer full!\n");
+        return false;
+    }
+    while(len--) txbuf_write_putc(*data++);
+    txbuf_write_finish(false);
+    return true;
+}
+
+void fraise_debug_print_next_txmessage(){
+    int len = txbuf_read_init();
+    if(!len) {
+        printf("no pending message\n");
+        return;
+    }
+    while(len--) printf("%02x ", txbuf_read_getc());
+    putchar('\n');
+    txbuf_read_finish();
+}
+
+uint fraise_debug_get_irq_count() {
+    uint c = irq_count;
+    irq_count = 0;
+    return c;
+}
+uint fraise_debug_get_irq_rx_count() {
+    uint c = irq_rx_count;
+    irq_rx_count = 0;
+    return c;
+}
+
+//#define FRAISE_DEBUG_DUMMY
+
+#define STRINGIFY(x) #x
+#ifdef FRAISE_DEBUG_DUMMY
+#define dummy_callback(f) __attribute__((weak)) void f(char *data, uint8_t len){ printf("dummy " STRINGIFY(f) "()\n");}
+#else
+#define dummy_callback(f) __attribute__((weak)) void f(char *data, uint8_t len){}
+#endif
+
+dummy_callback(fraise_receivebytes);
+dummy_callback(fraise_receivechars);
+dummy_callback(fraise_receivebytes_broadcast);
+dummy_callback(fraise_receivechars_broadcast);
+
