@@ -11,7 +11,12 @@
 #include "fraise_buffers.h"
 
 
-// TX buffer
+// ------------ TX buffer ------------ 
+// The message is encoded like this:
+// data_length data data (...) checksum
+// data_length&63 is the number of data bytes, so the whole message takes (data_length&63 + 2) bytes in txbuf.
+// data_length = number_of_data_bytes + 128 * message_is_char
+
 #define TXBUF_SIZE 512
 static char txbuf[TXBUF_SIZE];
 static int txbuf_write_head = 1;
@@ -29,9 +34,10 @@ static inline int txbuf_inc_head(int h) {
     return h;
 }
 
-// Write a message to the TX buffer:
+// ------ Write a message to the TX buffer: ------ 
 
-bool txbuf_write_init(){          // Init a new message; returns false if txbuf is full.
+// Init a new message; returns false if txbuf is full.
+bool txbuf_write_init(){          
     int freespace = txbuf_read_head - txbuf_write_head;
     if(freespace < 0) freespace += TXBUF_SIZE;
     if(freespace < 34) return false;
@@ -41,14 +47,16 @@ bool txbuf_write_init(){          // Init a new message; returns false if txbuf 
     return true;
 }
 
-void txbuf_write_putc(char c){    // Add byte to the message
+// Add byte to the message
+void txbuf_write_putc(char c){
     txbuf[txbuf_write_tmphead] = c;
     txbuf_write_tmphead = txbuf_inc_head(txbuf_write_tmphead);
     txbuf_write_len++;
     txbuf_write_checksum += c;
 }
 
-void txbuf_write_finish(bool isChar){ // Finish the message
+// Validate the message
+void txbuf_write_finish(bool isChar){
     if(isChar) txbuf_write_len |= 128;
     txbuf[txbuf_write_head] = txbuf_write_len; // write length byte
     txbuf_write_checksum += txbuf_write_len;
@@ -56,9 +64,10 @@ void txbuf_write_finish(bool isChar){ // Finish the message
     txbuf_write_head = txbuf_inc_head(txbuf_write_tmphead);
 }
 
-// Write a message from the TX buffer:
+// ------ Read a message from the TX buffer:
 
-uint8_t txbuf_read_init(){           // Initialize the sender for next message. Returns the length of the next message (0 if none).
+// Initialize the sender for next message. Returns the length of the next message (0 if none).
+uint8_t txbuf_read_init(){
     int usedspace = txbuf_write_head - txbuf_read_head - 1;
     if(usedspace < 0) usedspace += TXBUF_SIZE;
     if(usedspace == 0) return 0;
@@ -67,7 +76,8 @@ uint8_t txbuf_read_init(){           // Initialize the sender for next message. 
     return txbuf_read_len;
 }
 
-char txbuf_read_getc(){           // Get next byte to send
+// Get next byte to send
+char txbuf_read_getc(){
     if(txbuf_read_len == 0) return 0;
     char c = txbuf[txbuf_read_tmphead];
     txbuf_read_len--;
@@ -75,14 +85,18 @@ char txbuf_read_getc(){           // Get next byte to send
     return c;
 }
 
-void txbuf_read_finish(){         // Signal that the message has been sent successfully
+// Signal that the message has been successfully sent
+void txbuf_read_finish(){
     txbuf_read_head = txbuf_read_tmphead;
 }
 
 
-#if 0 // We don't use RX buffer for now. The following code has NOT been tested neither debugged!
+// ------------ RX buffer ------------ 
 
-// RX buffer
+// The message is encoded like this:
+// data_length data data (...)
+// data_length&63 is the number of data bytes, so the whole message takes (data_length&63 + 1) bytes in rxbuf.
+// data_length = number_of_data_bytes + 128 * message_is_char + 64 * message_is_broadcast
 
 #define RXBUF_SIZE 512
 static char rxbuf[RXBUF_SIZE];
@@ -99,41 +113,52 @@ static inline int rxbuf_inc_head(int h) {
     return h;
 }
 
-// Write a message to the RX buffer:
+// ------ Write a message to the RX buffer:
 
-bool rxbuf_write_init(){          // Init a new message; returns false if rxbuf is full.
+// Init a new message; returns false if rxbuf is full.
+bool rxbuf_write_init(){
     int freespace = rxbuf_read_head - rxbuf_write_head;
     if(freespace < 0) freespace += RXBUF_SIZE;
-    if(freespace < 34) return false;
+    if(freespace < 34) {
+        printf("e rxbuf_write_init() full!!!\n");
+        return false;
+    }
     rxbuf_write_tmphead = rxbuf_inc_head(rxbuf_write_head); // keep first byte for length byte
     rxbuf_write_len = 0;
     return true;
 }
 
-void rxbuf_write_putc(char c){    // Add byte to the message
+// Add byte to the message
+void rxbuf_write_putc(char c){
     rxbuf[rxbuf_write_tmphead] = c;
     rxbuf_write_tmphead = rxbuf_inc_head(rxbuf_write_tmphead);
     rxbuf_write_len++;
 }
 
-void rxbuf_write_finish(bool isChar){ // Finish the message
+// Validate the message
+void rxbuf_write_finish(bool isChar, bool isBroadcast){
     if(isChar) rxbuf_write_len |= 128;
+    if(isBroadcast) rxbuf_write_len |= 64;
     rxbuf[rxbuf_write_head] = rxbuf_write_len; // write length byte
     rxbuf_write_head = rxbuf_write_tmphead;
 }
 
-// Write a message from the RX buffer:
+// ------ Read a message from the RX buffer:
 
-uint8_t rxbuf_read_init(){ // Start reading the next available next message. Returns the length of the message (0 if none).
+// Start reading the next available next message. Returns the length of the message (0 if none).
+uint8_t rxbuf_read_init(){
     int usedspace = rxbuf_write_head - rxbuf_read_head - 1;
     if(usedspace < 0) usedspace += RXBUF_SIZE;
     if(usedspace == 0) return 0;
     rxbuf_read_tmphead = rxbuf_inc_head(rxbuf_read_head);
-    rxbuf_read_len = (rxbuf[rxbuf_read_tmphead] & 31) + 1; // total_len = data_len + 1(length byte)
-    return rxbuf_read_len;
+    char l = rxbuf[rxbuf_read_tmphead];
+    rxbuf_read_len = (l & 63) ;
+    rxbuf_read_tmphead = rxbuf_inc_head(rxbuf_read_tmphead); // skip length byte
+    return l; // return length_byte = number_of_data_bytes + 128*isChar + 64*isBroadcast
 }
 
-char rxbuf_read_getc(){           // Get next byte to send
+// Get next byte to send
+char rxbuf_read_getc(){
     if(rxbuf_read_len == 0) return 0;
     char c = rxbuf[rxbuf_read_tmphead];
     rxbuf_read_len--;
@@ -141,8 +166,12 @@ char rxbuf_read_getc(){           // Get next byte to send
     return c;
 }
 
-void rxbuf_read_finish(){         // Signal that the message has been sent successfully
+// Signal that the message has been read
+void rxbuf_read_finish(){
+    /*while(rxbuf_read_len) {
+        rxbuf_read_tmphead = rxbuf_inc_head(rxbuf_read_tmphead);
+        rxbuf_read_len++;
+    }*/
     rxbuf_read_head = rxbuf_read_tmphead;
 }
-#endif
 

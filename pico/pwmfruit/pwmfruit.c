@@ -175,12 +175,12 @@ void fraise_receivebytes(char *data, uint8_t len){
 
 }
 
-void fraise_receivebytes_broadcast(char *data, uint8_t len){
-	//printf("broadcast bytes: "); for(int i = 0; i < len; i++) printf("%d ", (uint8_t)data[i]); putchar('\n');
+void fraise_receivechars(char *data, uint8_t len){
+	printf("receive chars: %s\n", data);
 }
 
-void fraise_receivechars(char *data, uint8_t len){
-	//printf("receive chars: %s\n", data);
+void fraise_receivebytes_broadcast(char *data, uint8_t len){
+	//printf("broadcast bytes: "); for(int i = 0; i < len; i++) printf("%d ", (uint8_t)data[i]); putchar('\n');
 }
 
 void fraise_receivechars_broadcast(char *data, uint8_t len){

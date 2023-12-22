@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "pico/stdlib.h"
-#include "pico/util/queue.h"
 #include "pico/async_context_threadsafe_background.h"
 #include "pico/async_context_poll.h"
 
@@ -22,14 +21,12 @@
 // - Uses a PIO state machine to receive 9-bit data (message starts with an address having bit 9 high)
 // - Uses an interrupt to determine when the PIO FIFO has some data
 // - Discards the message if the address doesn't match, or on framing error
-// - Saves characters in a queue
-// - Uses an async context to dispatch the message to the 4 possible fraise_receive* callbacks,
-//   when notified by the irq or manually polled by the application using fraise_poll().
+// - Saves the message to the Fraise RX buffer (rxbuf, see fraise_buffers.c)
+// - Uses an async context to pop the message from rxbuf, and dispatch it to the 4 possible fraise_receive* callbacks,
+//   when notified by the irq or manually polled by the application calling fraise_poll().
 
-// If the received message was a "poll" message (address with a 128 offset), the next message to send 
-// (if any) is fetched from the tx buffer, and transmitted to the state machine which is switched to transmit mode.
-
-#define RX_FIFO_SIZE 256
+// If the received message was a "poll" message (address with a 128 offset), the next message to send (if any)
+// is fetched from the Fraise TX buffer (txbuf), and transmitted to the state machine which is switched to transmit mode.
 
 static PIO pio;
 static uint sm;
@@ -41,7 +38,6 @@ static uint irq_count, irq_rx_count; // Debugging counters
 
 static void async_worker_func(async_context_t *async_context, async_when_pending_worker_t *worker);
 
-static queue_t rx_fifo; // queue for the incoming messages.
 // Two async contexts (only one will be used) that will dispatch the incoming messages
 // to the 4 fraise_receive* callbacks;
 // one is notified by the irq, this other one must be manually polled by the application.
@@ -54,7 +50,6 @@ static async_when_pending_worker_t worker = { .do_work = async_worker_func };
 static uint8_t FraiseID = 10; // default Fraise ID is 10
 
 typedef enum {
-    FS_OFF,
     FS_LISTEN,
     FS_POLL,
     FS_RECEIVE,
@@ -64,21 +59,21 @@ typedef enum {
 
 static fraise_state_t state = FS_LISTEN;
 
-// IRQ called when the pio rx rx_fifo is not empty, or if the tx rx_fifo is not full
+// IRQ called when the pio rx rx_fifo is not empty, or if the tx rx_fifo is not full.
 static void fraise_irq(void) {
     static uint8_t rx_checksum;
     static uint8_t rx_bytes;
     static uint8_t rx_msg_length;
     static uint8_t tx_bytes_to_send;
-    static bool rx_is_broadcast;
-    static bool rx_is_char;
+    static bool    rx_is_broadcast;
+    static bool    rx_is_char;
 
     irq_count++;
 
     while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
         irq_rx_count++;
         uint16_t c = fraise_program_getc(pio, sm);
-        if(pio_interrupt_get(pio, 4)) { // Framing error! Discard.
+        if(pio_interrupt_get(pio, 4)) {                     // Framing error! Discard.
             fraise_program_discard_rx(pio, sm);
             state = FS_LISTEN;
             continue;
@@ -88,11 +83,12 @@ static void fraise_irq(void) {
             case FS_LISTEN:
                 if((c == FraiseID + 0x100)                  // If we are the destination of the message,
                     || (c == 0x100)) {                      // or if the message is "broadcast" (destinated to everyone),
-                    state = FS_RECEIVE;                     // start receiving the message.
-                    rx_bytes = 1;
-                    rx_checksum = c;
-                    rx_is_broadcast = (c == 0x100);
-                    if (!queue_try_add(&rx_fifo, &c)) panic("rx_fifo full");
+                    if(rxbuf_write_init()) {
+                        state = FS_RECEIVE;                 // start receiving the message.
+                        rx_bytes = 1;
+                        rx_checksum = c;
+                        rx_is_broadcast = (c == 0x100);
+                    }
                 } else if(c == FraiseID + 0x180) {          // The message is a "poll" signal.
                     state = FS_POLL;
                 } else fraise_program_discard_rx(pio, sm);  // We're not interested in this message.
@@ -113,27 +109,28 @@ static void fraise_irq(void) {
             case FS_RECEIVE:
                 rx_checksum += c;
                 rx_bytes++;
-                if(rx_bytes == 2) {
+                if(rx_bytes == 2) {                         // The second byte is the length byte.
                     rx_msg_length = c & 63;
                     rx_is_char = (c & 128) != 0;
                 }
                 else if(rx_bytes == rx_msg_length + 3) {    // We have received the whole message.
-                    if(rx_checksum == 0) {                  // If the checksum is good,
-                        async_context_set_work_pending(context_core, &worker);  // notify the async worker,
-                        if(!rx_is_broadcast) {              // and it wasn't a broadcast message, send 0 (ack)
-                            fraise_program_start_tx(pio, sm, 1);
+                    state = FS_LISTEN;
+                    if(rx_checksum == 0) {                  // If the checksum is good:
+                        rxbuf_write_finish(rx_is_char, rx_is_broadcast);        // - validate the message,
+                        async_context_set_work_pending(context_core, &worker);  // - notify the async worker,
+                        if(!rx_is_broadcast) {                                  // - and if it isn't a broadcast message,
+                            fraise_program_start_tx(pio, sm, 1);                //   send 0 (ack).
                             fraise_program_putc(pio, sm, 0);
                         }
                     } else {
-                        if(!rx_is_broadcast) {              // If the checksum is wrong and the message wasn't broadcast,
-                            fraise_program_start_tx(pio, sm, 1); // send 1 (nack).
-                            fraise_program_putc(pio, sm, 1);
+                        if(!rx_is_broadcast) {                                  // If the checksum is wrong and if
+                            fraise_program_start_tx(pio, sm, 1);                // the message isn't broadcasted,
+                            fraise_program_putc(pio, sm, 1);                    // send 1 (nack).
                         }
                     }
-                    state = FS_LISTEN;
                     break;
                 }
-                if (!queue_try_add(&rx_fifo, &c)) panic("rx_fifo full"); // Push current byte to the queue.
+                if(rx_bytes != 2) rxbuf_write_putc(c);      // Don't push the length_byte (it's already processed by rxbuf).
                 break;
             case FS_WAITACK:
                 if(c == 0) txbuf_read_finish();             // Remove the current message from the tx buffer if it has been acknowledged.
@@ -158,7 +155,7 @@ static void fraise_irq(void) {
     }
 }
 
-// Process incoming messages
+// Process incoming messages from Fraise RX buffer, dispatch them to the 4 Fraise receive callbacks.
 static void async_worker_func(async_context_t *async_context, async_when_pending_worker_t *worker) {
     static bool message_is_chars;
     static bool message_is_broadcast;
@@ -166,38 +163,29 @@ static void async_worker_func(async_context_t *async_context, async_when_pending
     static int message_length;
     static uint8_t message_count;
 
-    while(!queue_is_empty(&rx_fifo)) {
-        uint16_t c;
-        if (!queue_try_remove(&rx_fifo, &c)) {
-            panic("rx_fifo empty");
+    while((message_length = rxbuf_read_init()) != 0) {      // There is a message.
+        message_count = 0;
+        message_is_chars = (message_length & 128) != 0;
+        message_is_broadcast = (message_length & 64) != 0;
+        message_length = message_length & 63;
+        while(message_count < message_length) {             // Copy the message.
+            message[message_count++] = rxbuf_read_getc();
         }
-        if(c > 255) { // message start
-            message_is_broadcast = (c & 255) == 0;
-            message_length = -1;
+        rxbuf_read_finish();                                // Remove the message from rxbuf.
+        if(message_is_chars) message[message_count] = 0;    // Terminate the string.
+        // Dispatch the message to the callbacks:
+        if(message_is_broadcast) {
+            if(message_is_chars) fraise_receivechars_broadcast(message, message_count);
+            else fraise_receivebytes_broadcast(message, message_count);
         } else {
-            if(message_length == -1) {
-                message_length = c & 63;
-                message_is_chars = (c & 128) != 0;
-                message_count = 0;
-            } else if(message_count < message_length){
-                message[message_count++] = c;
-                if(message_count == message_length) {
-                    if(message_is_chars) message[message_count] = 0; // finish string
-                    if(message_is_broadcast) {
-                        if(message_is_chars) fraise_receivechars_broadcast(message, message_count);
-                        else fraise_receivebytes_broadcast(message, message_count);
-                    } else {
-                        if(message_is_chars) fraise_receivechars(message, message_count);
-                        else fraise_receivebytes(message, message_count);
-                    }
-                }
-            }
+            if(message_is_chars) fraise_receivechars(message, message_count);
+            else fraise_receivebytes(message, message_count);
         }
     }
 }
 
 // Find a free pio and state machine and load the program into it.
-// Returns false if this fails
+// Returns false if this fails.
 static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *offset) {
     // Find a free pio
     *pio_hw = pio1;
@@ -218,9 +206,6 @@ static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *
 }
 
 int fraise_setup(uint rxpin, uint txpin, uint drvpin, bool background_rx) {
-    // Create a queue so the irq can save the data somewhere
-    queue_init(&rx_fifo, 2, RX_FIFO_SIZE);
-
     // Setup an async context and worker to perform work when needed
     if(background_rx) {
         if (!async_context_threadsafe_background_init_with_defaults(&background_context)) {
@@ -273,7 +258,6 @@ void fraise_unsetup() {
 
     async_context_remove_when_pending_worker(context_core, &worker);
     async_context_deinit(context_core);
-    queue_free(&rx_fifo);
 }
 
 void fraise_poll_rx(){

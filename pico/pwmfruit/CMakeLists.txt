@@ -32,14 +32,9 @@ pico_set_linker_script(${projectName} ${CMAKE_CURRENT_SOURCE_DIR}/noboot2.ld)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../fraise_device fraise_device)
 
 target_link_libraries(${projectName} 
-	#pico_stdlib_headers
 	pico_stdlib
-	#hardware_watchdog
-	#hardware_structs
-	#hardware_pio
-	#pico_async_context_threadsafe_background
-	hardware_pwm
 	fraise_device
+	hardware_pwm
 )
 
 pico_enable_stdio_usb(${projectName} 1)
