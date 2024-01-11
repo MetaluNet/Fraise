@@ -192,6 +192,9 @@ void processLine() {
 		sleep_ms(50); // wait for the host to disconnect the USB device
 		runapp();
 	}
+	else if(startsWith(lineBuf, "whoami")) {
+		printf("whoami: usb_bootloader\n");
+	}
 	else if(startsWith(lineBuf, "readflash")) {
 		uint32_t addr;
 		sscanf(lineBuf, "readflash %d", &addr);

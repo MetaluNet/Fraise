@@ -118,7 +118,19 @@ smooth_pwm_t pwms[NUM_PWM];
 void setup() {
 	fraise_setup(FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN, true);
 	fraise_setID(60);
-	for(int i = 0; i < NUM_PWM; i++) smooth_pwm_init(&pwms[i], i + 3);
+	//for(int i = 0; i < NUM_PWM; i++) smooth_pwm_init(&pwms[i], i + 3);
+	smooth_pwm_init(&pwms[0], 3);
+	smooth_pwm_init(&pwms[1], 4);
+	smooth_pwm_init(&pwms[2], 5);
+	smooth_pwm_init(&pwms[3], 8);
+	smooth_pwm_init(&pwms[4], 9);
+	smooth_pwm_init(&pwms[5], 10);
+	smooth_pwm_init(&pwms[6], 11);
+	smooth_pwm_init(&pwms[7], 12);
+	smooth_pwm_init(&pwms[8], 13);
+	smooth_pwm_init(&pwms[9], 14);
+	smooth_pwm_init(&pwms[10], 15);
+	smooth_pwm_init(&pwms[11], 22);
 }
 
 void loop(){

@@ -13,10 +13,17 @@
 #include "pico/async_context_poll.h"
 #include "hardware/pio.h"
 #include "pico/stdio/driver.h"
+#include "pico/unique_id.h"
+#include "RP2040.h"
+#include "hardware/resets.h"
+#include "hardware/watchdog.h"
+#include "hardware/structs/watchdog.h"
 
 #include "fraise.pio.h"
 #include "fraise_device.h"
 #include "fraise_buffers.h"
+
+#include "boardconfig.h"
 
 // This program
 // - Uses a PIO state machine to receive 9-bit data (message starts with an address having bit 9 high)
@@ -147,6 +154,8 @@ static void fraise_irq(void) {
                 if(c == 0) txbuf_read_finish();             // Remove the current message from the tx buffer if it has been acknowledged.
                 state = FS_LISTEN;
                 break;
+            default:
+                state = FS_LISTEN;
         }
     }
 
@@ -164,6 +173,88 @@ static void fraise_irq(void) {
 #endif
         }
     }
+}
+
+static void disable_interrupts(void)
+{
+	SysTick->CTRL &= ~1;
+
+	NVIC->ICER[0] = 0xFFFFFFFF;
+	NVIC->ICPR[0] = 0xFFFFFFFF;
+}
+
+static void reset_peripherals(void)
+{
+    reset_block(~(
+            RESETS_RESET_IO_QSPI_BITS |
+            RESETS_RESET_PADS_QSPI_BITS |
+            RESETS_RESET_SYSCFG_BITS |
+            RESETS_RESET_PLL_SYS_BITS
+    ));
+}
+
+void reboot_test() {
+	hw_clear_bits(&watchdog_hw->ctrl, WATCHDOG_CTRL_ENABLE_BITS);
+	watchdog_reboot(0, 0, 0);
+
+	while (1) {
+		tight_loop_contents();
+	}
+}
+
+extern int __fraise_bootloader_start__;
+
+void switch_to_bootloader()
+{
+    fraise_unsetup();
+    disable_interrupts();
+    reset_peripherals();
+    const uint32_t vtor = (uint32_t)&__fraise_bootloader_start__ /*XIP_BASE + (64 * 1024)*/;
+    // Derived from the Leaf Labs Cortex-M3 bootloader.
+    // Copyright (c) 2010 LeafLabs LLC.
+    // Modified 2021 Brian Starkey <stark3y@gmail.com>
+    // Originally under The MIT License
+    uint32_t reset_vector = *(volatile uint32_t *)(vtor + 0x04);
+
+    SCB->VTOR = (volatile uint32_t)(vtor);
+
+    asm volatile("msr msp, %0"::"g" (*(volatile uint32_t *)vtor));
+    asm volatile("bx %0"::"r" (reset_vector));
+
+    while(1);
+}
+
+void switch_to_bootloader_if_name_matches(char *data, uint8_t len)
+{
+    char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
+    pico_get_unique_board_id_string(buf, sizeof(buf));
+    if(strncmp(data, buf, len)) return; // continue only if the name matches
+
+    //printf("switching to bootloader! address: %#x (%#x)\n", __fraise_bootloader_start__, XIP_BASE + (64 * 1024));
+    sleep_ms(50);
+
+    switch_to_bootloader();
+    //reboot_test();
+}
+
+void assign(char *data, uint8_t len)
+{
+    unsigned char c, c2, tmpid;
+    c = data[0];
+    c2 = data[1];
+    c -= '0';
+    if (c > 9) c -= 'A' - '9' - 1;
+    c2 -= '0';
+    if (c2 > 9) c2 -= 'A' - '9' - 1;
+    if((c > 7) || (c2 > 15)) { // bad id... return
+        return;
+    }
+    tmpid = c2 + (c << 4);
+
+    char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
+    pico_get_unique_board_id_string(buf, sizeof(buf));
+    if(strncmp(data + 2, buf, len - 2)) return; // return if name doesn't match
+    fraise_setID(tmpid);
 }
 
 // Process incoming messages from Fraise RX buffer, dispatch them to the 4 Fraise receive callbacks.
@@ -186,7 +277,12 @@ static void async_worker_func(async_context_t *async_context, async_when_pending
         if(message_is_chars) message[message_count] = 0;    // Terminate the string.
         // Dispatch the message to the callbacks:
         if(message_is_broadcast) {
-            if(message_is_chars) fraise_receivechars_broadcast(message, message_count);
+            if(message_is_chars) {
+                char c = message[0];
+                if(c == 'B') fraise_receivechars_broadcast(message + 1, message_count - 1);
+                else if(c == 'F') switch_to_bootloader_if_name_matches(message + 1, message_count - 1);
+                else if(c == 'N') assign(message + 1, message_count - 1);
+            }
             else fraise_receivebytes_broadcast(message, message_count);
         } else {
             if(message_is_chars) fraise_receivechars(message, message_count);
@@ -216,9 +312,9 @@ static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *
     return true;
 }
 
-int fraise_setup(uint rxpin, uint txpin, uint drvpin, bool background_rx) {
+void fraise_setup(/*bool background_rx*/) {
     // Setup an async context and worker to perform work when needed
-    if(background_rx) {
+    if(false/*background_rx*/) {
         if (!async_context_threadsafe_background_init_with_defaults(&background_context)) {
             panic("failed to setup context");
         } else context_core = &background_context.core;
@@ -233,7 +329,7 @@ int fraise_setup(uint rxpin, uint txpin, uint drvpin, bool background_rx) {
     if (!init_pio(&fraise_program, &pio, &sm, &pgm_offset)) {
         panic("failed to setup pio");
     }
-    fraise_program_init(pio, sm, pgm_offset, rxpin, txpin, drvpin);
+    fraise_program_init(pio, sm, pgm_offset, FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN);
 
     // Find a free irq
     static_assert(PIO0_IRQ_1 == PIO0_IRQ_0 + 1 && PIO1_IRQ_1 == PIO1_IRQ_0 + 1, "");
@@ -261,6 +357,7 @@ void fraise_setID(uint8_t id) {
 
 void fraise_unsetup() {
     // Disable interrupt
+    fraise_program_disable_tx_interrupt(pio, sm, irq_index);
     pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, false);
     irq_set_enabled(pio_irq, false);
     irq_remove_handler(pio_irq, fraise_irq);
@@ -286,7 +383,7 @@ bool fraise_puts(char* msg){
     }
     char c;
     int i = 0;
-    while(c = *msg++) {
+    while((c = *msg++)) {
         if(i < 31) txbuf_write_putc(c);
         else break;
         i++;
@@ -330,6 +427,7 @@ void fraise_out_chars(const char *buf, int len) {
 }
 
 void fraise_debug_print_next_txmessage(){
+#ifdef FRAISE_DEVICE_DEBUG
     int len = txbuf_read_init();
     if(!len) {
         printf("no pending message\n");
@@ -338,6 +436,7 @@ void fraise_debug_print_next_txmessage(){
     while(len--) printf("%02x ", txbuf_read_getc());
     putchar('\n');
     txbuf_read_finish();
+#endif
 }
 
 uint fraise_debug_get_irq_count() {
@@ -351,10 +450,8 @@ uint fraise_debug_get_irq_rx_count() {
     return c;
 }
 
-//#define FRAISE_DEBUG_DUMMY
-
 #define STRINGIFY(x) #x
-#ifdef FRAISE_DEBUG_DUMMY
+#ifdef FRAISE_DEVICE_DEBUG
 #define dummy_callback(f) __attribute__((weak)) void f(char *data, uint8_t len){ printf("dummy " STRINGIFY(f) "()\n");}
 #else
 #define dummy_callback(f) __attribute__((weak)) void f(char *data, uint8_t len){}

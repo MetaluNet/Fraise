@@ -7,14 +7,15 @@
 #ifndef _FRAISE_DEVICE_H
 #define _FRAISE_DEVICE_H
 
-// Initialize Fraise driver, giving rx/tx/drv pins, and indicating whether received
-// messages should be processed by a background task (low priority interrupt),
-// or polled with fraise_poll_rx().
-int fraise_setup(uint rxpin, uint txpin, uint drvpin, bool background_rx);
+// Initialize Fraise driver
+void fraise_setup();
+
+// Process incoming messages.
+// Call this function often (at least every few ms) to avoid overflowing the RX buffer.
+void fraise_poll_rx();
 
 void fraise_setID(uint8_t id);
 void fraise_unsetup();
-void fraise_poll_rx();
 
 // Send a text message
 bool fraise_puts(char* msg); // returns true on success

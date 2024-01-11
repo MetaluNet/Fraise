@@ -1,0 +1,48 @@
+# to be invoked from ${projDir}/build with: cmake -S . -B  .
+cmake_minimum_required(VERSION 3.13)
+
+set(fraise_path $ENV{FRAISE_PATH})
+message("fraise_path: '${fraise_path}'")
+
+get_filename_component(fraise_device_path "${fraise_path}/pico/fraise_device" REALPATH)
+include(${fraise_device_path}/pico_sdk_import.cmake)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+get_filename_component(projDir ${CMAKE_CURRENT_SOURCE_DIR}/.. REALPATH)
+get_filename_component(projName ${projDir} NAME)
+get_filename_component(boardDir ${fraise_path}/boards/$ENV{FRAISE_BOARD} REALPATH)
+message("project directory name: '${projDir}'")
+message("project name: '${projName}'")
+message("board: '$ENV{FRAISE_BOARD}' boardDir: '${boardDir}'")
+
+project(${projName} C CXX ASM)
+
+pico_sdk_init()
+
+add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../main.c)
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC "-I${boardDir}")
+add_subdirectory(${fraise_device_path} fraise_device)
+
+pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
+
+pico_set_linker_script(${CMAKE_PROJECT_NAME} ${fraise_device_path}/app.ld)
+
+target_link_libraries(${CMAKE_PROJECT_NAME}
+	pico_stdlib
+	fraise_device
+)
+
+add_custom_command(
+	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E echo "-- Calculating memory usage"
+	COMMAND size -G simplefruit.elf > size.txt
+	COMMAND ${CMAKE_COMMAND} -E echo "-- Copying hex file to source directory"
+	COMMAND ${CMAKE_COMMAND} -E 
+		copy "${PROJECT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.hex" "${PROJECT_SOURCE_DIR}/../"
+	)
+
+pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 0)
+pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
+

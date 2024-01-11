@@ -120,7 +120,7 @@ bool rxbuf_write_init(){
     int freespace = rxbuf_read_head - rxbuf_write_head;
     if(freespace < 0) freespace += RXBUF_SIZE;
     if(freespace < 34) {
-        printf("e rxbuf_write_init() full!!!\n");
+        //printf("e rxbuf_write_init() full!!!\n");
         return false;
     }
     rxbuf_write_tmphead = rxbuf_inc_head(rxbuf_write_head); // keep first byte for length byte
