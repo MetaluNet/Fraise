@@ -1,7 +1,11 @@
 add_library(fraise_device INTERFACE)
 
 pico_generate_pio_header(fraise_device ${CMAKE_CURRENT_LIST_DIR}/fraise.pio)
-target_sources(fraise_device INTERFACE fraise_device.c fraise_buffers.c)
+target_sources(fraise_device INTERFACE 
+	${CMAKE_CURRENT_LIST_DIR}/fraise_device.c
+	${CMAKE_CURRENT_LIST_DIR}/fraise_buffers.c
+	${CMAKE_CURRENT_LIST_DIR}/fraise_eeprom.c
+)
 
 target_link_libraries(fraise_device INTERFACE
         pico_stdlib

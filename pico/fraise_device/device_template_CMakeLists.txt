@@ -1,7 +1,6 @@
 # to be invoked from ${projDir}/build with: cmake -S . -B  .
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.5)
 
-set(fraise_path $ENV{FRAISE_PATH})
 message("fraise_path: '${fraise_path}'")
 
 get_filename_component(fraise_device_path "${fraise_path}/pico/fraise_device" REALPATH)
@@ -10,18 +9,27 @@ include(${fraise_device_path}/pico_sdk_import.cmake)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
+# get project dir and name:
 get_filename_component(projDir ${CMAKE_CURRENT_SOURCE_DIR}/.. REALPATH)
 get_filename_component(projName ${projDir} NAME)
-get_filename_component(boardDir ${fraise_path}/boards/$ENV{FRAISE_BOARD} REALPATH)
 message("project directory name: '${projDir}'")
 message("project name: '${projName}'")
-message("board: '$ENV{FRAISE_BOARD}' boardDir: '${boardDir}'")
-
 project(${projName} C CXX ASM)
-
 pico_sdk_init()
 
 add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../main.c)
+
+# get board from main.c:
+file(READ ${projDir}/main.c main_c)
+string(REGEX MATCH "\n[ \t]*#define[ \t]*BOARD[ \t]*[A-Za-z0-9_]*" board_pos_in_main "${main_c}")
+string(REPLACE "#define" "" board_pos_in_main ${board_pos_in_main})
+string(REPLACE "BOARD" "" board_pos_in_main ${board_pos_in_main})
+string(STRIP ${board_pos_in_main} fraise_board)
+get_filename_component(boardDir ${fraise_path}/boards/${fraise_board} REALPATH)
+message("board: '${fraise_board}' boardDir: '${boardDir}'")
+unset(main_c)
+unset(board_pos_in_main)
+
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC "-I${boardDir}")
 add_subdirectory(${fraise_device_path} fraise_device)
 

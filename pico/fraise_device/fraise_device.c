@@ -22,8 +22,7 @@
 #include "fraise.pio.h"
 #include "fraise_device.h"
 #include "fraise_buffers.h"
-
-#include "boardconfig.h"
+#include "fraise_eeprom.h"
 
 // This program
 // - Uses a PIO state machine to receive 9-bit data (message starts with an address having bit 9 high)
@@ -193,7 +192,7 @@ static void reset_peripherals(void)
     ));
 }
 
-void reboot_test() {
+void reboot() {
 	hw_clear_bits(&watchdog_hw->ctrl, WATCHDOG_CTRL_ENABLE_BITS);
 	watchdog_reboot(0, 0, 0);
 
@@ -226,15 +225,16 @@ void switch_to_bootloader()
 
 void switch_to_bootloader_if_name_matches(char *data, uint8_t len)
 {
-    char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
+    /*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
     pico_get_unique_board_id_string(buf, sizeof(buf));
-    if(strncmp(data, buf, len)) return; // continue only if the name matches
+    if(strncmp(data, buf, len)) return; // continue only if the name matches*/
+    if(strncmp(data, eeprom_get_name(), len)) return; // continue only if the name matches
 
     //printf("switching to bootloader! address: %#x (%#x)\n", __fraise_bootloader_start__, XIP_BASE + (64 * 1024));
     sleep_ms(50);
 
-    switch_to_bootloader();
-    //reboot_test();
+    //switch_to_bootloader();
+    reboot();
 }
 
 void assign(char *data, uint8_t len)
@@ -251,10 +251,17 @@ void assign(char *data, uint8_t len)
     }
     tmpid = c2 + (c << 4);
 
-    char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
+    /*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
     pico_get_unique_board_id_string(buf, sizeof(buf));
-    if(strncmp(data + 2, buf, len - 2)) return; // return if name doesn't match
+    if(strncmp(data + 2, buf, len - 2)) return; // return if name doesn't match*/
+    if(strncmp(data + 2, eeprom_get_name(), len - 2)) return; // continue only if the name matches.
+    if(FraiseID == tmpid) return; // no need to rewrite the eeprom if the id is the same.
+
     fraise_setID(tmpid);
+    eeprom_set_id(tmpid);
+    fraise_unsetup();
+    eeprom_commit();
+    fraise_setup();
 }
 
 // Process incoming messages from Fraise RX buffer, dispatch them to the 4 Fraise receive callbacks.
@@ -313,6 +320,10 @@ static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *
 }
 
 void fraise_setup(/*bool background_rx*/) {
+    // Get the pin numbers
+    int rxpin, txpin, drvpin;
+    fraise_get_pins(&rxpin, &txpin, &drvpin);
+
     // Setup an async context and worker to perform work when needed
     if(false/*background_rx*/) {
         if (!async_context_threadsafe_background_init_with_defaults(&background_context)) {
@@ -325,11 +336,11 @@ void fraise_setup(/*bool background_rx*/) {
     }
     async_context_add_when_pending_worker(context_core, &worker);
 
-    // Set up the state machine we're going to use.
+    // Set up the state machine we're going to use
     if (!init_pio(&fraise_program, &pio, &sm, &pgm_offset)) {
         panic("failed to setup pio");
     }
-    fraise_program_init(pio, sm, pgm_offset, FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN);
+    fraise_program_init(pio, sm, pgm_offset, rxpin, txpin, drvpin);
 
     // Find a free irq
     static_assert(PIO0_IRQ_1 == PIO0_IRQ_0 + 1 && PIO1_IRQ_1 == PIO1_IRQ_0 + 1, "");
@@ -353,6 +364,16 @@ void fraise_setup(/*bool background_rx*/) {
 
 void fraise_setID(uint8_t id) {
     FraiseID = id;
+}
+
+void fraise_get_pins(int *rxpin, int *txpin, int *drvpin)
+{
+	*rxpin = (watchdog_hw->scratch[7] >> 10) & 31;
+	*txpin = (watchdog_hw->scratch[7] >> 5) & 31;
+	*drvpin = (watchdog_hw->scratch[7] >> 0) & 31;
+}
+
+const char *fraise_get_name() {
 }
 
 void fraise_unsetup() {
@@ -450,6 +471,21 @@ uint fraise_debug_get_irq_rx_count() {
     return c;
 }
 
+int main() {
+	stdio_init_all();
+	gpio_init(PICO_DEFAULT_LED_PIN);
+	gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
+	fraise_setup();
+	eeprom_setup();
+	fraise_setID(eeprom_get_id());
+	setup();
+	while(true) {
+		loop();
+	}
+}
+
+__attribute__((weak)) void setup(){}
+__attribute__((weak)) void loop(){}
 #define STRINGIFY(x) #x
 #ifdef FRAISE_DEVICE_DEBUG
 #define dummy_callback(f) __attribute__((weak)) void f(char *data, uint8_t len){ printf("dummy " STRINGIFY(f) "()\n");}

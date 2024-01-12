@@ -7,7 +7,7 @@
 #ifndef _FRAISE_BOOT_DEVICE_H
 #define _FRAISE_BOOT_DEVICE_H
 
-int fraise_setup(uint rxpin, uint txpin, uint drvpin);
+void fraise_setup(uint rxpin, uint txpin, uint drvpin);
 void fraise_unsetup();
 
 bool fraise_getword(uint16_t *res); // if true, res is the next word received by Fraise.

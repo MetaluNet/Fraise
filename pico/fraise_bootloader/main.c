@@ -11,10 +11,9 @@
 #include <string.h>
 #include "fraise_bootdevice.h"
 #include "bootloader.h"
+#include "fraise_eeprom.h"
 
-#define FRAISE_RX_PIN  0
-#define FRAISE_TX_PIN  1
-#define FRAISE_DRV_PIN 2
+#include "boardconfig.h"
 
 #ifdef FRAISE_BLD_DEBUG
 #define DEBUG printf
@@ -61,10 +60,6 @@ void processLine() {
 	else if(startsWith(lineBuf, "testsend")) {
 		fraise_puts("hello world!");
 	}
-	else if(startsWith(lineBuf, "sendbytes")) {
-		char buf[] = {0, 1, 2, 3};
-		//fraise_putbytes(buf, 4);
-	}
 	else if(startsWith(lineBuf, "getunique")) {
 		char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
 		pico_get_unique_board_id_string(buf, sizeof(buf));
@@ -74,12 +69,19 @@ void processLine() {
 #endif
 
 void getUnique() {
-	char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 3];
+	/*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 3];
 	buf[0] = 'G';
 	pico_get_unique_board_id_string(buf + 1, sizeof(buf) - 1);
 	//printf("uniquestr %s\n", buf);
 	buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1] = '\n';
 	buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 2] = 0;
+	fraise_puts(buf);*/
+	char buf[32];
+	int i = 0;
+	buf[i++] = 'G';
+	const char *c = eeprom_get_name();
+	while(*c != 0) buf[i++] = *c++;
+	buf[i++] = '\n';
 	fraise_puts(buf);
 }
 
@@ -88,11 +90,20 @@ void verifyName(char *data, uint8_t len) {
 		getUnique();
 		return;
 	}
-	char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
+	/*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
 	pico_get_unique_board_id_string(buf, sizeof(buf));
-	isVerified = !strncmp(data + 1, buf, len - 1);
+	isVerified = !strncmp(data + 1, buf, len - 1);*/
+
+	isVerified = (strncmp(data + 1, eeprom_get_name(), len - 1) == 0);
 	DEBUG("isVerified: %s\n", isVerified?"true":"false");
 	if(isVerified) fraise_puts(" V\n");
+}
+
+void setName(char *data, uint8_t len) {
+	if(strcmp(data, "RENAME:") <= 0) return;
+	eeprom_write_name(data + strlen("RENAME:"));
+	eeprom_commit();
+	fraise_puts(" R\n");
 }
 
 void fraiseLineReceived(char *data, uint8_t len) {
@@ -100,8 +111,8 @@ void fraiseLineReceived(char *data, uint8_t len) {
 	//printf("line: %s\n", data);
 	if(c == 'V') verifyName(data, len);
 	else if(c == 'G') getUnique();
-	else if(c == 'A') {run_app();}
-	else if(c == 'R') fraise_puts(" R\n");
+	else if(c == 'A') run_app();
+	else if(c == 'R') setName(data, len);
 	if(isVerified) {
 		if(c == ':') {
 			int ret = processHexLine(data, len);
@@ -158,13 +169,10 @@ void fraiseTask() {
 }
 
 #ifdef FRAISE_BLD_DEBUG
-void stdioTask(void* unused)
+void stdioTask()
 {
 	int c;
-	static bool led;
-	//unused; // don't warn
 	while((c = getchar_timeout_us(0)) != PICO_ERROR_TIMEOUT){
-		//gpio_put(LED_PIN, led = !led);
 		if(c == '\n') {
 			lineBuf[lineLen] = 0;
 			processLine();
@@ -175,38 +183,31 @@ void stdioTask(void* unused)
 }
 #endif
 
-void loop();
-void setup();
+absolute_time_t nextLed;
+bool led = false;
+
 int main() {
 #ifdef FRAISE_BLD_DEBUG
 	stdio_init_all();
+	setVerbose(true); // bootloader verbose
 #endif
-
 	gpio_init(LED_PIN);
 	gpio_set_dir(LED_PIN, GPIO_OUT);
-	setup();
-	while(true) {
-		loop();
-	}
-	reboot();
-}
+	gpio_put(LED_PIN, 1);
 
-void setup() {
+	eeprom_setup();
 	fraise_setup(FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN);
-	setVerbose(true); // bootloader verbose
-}
+	nextLed = make_timeout_time_ms(100);
 
-void loop(){
-	static absolute_time_t nextLed;
-	static bool led = false;
-
-#ifdef FRAISE_BLD_DEBUG
-	stdioTask(NULL);
-#endif
-	fraiseTask();
-	if(timed_out(nextLed)) {
-		gpio_put(LED_PIN, led = !led);
-		nextLed = make_timeout_time_ms(100);
+	while(true) {
+	#ifdef FRAISE_BLD_DEBUG
+		stdioTask(NULL);
+	#endif
+		fraiseTask();
+		if(timed_out(nextLed)) {
+			gpio_put(LED_PIN, led = !led);
+			nextLed = make_timeout_time_ms(100);
+		}
 	}
 }
 

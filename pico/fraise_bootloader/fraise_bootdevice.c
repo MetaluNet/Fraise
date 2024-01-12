@@ -27,19 +27,10 @@ static uint sm;
 static int8_t pio_irq;
 static queue_t fifo;
 static uint offset;
-static uint32_t counter;
-static bool work_done;
 static uint irq_index;
 
 // IRQ called when the pio rx fifo is not empty, i.e. there are some characters on the uart
 static void pio_irq_func(void) {
-    static uint8_t rx_checksum;
-    static uint8_t rx_bytes;
-    static uint8_t rx_msg_length;
-    static bool rx_is_broadcast;
-    
-    static uint8_t tx_bytes_to_send;
-
     while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
         uint16_t c = fraise_program_getc(pio, sm);
         if (!queue_try_add(&fifo, &c)) panic("fifo full");
@@ -67,7 +58,7 @@ static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *
     return true;
 }
 
-int fraise_setup(uint rxpin, uint txpin, uint drvpin) {
+void fraise_setup(uint rxpin, uint txpin, uint drvpin) {
     // create a queue so the irq can save the data somewhere
     queue_init(&fifo, 2, FIFO_SIZE);
 
@@ -118,6 +109,6 @@ bool fraise_getword(uint16_t *res) {
 void fraise_puts(char *msg){
     fraise_program_start_tx(pio, sm, strlen(msg));
     char c;
-    while(c = *msg++) fraise_program_putc(pio, sm, c);
+    while((c = *msg++)) fraise_program_putc(pio, sm, c);
 }
 

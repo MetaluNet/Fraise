@@ -3,20 +3,15 @@ set(fruit_device_path "${CMAKE_CURRENT_SOURCE_DIR}/../fraise_device")
 include(${fruit_device_path}/pico_sdk_import.cmake)
 
 project("fraise_bootloader" C CXX ASM)
-
-#include(pico_sdk_import.cmake)
-
-#project(${CMAKE_PROJECT_NAME} C CXX ASM)
+get_filename_component(boardDir "${fruit_device_path}/../../boards/${fraise_board}" REALPATH)
+message("board: ${fraise_board} board directory: ${boardDir}")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-#set(PICO_BARE_METAL 1)
-
 pico_sdk_init()
 
-
-add_executable(${CMAKE_PROJECT_NAME} main.c fraise_bootdevice.c bootloader.c)
+add_executable(${CMAKE_PROJECT_NAME} main.c fraise_bootdevice.c bootloader.c ${fruit_device_path}/fraise_eeprom.c)
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/fraise.pio)
 
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
@@ -27,13 +22,15 @@ pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
 # get every asm intermediate output
 #target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -save-temps -fverbose-asm)
 
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -I${boardDir} -I${fruit_device_path})
+
 target_link_options(${CMAKE_PROJECT_NAME} PUBLIC "-L${fruit_device_path}")
 pico_set_linker_script(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/fraise_bootloader.ld)
 
-target_include_directories(${CMAKE_PROJECT_NAME} INTERFACE
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}
-	)
+#target_include_directories(${CMAKE_PROJECT_NAME} INTERFACE
+#	${CMAKE_CURRENT_SOURCE_DIR}
+#	${CMAKE_CURRENT_BINARY_DIR}
+#	)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} 
     pico_stdlib
@@ -50,4 +47,11 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 
 pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 1)
 pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
+
+add_custom_command(
+	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
+	COMMAND ${CMAKE_COMMAND} -E echo "-- Copying uf2 file to board directory"
+	COMMAND ${CMAKE_COMMAND} -E
+		copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.uf2" "${boardDir}/${fraise_board}.uf2"
+)
 

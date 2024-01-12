@@ -20,6 +20,7 @@
 
 #include "fraise_bootdevice.h"
 #include "bootloader.h"
+#include "boardconfig.h"
 
 #ifdef FRAISE_BLD_DEBUG
 #define DEBUG printf
@@ -60,6 +61,10 @@ static void reset_peripherals(void)
 
 void run_app()
 {
+	// save pins in watchdog scratch registers
+	watchdog_hw->scratch[6] = ('p' << 24) + ('i' << 16) + ('n' << 8) + 's';
+	watchdog_hw->scratch[7] = (FRAISE_RX_PIN << 10) + (FRAISE_TX_PIN << 5) + FRAISE_DRV_PIN;
+
 	fraise_unsetup();
 	disable_interrupts();
 	reset_peripherals();
@@ -79,7 +84,7 @@ void run_app()
 	while(1);
 }
 
-uint8_t gethexbyte(const uint8_t *buf)
+uint8_t gethexbyte(const char *buf)
 {
 	uint8_t cl, ch;
 	ch = buf[0] -'0';
@@ -94,7 +99,7 @@ uint8_t gethexbyte(const uint8_t *buf)
 static void programCurrentPage() {
 	uint32_t addr = lastAddress & ~(FLASH_PAGE_SIZE - 1);
 	if((addr < FLASH_ADDR_MIN) || (addr + FLASH_PAGE_SIZE >= FLASH_ADDR_MAX)) {
-		DEBUG("e programCurrentPage address error! addr = %#10x\n", addr);
+		DEBUG("e programCurrentPage address error! addr = %#10lx\n", addr);
 		return;
 	}
 	uint32_t status = save_and_disable_interrupts();
@@ -106,7 +111,7 @@ static void programCurrentPage() {
 
 static void eraseSector(uint32_t addr) {
 	if((addr < FLASH_ADDR_MIN) || (addr + FLASH_SECTOR_SIZE >= FLASH_ADDR_MAX)) {
-		DEBUG("e eraseSector address error! addr = %#10x\n", addr);
+		DEBUG("e eraseSector address error! addr = %#10lx\n", addr);
 		return;
 	}
 	uint32_t status = save_and_disable_interrupts();
@@ -163,10 +168,10 @@ int processHexLine(const char *lineBuf, uint8_t lineLen) {
 			return 0;
 		case 1: /* end of file */
 			if((lastAddress & (FLASH_PAGE_SIZE - 1)) != 0) {
-				if(verbose) DEBUG("l Need to write last page = %x\n", (lastAddress & ~(FLASH_PAGE_SIZE - 1)) - XIP_BASE);
+				if(verbose) DEBUG("l Need to write last page = %lx\n", (lastAddress & ~(FLASH_PAGE_SIZE - 1)) - XIP_BASE);
 				programCurrentPage();
 			}
-			DEBUG("l programming finished. pgmSize=%d\n", pgmSize);
+			DEBUG("l programming finished. pgmSize=%ld\n", pgmSize);
 			return 1;
 		case 2: /* Extended Segment Address */
 			/* rp2040 hex files don't seem to use this. */
@@ -178,7 +183,7 @@ int processHexLine(const char *lineBuf, uint8_t lineLen) {
 			return -3;
 		case 4: /* Extended Linear Address */
 			address = ((bytes[4] << 8) + (bytes[5])) << 16;
-			if(verbose) DEBUG("l program address=%x\n", address);
+			if(verbose) DEBUG("l program address=%lx\n", address);
 			
 			if(address == FLASH_ADDR_MIN) { // start of file
 				pgmSize = 0;
@@ -187,7 +192,7 @@ int processHexLine(const char *lineBuf, uint8_t lineLen) {
 			return 0;
 		case 5: /* Start Linear Address */
 			startAddress = (bytes[4] << 24) + (bytes[5] << 16) + (bytes[6] << 8) + bytes[7];
-			if(verbose) DEBUG("l start address=%x (currently unused)\n", startAddress);
+			if(verbose) DEBUG("l start address=%lx (currently unused)\n", startAddress);
 			return 0;
 	}
 	return 0;
