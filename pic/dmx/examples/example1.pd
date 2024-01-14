@@ -1,0 +1,18 @@
+#N canvas 73 249 654 307 10;
+#X declare -path Fraise;
+#X obj 19 141 fruit/fruit 1 fruit1 10 example1;
+#X obj 292 218 fruit/send2 fruit1;
+#X floatatom 292 128 8 0 255 0 - - - 0;
+#X obj 295 98 hsl 128 15 0 255 0 0 empty empty value -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 357 128 8 1 255 1 channel - - 0;
+#X msg 292 188 c 30 i \$2 c \$1;
+#X obj 292 157 pack f 1;
+#X obj 21 11 declare -path Fraise;
+#X obj 21 38 pied/pied 1;
+#X text 209 20 DMX master example for Versa;
+#X text 206 40 Send DMX frames to the auxiliary serial port (K11).;
+#X connect 2 0 6 0;
+#X connect 3 0 2 0;
+#X connect 4 0 6 1;
+#X connect 5 0 1 0;
+#X connect 6 0 5 0;
