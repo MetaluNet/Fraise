@@ -1,17 +1,24 @@
 cmake_minimum_required(VERSION 3.13)
-set(fruit_device_path "${CMAKE_CURRENT_SOURCE_DIR}/../fraise_device")
+set(fruit_device_path "${CMAKE_CURRENT_SOURCE_DIR}/../../fraise_device")
 include(${fruit_device_path}/pico_sdk_import.cmake)
 
 project("fraise_bootloader" C CXX ASM)
-get_filename_component(boardDir "${fruit_device_path}/../../boards/${fraise_board}" REALPATH)
-message("board: ${fraise_board} board directory: ${boardDir}")
+get_filename_component(board "${fraise_board}" NAME)
+get_filename_component(boardDir "${fraise_board}" DIRECTORY)
+if( "${boardDir}" STREQUAL "") 
+	get_filename_component(boardDir "${fruit_device_path}/../../boards/${fraise_board}" REALPATH)
+else()
+	get_filename_component(boardDir "${fraise_board}" REALPATH)
+endif()
+message("board: ${board} ; board directory: ${boardDir}")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
 
-add_executable(${CMAKE_PROJECT_NAME} main.c fraise_bootdevice.c bootloader.c ${fruit_device_path}/fraise_eeprom.c)
+add_executable(${CMAKE_PROJECT_NAME} 
+	main.c fraise_bootdevice.c bootloader.c ${fruit_device_path}/fraise_eeprom.c)
 pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/fraise.pio)
 
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
@@ -52,6 +59,6 @@ add_custom_command(
 	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E echo "-- Copying uf2 file to board directory"
 	COMMAND ${CMAKE_COMMAND} -E
-		copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.uf2" "${boardDir}/${fraise_board}.uf2"
+		copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.uf2" "${boardDir}/${board}.uf2"
 )
 

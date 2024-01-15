@@ -68,7 +68,7 @@ void processLine() {
 }
 #endif
 
-void getUnique() {
+void getName() {
 	/*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 3];
 	buf[0] = 'G';
 	pico_get_unique_board_id_string(buf + 1, sizeof(buf) - 1);
@@ -87,7 +87,7 @@ void getUnique() {
 
 void verifyName(char *data, uint8_t len) {
 	if(data[1] == '?' && len == 2) {
-		getUnique();
+		getName();
 		return;
 	}
 	/*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
@@ -104,13 +104,14 @@ void setName(char *data, uint8_t len) {
 	eeprom_write_name(data + strlen("RENAME:"));
 	eeprom_commit();
 	fraise_puts(" R\n");
+	isVerified = true;
 }
 
 void fraiseLineReceived(char *data, uint8_t len) {
 	char c = data[0];
 	//printf("line: %s\n", data);
 	if(c == 'V') verifyName(data, len);
-	else if(c == 'G') getUnique();
+	//else if(c == 'G') getName();
 	else if(c == 'A') run_app();
 	else if(c == 'R') setName(data, len);
 	if(isVerified) {
@@ -199,6 +200,7 @@ int main() {
 	fraise_setup(FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN);
 	nextLed = make_timeout_time_ms(100);
 
+	fraiseResetTimeout();
 	while(true) {
 	#ifdef FRAISE_BLD_DEBUG
 		stdioTask(NULL);
@@ -208,6 +210,7 @@ int main() {
 			gpio_put(LED_PIN, led = !led);
 			nextLed = make_timeout_time_ms(100);
 		}
+		if(timed_out(fraiseTimeout) && !isVerified) run_app();
 	}
 }
 

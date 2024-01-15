@@ -1,5 +1,5 @@
 # to be invoked from ${projDir}/build with: cmake -S . -B  .
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.13)
 
 message("fraise_path: '${fraise_path}'")
 
@@ -17,7 +17,10 @@ message("project name: '${projName}'")
 project(${projName} C CXX ASM)
 pico_sdk_init()
 
-add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../main.c)
+# get source files
+file(GLOB srcfiles CONFIGURE_DEPENDS ${projDir}/*.c)
+message("source files: ${srcfiles}")
+add_executable(${CMAKE_PROJECT_NAME} ${srcfiles})
 
 # get board from main.c:
 file(READ ${projDir}/main.c main_c)
@@ -25,13 +28,21 @@ string(REGEX MATCH "\n[ \t]*#define[ \t]*BOARD[ \t]*[A-Za-z0-9_]*" board_pos_in_
 string(REPLACE "#define" "" board_pos_in_main ${board_pos_in_main})
 string(REPLACE "BOARD" "" board_pos_in_main ${board_pos_in_main})
 string(STRIP ${board_pos_in_main} fraise_board)
-get_filename_component(boardDir ${fraise_path}/boards/${fraise_board} REALPATH)
+if(EXISTS ${projDir}/boards/${fraise_board})
+	# user custom board
+	get_filename_component(boardDir ${projDir}/boards/${fraise_board} REALPATH)
+else()
+	# fraise defined board
+	get_filename_component(boardDir ${fraise_path}/boards/${fraise_board} REALPATH)
+endif()
 message("board: '${fraise_board}' boardDir: '${boardDir}'")
 unset(main_c)
 unset(board_pos_in_main)
-
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC "-I${boardDir}")
-add_subdirectory(${fraise_device_path} fraise_device)
+
+# add pico modules
+add_subdirectory("${fraise_path}/pico/" modules)
+
 
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
 
@@ -45,12 +56,18 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 add_custom_command(
 	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E echo "-- Calculating memory usage"
-	COMMAND size -G simplefruit.elf > size.txt
+	COMMAND size -G ${CMAKE_PROJECT_NAME}.elf > size.txt
 	COMMAND ${CMAKE_COMMAND} -E echo "-- Copying hex file to source directory"
 	COMMAND ${CMAKE_COMMAND} -E 
 		copy "${PROJECT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.hex" "${PROJECT_SOURCE_DIR}/../"
-	)
+)
 
 pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 0)
 pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
 
+if(EXISTS ${projDir}/config.cmake)
+	message("including custom config.cmake")
+	include(${projDir}/config.cmake)
+endif()
+
+message("INTERFACE_LIBRARIES: ${INTERFACE_LIBRARIES}")
