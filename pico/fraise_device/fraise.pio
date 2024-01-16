@@ -3,12 +3,9 @@
 ;
 ; SPDX-License-Identifier: BSD-3-Clause
 ;
-
-.program fraise
-.side_set 1 opt pindirs
-
 ; RP2040 PIO implementation of the Fraise protocol, based on 9n1 UART
 ; (see https://github.com/MetaluNet/Fraise/blob/master/doc/protocol.md).
+;
 ; The receiver handles framing errors and waits for a high bit9 before accepting data.
 ; The application can switch the state machine to packet transmit mode; the first word
 ; that the state machine reads from the TX FIFO is used to encode the length of the packet.
@@ -19,6 +16,8 @@
 ; IN pin 0 and JMP pin are both mapped to the GPIO used as UART RX.
 ; OUT pin 0 and side-set pin 0 are both mapped to UART TX pin.
 ; SET pin 0 is mapped to DRV pin.
+; Side-set is configured to drive 'pindirs', and 'set' and 'out' use 'pindirs',
+; so both TX and DRV pins will act as open-collector outputs.
 
 ; In RX mode, the y register is used as a flag, indicating that a message has started:
 ; y is set when a high bit9 has been detected (and validated by stop bit).
@@ -27,6 +26,12 @@
 ; If the message address doesn't match our one (or 0 for broadcast), the application
 ; can ask the PIO to stop pushing the following bytes by calling fraise_program_reset_rx(),
 ; which will clear the y register.
+
+; In TX mode, y is used to count the sent bytes, allowing to automatically
+; return to RX mode when all bytes are sent.
+
+.program fraise
+.side_set 1 opt pindirs
 
 rxinit:
     set pindirs 0    side 0     ; Release DRV and TX pins
@@ -57,9 +62,6 @@ good_stop:
     .wrap                       ; No delay before returning to start; a little slack is
                                 ; important in case the TX clock is slightly too fast.
 
-; On TX mode, y is used to count the sent bytes, allowing to automatically
-; return to RX mode when all bytes are sent.
-
 PUBLIC txstart:
     set pindirs 1    side 0     ; Activate DRV pin, release TX pin
     pull                        ; Get first byte,
@@ -73,7 +75,7 @@ txbitloop:                      ; This loop will run 9 times (9n1 UART)
     out pindirs, 1              ; Shift 1 bit from OSR to the first OUT pin
     jmp x-- txbitloop       [6] ; Each loop iteration is 8 cycles.
     jmp y-- txnext   side 0 [7] ; Assert stop bit, the goto send remaining bytes if any, otherwise return to rx.
- ; wrap to the beginning
+ ; jump to the beginning
     jmp rxinit
 
 % c-sdk {

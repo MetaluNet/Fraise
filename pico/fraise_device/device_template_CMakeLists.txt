@@ -18,12 +18,17 @@ project(${projName} C CXX ASM)
 pico_sdk_init()
 
 # get source files
-file(GLOB srcfiles CONFIGURE_DEPENDS ${projDir}/*.c)
-message("source files: ${srcfiles}")
+file(GLOB_RECURSE srcfiles FOLLOW_SYMLINKS CONFIGURE_DEPENDS ${projDir}/*.c ${projDir}/*.cpp ${projDir}/*.cc)
+list(FILTER srcfiles EXCLUDE REGEX "build/*")
+message("source files recursive: ${srcfiles}")
 add_executable(${CMAKE_PROJECT_NAME} ${srcfiles})
 
-# get board from main.c:
-file(READ ${projDir}/main.c main_c)
+# get board from main.c or main.cpp:
+if(EXISTS ${projDir}/main.c)
+	file(READ ${projDir}/main.c main_c)
+elseif(EXISTS ${projDir}/main.cpp)
+	file(READ ${projDir}/main.cpp main_c)
+endif()
 string(REGEX MATCH "\n[ \t]*#define[ \t]*BOARD[ \t]*[A-Za-z0-9_]*" board_pos_in_main "${main_c}")
 string(REPLACE "#define" "" board_pos_in_main ${board_pos_in_main})
 string(REPLACE "BOARD" "" board_pos_in_main ${board_pos_in_main})
@@ -70,4 +75,3 @@ if(EXISTS ${projDir}/config.cmake)
 	include(${projDir}/config.cmake)
 endif()
 
-message("INTERFACE_LIBRARIES: ${INTERFACE_LIBRARIES}")
