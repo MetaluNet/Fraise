@@ -13,7 +13,6 @@
 #include "pico/async_context_poll.h"
 #include "hardware/pio.h"
 #include "pico/stdio/driver.h"
-#include "pico/unique_id.h"
 #include "RP2040.h"
 #include "hardware/resets.h"
 #include "hardware/watchdog.h"
@@ -35,6 +34,7 @@
 // If the received message was a "poll" message (address with a 128 offset), the next message to send (if any)
 // is fetched from the Fraise TX buffer (txbuf), and transmitted to the state machine which is switched to transmit mode.
 
+static bool background_rx = false;
 static PIO pio;
 static uint sm;
 static uint pgm_offset; // Offset of the program in the pio
@@ -225,13 +225,7 @@ void switch_to_bootloader()
 
 void switch_to_bootloader_if_name_matches(char *data, uint8_t len)
 {
-    /*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
-    pico_get_unique_board_id_string(buf, sizeof(buf));
-    if(strncmp(data, buf, len)) return; // continue only if the name matches*/
     if(strncmp(data, eeprom_get_name(), len)) return; // continue only if the name matches
-
-    //printf("switching to bootloader! address: %#x (%#x)\n", __fraise_bootloader_start__, XIP_BASE + (64 * 1024));
-    sleep_ms(50);
 
     //switch_to_bootloader();
     reboot();
@@ -251,9 +245,6 @@ void assign(char *data, uint8_t len)
     }
     tmpid = c2 + (c << 4);
 
-    /*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
-    pico_get_unique_board_id_string(buf, sizeof(buf));
-    if(strncmp(data + 2, buf, len - 2)) return; // return if name doesn't match*/
     if(strncmp(data + 2, eeprom_get_name(), len - 2)) return; // continue only if the name matches.
     if(FraiseID == tmpid) return; // no need to rewrite the eeprom if the id is the same.
 
@@ -325,7 +316,8 @@ void fraise_setup(/*bool background_rx*/) {
     fraise_get_pins(&rxpin, &txpin, &drvpin);
 
     // Setup an async context and worker to perform work when needed
-    if(false/*background_rx*/) {
+    //background_rx = _background_rx;
+    if(background_rx) {
         if (!async_context_threadsafe_background_init_with_defaults(&background_context)) {
             panic("failed to setup context");
         } else context_core = &background_context.core;
@@ -371,9 +363,6 @@ void fraise_get_pins(int *rxpin, int *txpin, int *drvpin)
 	*rxpin = (watchdog_hw->scratch[7] >> 10) & 31;
 	*txpin = (watchdog_hw->scratch[7] >> 5) & 31;
 	*drvpin = (watchdog_hw->scratch[7] >> 0) & 31;
-}
-
-const char *fraise_get_name() {
 }
 
 void fraise_unsetup() {
@@ -479,8 +468,15 @@ int main() {
 	eeprom_setup();
 	fraise_setID(eeprom_get_id());
 	setup();
-	while(true) {
-		loop();
+	if(background_rx) {
+		while(true) {
+			loop();
+		}
+	} else {
+		while(true) {
+			fraise_poll_rx();
+			loop();
+		}
 	}
 }
 

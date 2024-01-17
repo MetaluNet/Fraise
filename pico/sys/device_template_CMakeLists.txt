@@ -1,10 +1,10 @@
-# to be invoked from ${projDir}/build with: cmake -S . -B  .
+# to be invoked from ${projDir}/build with:
+# cmake -S . -B  . -Dfraise_path=path/to/Fraise -Dfruit_name=fruitname
 cmake_minimum_required(VERSION 3.13)
 
 message("fraise_path: '${fraise_path}'")
 
-get_filename_component(fraise_device_path "${fraise_path}/pico/fraise_device" REALPATH)
-include(${fraise_device_path}/pico_sdk_import.cmake)
+include(${fraise_path}/pico/sys/pico_sdk_import.cmake)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -33,30 +33,40 @@ string(REGEX MATCH "\n[ \t]*#define[ \t]*BOARD[ \t]*[A-Za-z0-9_]*" board_pos_in_
 string(REPLACE "#define" "" board_pos_in_main ${board_pos_in_main})
 string(REPLACE "BOARD" "" board_pos_in_main ${board_pos_in_main})
 string(STRIP ${board_pos_in_main} fraise_board)
-if(EXISTS ${projDir}/boards/${fraise_board})
+if(EXISTS "${projDir}/boards/${fraise_board}")
 	# user custom board
-	get_filename_component(boardDir ${projDir}/boards/${fraise_board} REALPATH)
+	get_filename_component(boardDir "${projDir}/boards/${fraise_board}" REALPATH)
 else()
 	# fraise defined board
-	get_filename_component(boardDir ${fraise_path}/boards/${fraise_board} REALPATH)
+	get_filename_component(boardDir "${fraise_path}/boards/${fraise_board}" REALPATH)
 endif()
 message("board: '${fraise_board}' boardDir: '${boardDir}'")
 unset(main_c)
 unset(board_pos_in_main)
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC "-I${boardDir}")
 
+# add system modules
+add_subdirectory("${fraise_path}/pico/sys/" sysmodules)
 # add pico modules
 add_subdirectory("${fraise_path}/pico/" modules)
 
 
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
 
-pico_set_linker_script(${CMAKE_PROJECT_NAME} ${fraise_device_path}/app.ld)
+target_link_options(${CMAKE_PROJECT_NAME} PUBLIC "-L${fraise_path}/pico/sys/")
+target_link_libraries(${CMAKE_PROJECT_NAME} pico_stdlib)
 
-target_link_libraries(${CMAKE_PROJECT_NAME}
-	pico_stdlib
-	fraise_device
-)
+if(DEFINED ENV{FRUIT_NAME})
+	set(fruit_name $ENV{FRUIT_NAME})
+endif()
+message("fruit name: ${fruit_name}")
+if(x${fruit_name} STREQUAL xpied)
+	pico_set_linker_script(${CMAKE_PROJECT_NAME} "${fraise_path}/pico/sys/master_app.ld")
+	target_link_libraries(${CMAKE_PROJECT_NAME} fraise fraise_master)
+else()
+	pico_set_linker_script(${CMAKE_PROJECT_NAME} "${fraise_path}/pico/sys/device_app.ld")
+	target_link_libraries(${CMAKE_PROJECT_NAME} fraise fraise_device)
+endif()
 
 add_custom_command(
 	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
@@ -70,8 +80,8 @@ add_custom_command(
 pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 0)
 pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
 
-if(EXISTS ${projDir}/config.cmake)
+if(EXISTS "${projDir}/config.cmake")
 	message("including custom config.cmake")
-	include(${projDir}/config.cmake)
+	include("${projDir}/config.cmake")
 endif()
 

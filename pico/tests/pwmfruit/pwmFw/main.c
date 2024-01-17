@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "fraise_device.h"
+#include "fraise.h"
 #include "smooth_pwm.h"
 
 const uint LED_PIN = PICO_DEFAULT_LED_PIN;
@@ -33,8 +33,6 @@ void loop(){
 	static absolute_time_t next;// = make_timeout_time_ms(100);
 	static absolute_time_t nextpwm;
 	static bool led = false;
-
-	fraise_poll_rx();
 
 	if(absolute_time_min(nextpwm, get_absolute_time()) == nextpwm) {
 		for(int i = 0; i < NUM_PWM; i++) smooth_pwm_tick(&pwms[i]);

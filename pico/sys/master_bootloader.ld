@@ -21,11 +21,11 @@
     __stack (== StackTop)
 */
 
-INCLUDE memory_map.ld
+INCLUDE master_map.ld
 
 MEMORY
 {
-    FLASH(rx) : ORIGIN = ORIGIN(APP), LENGTH = LENGTH(APP)
+    FLASH(rx) : ORIGIN = ORIGIN(USB_BLD), LENGTH = LENGTH(USB_BLD)
 }
 
 ENTRY(_entry_point)

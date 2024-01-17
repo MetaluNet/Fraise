@@ -1,13 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Pull in SDK (must be before project)
-include(pico_sdk_import.cmake)
+include(../pico_sdk_import.cmake)
 
-#include(pico_extras_import_optional.cmake)
-
-set(projectName "bootloader")
-
-project(${projectName} C CXX ASM)
+project(usb_bootloader C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -20,30 +16,27 @@ endif()
 # Initialize the SDK
 pico_sdk_init()
 
-#include(example_auto_set_url.cmake)
-
-
-add_executable(${projectName}
-        ${projectName}.c
-        )
+add_executable(${CMAKE_PROJECT_NAME} bootloader.c)
 
 # pull in common dependencies
-target_link_libraries(${projectName} 
+target_link_libraries(${CMAKE_PROJECT_NAME} 
 	pico_stdlib 
 	hardware_flash
 	hardware_structs
 	hardware_resets
 	hardware_sync
-	cmsis_core)
+	cmsis_core
+)
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(${projectName})
+pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
 
-pico_enable_stdio_usb(${projectName} 1)
-pico_enable_stdio_uart(${projectName} 0)
+pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 1)
+pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
 
-pico_set_float_implementation(${projectName} none)
-pico_set_double_implementation(${projectName} none)
+pico_set_float_implementation(${CMAKE_PROJECT_NAME} none)
+pico_set_double_implementation(${CMAKE_PROJECT_NAME} none)
 
-# add url via pico_set_program_url
-#example_auto_set_url(auto_inter)
+target_link_options(${CMAKE_PROJECT_NAME} PUBLIC "-L${PROJECT_SOURCE_DIR}/..")
+pico_set_linker_script(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../master_bootloader.ld)
+

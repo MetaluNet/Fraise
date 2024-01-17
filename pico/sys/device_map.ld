@@ -2,9 +2,6 @@
 
 MEMORY
 {
-    /*USB_BLD(r)      : ORIGIN = 0x10000000, LENGTH = 64k
-    FRAISE_BLD(r)   : ORIGIN = 0x10000000 + 64k, LENGTH = 128k
-    APP(rx)         : ORIGIN = 0x10000000 + 256k, LENGTH = 2048k - 256k*/
     FRAISE_BLD(r)   : ORIGIN = 0x10000000 , LENGTH = 28k
     EEPROM(r)       : ORIGIN = 0x10000000 + 28k, LENGTH = 4k
     APP(rx)         : ORIGIN = 0x10000000 + 32k, LENGTH = 2048k - 32k

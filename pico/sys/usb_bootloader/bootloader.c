@@ -16,9 +16,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define IMAGE_HEADER_OFFSET (64 * 1024)
-#define FLASH_ADDR_MIN (XIP_BASE + IMAGE_HEADER_OFFSET)
-#define FLASH_ADDR_MAX (XIP_BASE + PICO_FLASH_SIZE_BYTES)
+extern int __fraise_app_start__, __fraise_app_length__;
+#define FLASH_ADDR_MIN ((uint32_t)&__fraise_app_start__)
+#define FLASH_ADDR_MAX (FLASH_ADDR_MIN + (uint32_t)&__fraise_app_length__)
 
 uint8_t lineBuf[256];
 uint8_t pageBuf[FLASH_PAGE_SIZE];

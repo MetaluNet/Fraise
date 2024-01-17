@@ -1,4 +1,4 @@
-#N canvas 2354 469 623 310 12;
+#N canvas 2354 469 623 412 12;
 #X declare -path Fraise;
 #X obj 20 18 declare -path Fraise;
 #X obj 25 62 pied/pied 2;
@@ -16,6 +16,7 @@
 #X floatatom 287 72 9 0 0 0 - - - 0;
 #X text 301 116 all value;
 #X text 469 144 all smooth;
+#X obj 30 311 fruit/fruit 2 pied 0 pwmFw;
 #X connect 3 0 6 1;
 #X connect 5 0 2 0;
 #X connect 7 0 13 0;

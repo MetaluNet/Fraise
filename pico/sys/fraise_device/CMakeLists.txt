@@ -4,7 +4,7 @@ pico_generate_pio_header(fraise_device ${CMAKE_CURRENT_LIST_DIR}/fraise.pio)
 target_sources(fraise_device INTERFACE 
 	${CMAKE_CURRENT_LIST_DIR}/fraise_device.c
 	${CMAKE_CURRENT_LIST_DIR}/fraise_buffers.c
-	${CMAKE_CURRENT_LIST_DIR}/fraise_eeprom.c
+	#${CMAKE_CURRENT_LIST_DIR}/fraise_eeprom.c
 )
 
 target_include_directories(fraise_device INTERFACE
@@ -20,11 +20,9 @@ target_link_libraries(fraise_device INTERFACE
 	hardware_pio
 	pico_async_context_threadsafe_background
 	pico_async_context_poll
-	pico_unique_id
 	cmsis_core
+	fraise_eeprom
 )
-
-target_link_options(fraise_device INTERFACE "-L${CMAKE_CURRENT_LIST_DIR}")
 
 # set_target_properties(fraise_device PROPERTIES INTERFACE_COMPILE_OPTIONS "-DFRAISE_DEVICE_DEBUG")
 
