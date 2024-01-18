@@ -1,0 +1,15 @@
+#N canvas 2178 504 623 412 12;
+#X declare -path Fraise;
+#X obj 20 18 declare -path Fraise;
+#X obj 54 242 print fromFruit;
+#X msg 429 184 Ehello;
+#X obj 25 62 pied/pied 1;
+#X obj 28 155 fruit/fruit 1 test1 60 testFw;
+#X obj 54 217 fruit/receive test1;
+#X obj 287 214 fruit/send2 test1;
+#X msg 276 139 c 1 c \$1;
+#X obj 279 102 hsl 170 20 3 40 0 0 empty empty empty -2 -10 0 12 #fcfcfc #000000 #000000 0 1;
+#X connect 2 0 6 1;
+#X connect 5 0 1 0;
+#X connect 7 0 6 0;
+#X connect 8 0 7 0;
