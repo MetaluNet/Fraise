@@ -1,25 +1,4 @@
-/* Based on GCC ARM embedded samples.
-   Defines the following symbols for use by code:
-    __exidx_start
-    __exidx_end
-    __etext
-    __data_start__
-    __preinit_array_start
-    __preinit_array_end
-    __init_array_start
-    __init_array_end
-    __fini_array_start
-    __fini_array_end
-    __data_end__
-    __bss_start__
-    __bss_end__
-    __end__
-    end
-    __HeapLimit
-    __StackLimit
-    __StackTop
-    __stack (== StackTop)
-*/
+/* Fraise device bootloader linker script */
 
 INCLUDE device_map.ld
 
@@ -32,11 +11,30 @@ ENTRY(_entry_point)
 
 SECTIONS
 {
+    /* Second stage bootloader is prepended to the image. It must be 256 bytes big
+       and checksummed. It is usually built by the boot_stage2 target
+       in the Raspberry Pi Pico SDK
+    */
+
     .flash_begin : {
         __flash_binary_start = .;
     } > FLASH
 
-    /* boot2 would go here, but we don't want it */
+    .boot2 : {
+        __boot2_start__ = .;
+        KEEP (*(.boot2))
+        __boot2_end__ = .;
+    } > FLASH
+
+    ASSERT(__boot2_end__ - __boot2_start__ == 256,
+        "ERROR: Pico second stage bootloader must be 256 bytes in size")
+
+    /* The second stage will always enter the image at the start of .text.
+       The debugger will use the ELF entry point, which is the _entry_point
+       symbol if present, otherwise defaults to start of .text.
+       This can be used to transfer control back to the bootrom on debugger
+       launches only, to perform proper flash setup.
+    */
 
     .text : {
         __logical_binary_start = .;
@@ -97,10 +95,7 @@ SECTIONS
     __binary_info_end = .;
     . = ALIGN(4);
 
-    /* End of .text-like segments */
-    __etext = .;
-
-   .ram_vector_table (COPY): {
+   .ram_vector_table (NOLOAD): {
         *(.ram_vector_table)
     } > RAM
 
@@ -153,8 +148,10 @@ SECTIONS
         /* All data end */
         __data_end__ = .;
     } > RAM AT> FLASH
+    /* __etext is (for backwards compatibility) the name of the .data init source pointer (...) */
+    __etext = LOADADDR(.data);
 
-    .uninitialized_data (COPY): {
+    .uninitialized_data (NOLOAD): {
         . = ALIGN(4);
         *(.uninitialized_data*)
     } > RAM
@@ -185,11 +182,11 @@ SECTIONS
         __bss_end__ = .;
     } > RAM
 
-    .heap (COPY):
+    .heap (NOLOAD):
     {
         __end__ = .;
         end = __end__;
-        *(.heap*)
+        KEEP(*(.heap*))
         __HeapLimit = .;
     } > RAM
 
@@ -202,17 +199,17 @@ SECTIONS
     /* by default we put core 0 stack at the end of scratch Y, so that if core 1
      * stack is not used then all of SCRATCH_X is free.
      */
-    .stack1_dummy (COPY):
+    .stack1_dummy (NOLOAD):
     {
         *(.stack1*)
     } > SCRATCH_X
-    .stack_dummy (COPY):
+    .stack_dummy (NOLOAD):
     {
-        *(.stack*)
+        KEEP(*(.stack*))
     } > SCRATCH_Y
 
     .flash_end : {
-        __flash_binary_end = .;
+        PROVIDE(__flash_binary_end = .);
     } > FLASH
 
     /* stack limit is poorly named, but historically is maximum heap ptr */

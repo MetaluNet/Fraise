@@ -1,4 +1,4 @@
-/* Fraise memory map */
+/* Fraise device memory map */
 
 MEMORY
 {

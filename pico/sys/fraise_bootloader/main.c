@@ -5,7 +5,6 @@
  */
 
 #include "pico/stdlib.h"
-#include "pico/unique_id.h"
 #include "hardware/watchdog.h"
 #include <stdio.h>
 #include <string.h>
@@ -60,22 +59,10 @@ void processLine() {
 	else if(startsWith(lineBuf, "testsend")) {
 		fraise_puts("hello world!");
 	}
-	else if(startsWith(lineBuf, "getunique")) {
-		char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
-		pico_get_unique_board_id_string(buf, sizeof(buf));
-		printf("uniquestr %s\n", buf);
-	}
 }
 #endif
 
 void getName() {
-	/*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 3];
-	buf[0] = 'G';
-	pico_get_unique_board_id_string(buf + 1, sizeof(buf) - 1);
-	//printf("uniquestr %s\n", buf);
-	buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1] = '\n';
-	buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 2] = 0;
-	fraise_puts(buf);*/
 	char buf[32];
 	int i = 0;
 	buf[i++] = 'G';
@@ -90,10 +77,6 @@ void verifyName(char *data, uint8_t len) {
 		getName();
 		return;
 	}
-	/*char buf[2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES + 1];
-	pico_get_unique_board_id_string(buf, sizeof(buf));
-	isVerified = !strncmp(data + 1, buf, len - 1);*/
-
 	isVerified = (strncmp(data + 1, eeprom_get_name(), len - 1) == 0);
 	DEBUG("isVerified: %s\n", isVerified?"true":"false");
 	if(isVerified) fraise_puts(" V\n");

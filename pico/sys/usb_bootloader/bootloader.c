@@ -12,7 +12,7 @@
 #include "hardware/flash.h"
 #include "hardware/resets.h"
 #include "hardware/sync.h"
-
+#include "fraise_eeprom.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -30,6 +30,7 @@ uint16_t lastoffset;
 int lineLen;
 bool verbose = false;
 int ms_since_boot;
+uint8_t piedID = 1;
 
 static void jump_to_vtor(uint32_t vtor)
 {
@@ -184,16 +185,34 @@ void runapp() {
 	while(1);
 }
 
+void processSysLine() {
+	static bool unlocked = false;
+	switch(lineBuf[1]) {
+		case 'R': printf("sID%02X\n", piedID); break;
+		case 'V': printf("sV UsbFraise PicoPied v0.1\n"); break;
+		case 'E': puts((const char*)(lineBuf + 2)); break;
+		case 'U': if(!strncmp(lineBuf, "#UNLOCK", 7)) unlocked = true; return;
+		case 'W': if(unlocked) {
+				piedID = gethexbyte(lineBuf + 2);
+				eeprom_set_id(piedID);
+				eeprom_commit();
+			}
+			break;
+	}
+	unlocked = false;
+}
+
 #define startsWith(str, prefix) (!(strncmp(str, prefix, strlen(prefix))))
 void processLine() {
-	if(lineBuf[0] == ':') processHexLine();
+	if(lineBuf[0] == '#') processSysLine();
+	else if(lineBuf[0] == ':') processHexLine();
 	else if(startsWith(lineBuf, "waitack")) printf("ack\n");
 	else if(startsWith(lineBuf, "runapp")) {
 		sleep_ms(50); // wait for the host to disconnect the USB device
 		runapp();
 	}
 	else if(startsWith(lineBuf, "whoami")) {
-		printf("whoami: usb_bootloader\n");
+		printf("whoami usb_bootloader\n");
 	}
 	else if(startsWith(lineBuf, "readflash")) {
 		uint32_t addr;
@@ -210,26 +229,27 @@ void processLine() {
 }
 
 int main() {
-    stdio_init_all();
-    const uint LED_PIN = PICO_DEFAULT_LED_PIN;
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
-    gpio_put(LED_PIN, 0);
+	stdio_init_all();
+	const uint LED_PIN = PICO_DEFAULT_LED_PIN;
+	gpio_init(LED_PIN);
+	gpio_set_dir(LED_PIN, GPIO_OUT);
+	gpio_put(LED_PIN, 0);
+	eeprom_setup();
+	piedID = eeprom_get_id();
+	/*while(!stdio_usb_connected()){
+		ms_since_boot = to_ms_since_boot(get_absolute_time());
+		if(ms_since_boot > 2000) runapp();
+	}*/
+	gpio_put(LED_PIN, 1);
 
-    while(!stdio_usb_connected()){
-        ms_since_boot = to_ms_since_boot(get_absolute_time());
-        if(ms_since_boot > 2000) runapp();
-    }
-    gpio_put(LED_PIN, 1);
-
-    while(true){
-        unsigned char c = getchar();
-        if(c == '\n') {
-        	lineBuf[lineLen] = 0;
-        	processLine();
-        	lineLen = 0;
-        }
-        else lineBuf[lineLen++] = c;
-    }
+	while(true){
+		unsigned char c = getchar();
+		if(c == '\n') {
+			lineBuf[lineLen] = 0;
+			processLine();
+			lineLen = 0;
+		}
+		else lineBuf[lineLen++] = c;
+	}
 }
 

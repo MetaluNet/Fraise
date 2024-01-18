@@ -18,6 +18,8 @@ pico_sdk_init()
 
 add_executable(${CMAKE_PROJECT_NAME} bootloader.c)
 
+add_subdirectory("${PROJECT_SOURCE_DIR}/../../fraise_eeprom" fraise_eeprom)
+
 # pull in common dependencies
 target_link_libraries(${CMAKE_PROJECT_NAME} 
 	pico_stdlib 
@@ -26,6 +28,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 	hardware_resets
 	hardware_sync
 	cmsis_core
+	fraise_eeprom
 )
 
 # create map/bin/hex file etc.

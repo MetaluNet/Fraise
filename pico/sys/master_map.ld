@@ -1,4 +1,4 @@
-/* Fraise memory map */
+/* Fraise master memory map */
 
 MEMORY
 {
