@@ -15,6 +15,6 @@
 	echo Proj: $PROJ
 	echo Board: $BOARD
 	echo Hexfile: $HEXFILE
-	$PK2CMD -P -M -F$HEXFILE
+	$PK2CMD -P -M -B$FRAISEDIR/pied/bin/pk2cmd -F$HEXFILE
 
 ) | sed 's/$/;/' | pdsend $2
