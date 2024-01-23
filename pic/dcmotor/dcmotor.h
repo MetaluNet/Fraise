@@ -93,7 +93,6 @@ typedef struct {
 extern int dcmotor_v,dcmotor_vabs;
 extern t_dcmotorVars dcmotorVars;
 extern t_dcmotorVolVars dcmotorVolVars;
-
 // I really don't know why compiler complains if I use a 1 arg macro for INIT_PWM_...
 #define INIT_PWM_(pwm,unused) do{CCP##pwm##CON = 0b00001100;} while(0) /* single PWM active high*/
 #define INIT_PWM(pwm) CALL_FUN2(INIT_PWM_,pwm,0)
@@ -108,45 +107,49 @@ extern t_dcmotorVolVars dcmotorVolVars;
 
 #define DCMOTOR_CAPTURE_SERVICE_(motID) do{ 						\
 	dcmotor##motID.Incr.incA = digitalRead(MOT##motID##_A); 		\
-	if(digitalRead(MOT##motID##_END) == MOT##motID##_ENDLEVEL) { 						\
+	if(digitalRead(MOT##motID##_END) == MOT##motID##_ENDLEVEL) { 	\
 		dcmotor##motID.VolVars.Position = 0; 						\
 		dcmotor##motID.VolVars.homed = 1;							\
-		dcmotor##motID.VolVars.end = 1;							\
+		dcmotor##motID.VolVars.end = 1;								\
 	}	else dcmotor##motID.VolVars.end = 0;						\
 	if(dcmotor##motID.Incr.incA != dcmotor##motID.Incr.lastA) { 	\
 		dcmotor##motID.Incr.lastA = dcmotor##motID.Incr.incA;		\
 		dcmotor##motID.VolVars.IncDeltaT -= dcmotor##motID.VolVars.lastIncTime;		\
-		dcmotor##motID.VolVars.lastIncTime = timeISR();		\
-		dcmotor##motID.VolVars.IncDeltaT += timeISR();			\
+		dcmotor##motID.VolVars.lastIncTime = timeISR();				\
+		dcmotor##motID.VolVars.IncDeltaT += timeISR();				\
 		dcmotor##motID.Incr.incB = digitalRead(MOT##motID##_B); 	\
 		if(dcmotor##motID.Incr.incA ^ !dcmotor##motID.Incr.incB) {	\
-			dcmotor##motID.VolVars.Position++;					\
+			dcmotor##motID.VolVars.Position++;						\
 			dcmotor##motID.VolVars.direction = 1;					\
-		}														\
-		else  {													\
-			dcmotor##motID.VolVars.Position--;					\
+			if(dcmotor##motID.PosRamp.length && dcmotor##motID.VolVars.Position >= dcmotor##motID.PosRamp.length) \
+				dcmotor##motID.VolVars.Position -= dcmotor##motID.PosRamp.length; \
+		}															\
+		else  {														\
+			dcmotor##motID.VolVars.Position--;						\
 			dcmotor##motID.VolVars.direction = 0;					\
-		}														\
-	}															\
+			if(dcmotor##motID.PosRamp.length && dcmotor##motID.VolVars.Position < 0) \
+				dcmotor##motID.VolVars.Position += dcmotor##motID.PosRamp.length; \
+		}															\
+	}																\
  } while(0)	
 #define DCMOTOR_CAPTURE_SERVICE(motID) CALL_FUN(DCMOTOR_CAPTURE_SERVICE_,motID)
 
-#define DCMOTOR_CAPTURE_SERVICE_SINGLE_(motID) do{ 				\
+#define DCMOTOR_CAPTURE_SERVICE_SINGLE_(motID) do{ 					\
 	dcmotor##motID.Incr.incA = digitalRead(MOT##motID##_A); 		\
-	if(digitalRead(MOT##motID##_END) == MOT##motID##_ENDLEVEL) { 						\
+	if(digitalRead(MOT##motID##_END) == MOT##motID##_ENDLEVEL) { 	\
 		dcmotor##motID.VolVars.Position = 0; 						\
 		dcmotor##motID.VolVars.homed = 1;							\
-		dcmotor##motID.VolVars.end = 1;							\
+		dcmotor##motID.VolVars.end = 1;								\
 	}	else dcmotor##motID.VolVars.end = 0;						\
 	if(dcmotor##motID.Incr.incA != dcmotor##motID.Incr.lastA) { 	\
 		dcmotor##motID.Incr.lastA = dcmotor##motID.Incr.incA;		\
-		dcmotor##motID.VolVars.IncDeltaT -= dcmotor##motID.VolVars.lastIncTime;		\
-		dcmotor##motID.VolVars.lastIncTime = timeISR();		\
-		dcmotor##motID.VolVars.IncDeltaT += timeISR();			\
+		dcmotor##motID.VolVars.IncDeltaT -= dcmotor##motID.VolVars.lastIncTime;	\
+		dcmotor##motID.VolVars.lastIncTime = timeISR();				\
+		dcmotor##motID.VolVars.IncDeltaT += timeISR();				\
 		dcmotor##motID.Incr.incB = digitalRead(MOT##motID##_B); 	\
-		if(dcmotor##motID.VolVars.direction) dcmotor##motID.VolVars.Position++;		\
+		if(dcmotor##motID.VolVars.direction) dcmotor##motID.VolVars.Position++;	\
 		else  dcmotor##motID.VolVars.Position--;					\
-	}															\
+	}																\
  } while(0)	
 #define DCMOTOR_CAPTURE_SERVICE_SINGLE(motID) CALL_FUN(DCMOTOR_CAPTURE_SERVICE_SINGLE_,motID)
 

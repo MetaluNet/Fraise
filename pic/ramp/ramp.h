@@ -43,8 +43,9 @@
 
 
 typedef struct {
-	int destPos; //Destination position, in incs
+	long int destPos; //Destination position, in incs
 	long int currentPos; //Current position in mincs
+	unsigned long int length; //if not 0, destPos is computed modulo this value
 	int maxSpeed; 	//Maximum absolute speed allowed to ramp generator, in minc/ms
 	long int speed; //Consign speed computed by ramp generator, in uinc/ms
 	int maxAccel ;  //Maximum acceleration allowed to ramp generator, in uinc/ms/ms
@@ -59,14 +60,13 @@ typedef struct {
 } t_ramp ;
 
 void rampInit(t_ramp *Ramp);
-void rampGoto(t_ramp *Ramp,int pos);
-void rampSetPos(t_ramp *Ramp,int pos);
-void rampSetPosMoving(t_ramp *Ramp,int pos);
-#define rampGetPos(Ramp) ((Ramp)->currentPos>>(RAMP_UINCPOW))
+void rampGoto(t_ramp *Ramp, long int pos);
+void rampMove(t_ramp *Ramp, long int offset);
+void rampSetPos(t_ramp *Ramp, long int pos);
+void rampSetPosMoving(t_ramp *Ramp, long int pos);
+#define rampGetPos(Ramp) ((Ramp)->currentPos >> (RAMP_UINCPOW))
 void rampCompute(t_ramp *Ramp);
 void rampInput(t_ramp *Ramp);
 void rampDeclareEE(t_ramp *Ramp);
-
-#define RAMP_EESIZE 6 // 4 bytes of eeprom
 
 #endif // _PID_H_

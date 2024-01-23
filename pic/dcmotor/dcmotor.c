@@ -27,7 +27,7 @@
 
 #include "dcmotor.h"
 
-static long incDeltaT, lastIncTime, deltaT, actualSpeed, error;
+static long incDeltaT, lastIncTime, deltaT, actualSpeed, error, length;
 static int pos,deltaPos;
 int dcmotor_v,dcmotor_vabs;
 t_dcmotorVars dcmotorVars;
@@ -80,7 +80,10 @@ void dcmotorCompute(t_dcmotor *mot)
 		rampCompute(&mot->PosRamp);
 
 		error = (long)(mot->PosRamp.currentPos>>(RAMP_TO_POS_POW)) - (dcmotorVolVars.Position) ;
-
+		length = (long)(mot->PosRamp.length);
+		if(length) {
+			error = (error + length + length / 2) % length - length / 2;
+		}
 		if((error < 0) && (error >= -S.PosWindow)) error = 0;
 		if((error > 0) && (error <= S.PosWindow)) error = 0;
 

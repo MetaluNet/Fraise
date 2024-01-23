@@ -68,7 +68,7 @@ void pidCompute(t_pid *Pid,int err)
 	if(P.GainI) {
 		if( ((err>0)&&(P.Int<MAXINT)&&(P.Out<maxout)) || ((err<0)&&(P.Int>(-MAXINT))&&(P.Out>-maxout)) )
 			P.Int += err;	// clip P.Int to [-MAXINT-|err|,MAXINT+|err|] ; don't increase if Output is already saturated (anti-windup)
-			if(err == 0) P.Int -= (P.Int)/16;
+			//if(err == 0) P.Int -= (P.Int)/16;
 		out+=(P.Int>>4)*P.GainI;
 	}
 		
