@@ -212,7 +212,7 @@ void processLine() {
 		runapp();
 	}
 	else if(startsWith(lineBuf, "whoami")) {
-		printf("whoami usb_bootloader\n");
+		printf("swhoami usb_bootloader\n");
 	}
 	else if(startsWith(lineBuf, "readflash")) {
 		uint32_t addr;
