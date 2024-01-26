@@ -10,6 +10,10 @@
 #include "pico/stdlib.h"
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Initialize Fraise driver
 void fraise_setup();
 
@@ -30,10 +34,14 @@ void fraise_receivechars_broadcast(const char *data, uint8_t len); // Called whe
 void fraise_get_pins(int *rxpin, int *txpin, int *drvpin);
 
 #ifndef _FRAISE_INTERNAL_
-void fraise_printf(char* fmt, ...);
+void fraise_printf(const char* fmt, ...);
 void fraise_putchar(char c);
-#define printf(fmt, ...) fraise_printf(fmt, ##__VA_ARGS__)
+#define printf(fmt, ...) fraise_printf((const char*)(fmt), ##__VA_ARGS__)
 #define putchar(c) fraise_putchar(c)
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // _FRAISE_H

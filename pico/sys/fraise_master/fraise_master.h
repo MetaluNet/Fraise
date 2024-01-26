@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "fraise.h"
 
-void fraise_master_set_poll(uint8_t, bool poll);
+void fraise_master_set_poll(uint8_t id, bool poll);
 void fraise_master_reset_polls();
 void fraise_master_assign(const char* fruitname, uint8_t id);
 
@@ -24,6 +24,9 @@ void fraise_master_start_bootload(const char *buf);
 void fraise_master_stop_bootload();
 void fraise_master_send_bootload(const char *buf);
 bool fraise_master_is_bootloading();
+
+void fraise_master_service();
+void fraise_master_reset();
 
 void fraise_unsetup();
 

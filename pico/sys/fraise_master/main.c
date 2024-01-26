@@ -141,6 +141,7 @@ int main() {
 	setup();
 	while(true) {
 		stdioTask();
+		fraise_master_service();
 		loop();
 	}
 }
