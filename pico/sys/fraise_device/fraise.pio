@@ -75,8 +75,8 @@ txbitloop:                      ; This loop will run 9 times (9n1 UART)
     out pindirs, 1              ; Shift 1 bit from OSR to the first OUT pin
     jmp x-- txbitloop       [6] ; Each loop iteration is 8 cycles.
     jmp y-- txnext   side 0 [7] ; Assert stop bit, the goto send remaining bytes if any, otherwise return to rx.
- ; jump to the beginning
-    jmp rxinit
+    jmp rxinit                  ; Return to RX mode.
+
 
 % c-sdk {
 #include "hardware/clocks.h"
@@ -105,6 +105,8 @@ static inline void fraise_program_init(PIO pio, uint sm, uint offset, uint rxpin
     pio_sm_set_pindirs_with_mask(pio, sm, 0, (1u << txpin) | (1u << drvpin)); // init tx and drv pindirs as INPUT
     pio_gpio_init(pio, txpin);
     pio_gpio_init(pio, drvpin);
+    gpio_pull_up(txpin);
+    gpio_pull_up(drvpin);
     // OUT shifts to right, no autopull
     sm_config_set_out_shift(&c, true, false, 32);
     // We are mapping both OUT and side-set to the same pin, because sometimes
@@ -134,7 +136,7 @@ static inline void fraise_program_discard_rx(PIO pio, uint sm) {
     pio_sm_clear_fifos(pio, sm);
 }
 
-// Switch to packet transmit mode: ask sm to switch to tx mode, push 'length' word to FIFO, and enable interrupts.
+// Switch to packet transmit mode: ask sm to switch to tx mode and push 'length' word to FIFO.
 static inline void fraise_program_start_tx(PIO pio, uint sm, uint8_t count) {
     pio_sm_clear_fifos(pio, sm);
     pio_sm_exec_wait_blocking (pio, sm, jmp_tx);
