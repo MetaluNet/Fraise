@@ -83,7 +83,7 @@ void processBroadcast() {
 				fraise_master_sendbytes_broadcast(buf, bufcount);
 			}
 			break;
-		case 'B': fraise_master_sendchars_broadcast(lineBuf + 2);
+		case 'B': fraise_master_sendchars_broadcast(lineBuf + 2); break;
 		case 'F': fraise_master_start_bootload(lineBuf + 2); break;
 	}
 }
