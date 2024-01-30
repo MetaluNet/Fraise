@@ -26,7 +26,7 @@
 .program fraise
 .side_set 1 opt pindirs
 
-rxinit:
+PUBLIC rxinit:
     set pindirs 0    side 0     ; Release DRV and TX pins
 .wrap_target
 rxstart:
@@ -67,6 +67,7 @@ txbitloop:                      ; This loop will run 9 times (9n1 UART)
 #define FRAISE_BAUDRATE 250000
 
 static uint jmp_tx; // Jump to TX instruction
+static uint jmp_rx; // Jump to RX instruction
 static PIO pio;
 static uint sm;
 static uint pgm_offset; // Offset of the program in the pio
@@ -104,6 +105,7 @@ static inline void fraise_program_init(uint rxpin, uint txpin, uint drvpin) {
 
 // encode instructions
     jmp_tx = pio_encode_jmp (pgm_offset + fraise_offset_txstart);
+    jmp_rx = pio_encode_jmp (pgm_offset + fraise_offset_rxinit);
 
 // clock
     // SM transmits 1 bit per 8 execution cycles.
@@ -117,24 +119,39 @@ static inline void fraise_program_init(uint rxpin, uint txpin, uint drvpin) {
 
 // Switch to packet transmit mode: ask sm to switch to tx mode, and push 'length' word to FIFO.
 static inline void fraise_program_start_tx(uint8_t count) {
+    if(count < 1) {
+    	printf("e ERROR ON fraise_program_start_tx()! count = %d\n", count);
+    	return;
+	}
     pio_sm_clear_fifos(pio, sm);
     pio_sm_exec_wait_blocking (pio, sm, jmp_tx);
     pio_sm_put_blocking(pio, sm, (uint32_t)(count - 1)); // first word is (length - 1)
 }
 
-// Switch to packet transmit mode: ask sm to switch to tx mode, push 'length' word to FIFO, and enable interrupts.
+// Switch to packet transmit mode: ask sm to switch to tx mode, push 'length' word to FIFO, and enable interrupt.
 static inline void fraise_program_start_tx_with_interrupt(uint16_t count) {
     fraise_program_start_tx(count);
     pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_tx_fifo_not_full + sm, true);
 }
 
-// Switch to packet transmit mode: ask sm to switch to tx mode, push 'length' word to FIFO, and enable interrupts.
+// Enable TX_not_full interrupt.
 static inline void fraise_program_enable_tx_interrupt() {
     pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_tx_fifo_not_full + sm, true);
 }
 
+// Disable TX_not_full interrupt.
 static inline void fraise_program_disable_tx_interrupt() {
     pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_tx_fifo_not_full + sm, false);
+}
+
+// Enable RX_not_empty interrupt.
+static inline void fraise_program_enable_rx_interrupt() {
+    pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, true);
+}
+
+// Disable RX_not_empty interrupt.
+static inline void fraise_program_disable_rx_interrupt() {
+    pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, false);
 }
 
 // Get a 9-bit char from RX FIFO (no check that data is available!)
@@ -147,7 +164,7 @@ static inline void fraise_program_putc(uint16_t c) {
     pio_sm_put(pio, sm, (uint32_t)c);
 }
 
-// Put a 9-bit char to TX FIFO (no check that the FIFO is full!)
+// Put a 9-bit char to TX FIFO, block until FIFO not full.
 static inline void fraise_program_putc_blocking(uint16_t c) {
     pio_sm_put_blocking(pio, sm, (uint32_t)c);
 }

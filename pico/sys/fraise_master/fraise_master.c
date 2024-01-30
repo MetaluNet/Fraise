@@ -14,9 +14,9 @@
 #include "hardware/sync.h"
 
 #define _FRAISE_INTERNAL_
+#define _FRAISE_PRIVATE_DEFINE_VARS
 #include "fraise.pio.h"
 #include "fraise_master.h"
-#define _FRAISE_PRIVATE_DEFINE_VARS
 #include "fraise_master_private.h"
 #include "fraise_master_buffers.h"
 
@@ -39,22 +39,13 @@ static fraise_master_state_t state = FMS_POLL;
 int64_t fraise_alarm_callback(alarm_id_t id, void *user_data) {
     switch(state) {
         case FMS_RECEIVE:              // the fruit didn't reply to the poll
-            clear_detected(polled_fruit);
+            set_detected(polled_fruit, false);
             break;
         case FMS_WAITACK:           // the fruit didn't aknowledge the packet
             break;
     }
     state = FMS_POLL;
     fraise_program_enable_tx_interrupt();
-    /*switch(state) {
-        case FMS_POLL:
-            fraise_program_enable_tx_interrupt();
-            break;
-        case FMS_WAITACK:           // the fruit didn't aknowledge the packet
-            state = FMS_POLL;
-            fraise_program_enable_tx_interrupt();
-            break;
-    }*/
     return 0;
 }
 
@@ -106,17 +97,16 @@ static void fraise_master_irq_handler(void) {
                 return;
             }
 
-            if(++polled_fruit > MAX_FRUITS) polled_fruit = 1;
+            if(++polled_fruit >= MAX_FRUITS) polled_fruit = 1;
             int count = 0;
             while(!is_polled(polled_fruit)) {
-                if(++polled_fruit > MAX_FRUITS) polled_fruit = 1;
+                if(++polled_fruit >= MAX_FRUITS) polled_fruit = 1;
                 if(count++ >= MAX_FRUITS) {                // if no fruit to poll, abort and retry later
                     fraise_program_disable_tx_interrupt();
                     fraise_add_alarm(NONE_POLLED_TIME);
                     return;
                 }
             }
-            gpio_put(0, 1);
             fraise_program_disable_tx_interrupt();
             fraise_program_start_tx(2);
             fraise_program_putc_blocking(polled_fruit | 128 | 256); // poll signal (bit9 and bit8 on)
@@ -130,7 +120,11 @@ static void fraise_master_irq_handler(void) {
             if(!pio_sm_is_rx_fifo_empty(pio, sm)) {
                 fraise_cancel_alarm();
                 uint16_t c = fraise_program_getc();
-                if(c == 0) txbuf_read_finish(); // the packet has been acknowledged: remove it from the buffer.
+                if(pio_interrupt_get(pio, 4) || (c > 255)) {        // Framing error or bit9=1: discard.
+                	pio_interrupt_clear(pio, 4);
+                	fraise_master_ferr_count++;
+                }
+                else if(c == 0) txbuf_read_finish(); // the packet has been acknowledged: remove it from the buffer.
                 else {
                     // TODO: signal checksum error
                 }
@@ -143,6 +137,7 @@ static void fraise_master_irq_handler(void) {
                 fraise_cancel_alarm();
                 uint16_t c = fraise_program_getc();
                 if(pio_interrupt_get(pio, 4) || (c > 255)) {        // Framing error or bit9=1: discard.
+                    pio_interrupt_clear(pio, 4);
                     pio_sm_clear_fifos(pio, sm);
                     state = FMS_POLL;
                     fraise_program_enable_tx_interrupt();
@@ -151,31 +146,27 @@ static void fraise_master_irq_handler(void) {
                 }
                 rx_bytes++;
                 if(rx_bytes == 1) {                       // First byte = packet length
-                    gpio_put(0, 0);
                     if(c == 0) {                            // the fruit has nothing to send
                         state = FMS_POLL;
                         fraise_program_enable_tx_interrupt();
-                        if(is_polled(polled_fruit)) set_detected(polled_fruit);
+                        if(is_polled(polled_fruit)) set_detected(polled_fruit, true);
                         return;
                     }
-                    gpio_put(12, 1);
                     rx_is_char = (c >= 128);
                     rx_msg_length = c & 127;
                     rx_checksum = c;
-                    if(rx_is_char) gpio_put(12, 0);
                 } else {
                     rx_checksum += c;
                     rxbuf_write_putc(c);
                     if(rx_bytes == rx_msg_length + 2) {     // "+ 2" is for accounting the 'length' and the 'checksum' bytes
                         if(rx_checksum == 0) {
-                        	//gpio_put(12, 0);
                             rxbuf_write_finish(rx_is_char);
-                            fraise_program_start_tx(1);
-                            fraise_program_putc_blocking(0); // Acknowledge the packet.
+                            if(is_polled(polled_fruit)) set_detected(polled_fruit, true);
                         }
+                        fraise_program_start_tx(1);
+                        fraise_program_putc_blocking(rx_checksum != 0); // Acknowledge the packet, or not...
                         state = FMS_POLL;
                         fraise_add_alarm(ONE_BYTE_TIME);     // Wait for the ACK byte to be sent.
-                        //fraise_program_enable_tx_interrupt();
                         return;
                    }
                 }
@@ -189,9 +180,15 @@ static void fraise_master_irq_handler(void) {
         fraise_program_putc(txbuf_read_getc());
         tx_bytes_to_send--;
         if(tx_bytes_to_send == 0) {                         // The message has been fully pushed to TX FIFO:
-            fraise_program_disable_tx_interrupt();          // Stop triggering interrupt when tx rx_fifo not full
-            fraise_add_alarm(WAIT_ANSWER_TIME);              // Arm the timeout alarm
-            state = FMS_WAITACK;
+            fraise_program_disable_tx_interrupt();          // Stop triggering interrupt when tx rx_fifo not full;
+            if(destination_fruit != 0) {                    // If the massage isn't broadcast:
+		        fraise_add_alarm(WAIT_ANSWER_TIME);             // Arm the timeout alarm
+		        state = FMS_WAITACK;                            // Set the state to wait for the Ack.
+	        } else {                                        // If the message is broadcast, remove it from the buffer.
+	            txbuf_read_finish();                            // remove it from the buffer,
+	            state = FMS_POLL;                               // and restart the state machine 
+	            fraise_add_alarm(ONE_BYTE_TIME * pio_sm_get_tx_fifo_level (pio, sm)); // after all bytes are sent.
+            }
         }
     }
 }
@@ -246,7 +243,7 @@ void fraise_setup() {
     irq_set_enabled(pio_irq, true); // Enable the IRQ
     irq_index = pio_irq - ((pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0); // Get index of the IRQ
     
-    pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, true); // Set pio to tell us when the FIFO is NOT empty
+    fraise_program_enable_rx_interrupt(); // Set pio to tell us when the FIFO is NOT empty
 
     fraise_program_enable_tx_interrupt(); // This should instantly run the IRQ handler.
 }
@@ -261,7 +258,7 @@ void fraise_get_pins(int *rxpin, int *txpin, int *drvpin)
 void fraise_unsetup() {
     // Disable interrupt
     fraise_program_disable_tx_interrupt();
-    pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, false);
+    fraise_program_disable_rx_interrupt();
     fraise_cancel_alarm();
     irq_set_enabled(pio_irq, false);
     irq_remove_handler(pio_irq, fraise_master_irq_handler);
@@ -273,8 +270,15 @@ void fraise_unsetup() {
 }
 
 void fraise_master_reset(){
+	//fraise_master_reset_polls();
+	fraise_program_disable_tx_interrupt();
+	fraise_cancel_alarm();
+	uint32_t status = save_and_disable_interrupts();
+	pio_sm_clear_fifos(pio, sm);
+	pio_sm_exec_wait_blocking (pio, sm, jmp_rx);
 	fraise_master_buffers_reset();
 	state = FMS_POLL;
+	restore_interrupts(status);
 	fraise_program_enable_tx_interrupt();
 }
 
@@ -282,18 +286,43 @@ void fraise_master_reset(){
 
 void fraise_master_assign(const char* fruitname, uint8_t id){
 	// TODO send 'assign' command
+	/*uint32_t status = save_and_disable_interrupts();
+	sleep_ms(1);
+	fraise_program_start_tx(strlen(fruitname) + 4);*/
+	if(strlen(fruitname) > 16) {
+	    printf("e fruit name too long! (16 chars max)");
+	    return;
+    }
+	char buffer[32];
+	sprintf(buffer, "N%02X%s", id, fruitname);
+	fraise_master_sendchars_broadcast(buffer);
 }
 
 // -----------------------------
 
-void fraise_master_start_bootload(const char *buf){
+void fraise_master_start_bootload(const char *fruitname){
 	// TODO send 'enter bootloader' command
+	if(strlen(fruitname) > 16) {
+	    printf("e fruit name too long! (16 chars max)");
+	    return;
+    }
 	is_bootloading = true;
+	char buffer[32];
+	sprintf(buffer, "F%s", fruitname);
+	fraise_master_sendchars_broadcast(buffer);
+	sleep_ms(1);
+
+	fraise_program_disable_rx_interrupt();
+	fraise_program_disable_tx_interrupt();
+	fraise_cancel_alarm();
 }
 
 void fraise_master_stop_bootload(){
 	// TODO send 'quit bootloader' command
 	is_bootloading = false;
+	state = FMS_POLL;
+	fraise_program_enable_rx_interrupt();
+	fraise_program_enable_tx_interrupt();
 }
 
 bool fraise_master_is_bootloading() {
@@ -302,6 +331,20 @@ bool fraise_master_is_bootloading() {
 
 void fraise_master_send_bootload(const char *buf){
 	// TODO bootloader communication
+	if(!is_bootloading) return;
+	int len = strlen(buf);
+	uint8_t checksum = len + 1;
+	const char *p = buf;
+	fraise_program_start_tx(len + 2);
+	fraise_program_putc_blocking(len + 1);
+	while(*p) {
+	    checksum += *p;
+	    fraise_program_putc_blocking(*p);
+	    //printf("l bld send: %c\n", *p);
+	    p++;
+    }
+    fraise_program_putc_blocking(256 - checksum);
+    //while(pio_sm_get_tx_fifo_level(pio, sm) != 0);
 }
 
 // -----------------------------
@@ -312,18 +355,18 @@ void fraise_master_set_poll(uint8_t id, bool poll){
 		else printf("sc00\n");
 	} else if(id < MAX_FRUITS) {
 		uint32_t status = save_and_disable_interrupts();
-		if(poll) set_polled(id);
-		else clear_polled(id);
-		clear_detected(id);
+		set_polled(id, poll);
+		set_detected(id, false);
 		restore_interrupts(status);
+		printf("l polled(%d):%d\n", id, is_polled(id));
 	}
 }
 
 void fraise_master_reset_polls() {
 	uint32_t status = save_and_disable_interrupts();
 	for(int id = 0; id < MAX_FRUITS ; id++) {
-		clear_polled(id);
-		clear_detected(id);
+		set_polled(id, false);
+		set_detected(id, false);
 	}
 	restore_interrupts(status);
 }
@@ -371,41 +414,48 @@ void fraise_master_sendchars_broadcast(const char *data) {
 }
 
 // -----------------------------
-uint32_t detected_sent[MAX_FRUITS / 32];
-#define set_detected_sent(k) SetBit(detected_sent, k)
-#define clear_detected_sent(k) ClearBit(detected_sent, k)
-#define is_detected_sent(k) TestBit(detected_sent, k)
 
 void fraise_master_service() {
 	int l;
 	bool isChar;
 	uint8_t id;
-	// TODO incoming message decoding
+	// Process incoming message
 	while((l = rxbuf_read_init())) {
-		//printf("l message received(%d) ", l);
 		isChar = l > 127;
 		l = (l & 63) - 2;
 		id = rxbuf_read_getc();
 		printf("%02X", id | (isChar?128:0));
 		if(isChar) while(l--) putchar(rxbuf_read_getc());
 		else while(l--) printf("%02X", rxbuf_read_getc());
-		//while(l--) printf("%d ", rxbuf_read_getc());
 		putchar('\n');
 		rxbuf_read_finish();
 	}
-	// pace 'detected changes' updates
+	// TODO: pace 'detected changes' updates
 	for(int i = 1; i < MAX_FRUITS; i++) {
 		if(is_detected_sent(i) != is_detected(i)) {
 			bool d = is_detected(i);
 			if(d) {
-				set_detected_sent(i);
+				set_detected_sent(i, true);
 				printf("sC%02X\n", i);
 			}
 			else {
-				clear_detected_sent(i);
+				set_detected_sent(i, false);
 				printf("sc%02X\n", i);
 			}
 		}
+	}
+	if(is_bootloading) {
+	    while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
+	        printf("b%c\n", fraise_program_getc());
+	    }
+	}
+}
+
+void fraise_master_print_stats() {
+	printf("l state:%d ferr_count:%d\n", state, fraise_master_ferr_count);
+	for(int i = 1; i < 3; i++) {
+		printf("l fruit_%d polled=%d detected=%d detected_sent=%d\n",
+			i, is_polled(i), is_detected(i), is_detected_sent(i));
 	}
 }
 
