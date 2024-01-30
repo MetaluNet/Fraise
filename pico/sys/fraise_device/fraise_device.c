@@ -92,6 +92,7 @@ static void fraise_irq(void) {
         uint16_t c = fraise_program_getc(pio, sm);
         if(pio_interrupt_get(pio, 4)) {                     // Framing error! Discard.
             fraise_program_discard_rx(pio, sm);
+            pio_interrupt_clear(pio, 4);
             state = FS_LISTEN;
             continue;
         }
