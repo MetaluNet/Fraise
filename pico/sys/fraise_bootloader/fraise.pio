@@ -71,6 +71,9 @@ static inline void fraise_program_init(PIO pio, uint sm, uint offset, uint rxpin
     pio_sm_set_pindirs_with_mask(pio, sm, 0, (1u << txpin) | (1u << drvpin)); // init tx and drv pindirs as INPUT
     pio_gpio_init(pio, txpin);
     pio_gpio_init(pio, drvpin);
+    gpio_pull_up(txpin);
+    gpio_pull_up(drvpin);
+
     // OUT shifts to right, no autopull
     sm_config_set_out_shift(&c, true, false, 32);
     // We are mapping both OUT and side-set to the same pin, because sometimes
