@@ -74,6 +74,7 @@ static void fraise_master_irq_handler(void) {
     switch(state) {
         case FMS_POLL:
             fraise_cancel_alarm();
+            while(!pio_sm_is_rx_fifo_empty(pio, sm)) fraise_program_getc(); // Flush RXFIFO
             if(pio_sm_is_tx_fifo_full(pio, sm)) {               // this shouldn't happend: the irq was triggered by tx_fifo_not_full
                 fraise_program_disable_tx_interrupt();
                 fraise_add_alarm(PIO_TXFULL_RETRY_TIME);
@@ -177,6 +178,7 @@ static void fraise_master_irq_handler(void) {
 
     while((state == FMS_SEND) && !pio_sm_is_tx_fifo_full(pio, sm)) {
         fraise_cancel_alarm();
+        while(!pio_sm_is_rx_fifo_empty(pio, sm)) fraise_program_getc(); // Flush RXFIFO
         fraise_program_putc(txbuf_read_getc());
         tx_bytes_to_send--;
         if(tx_bytes_to_send == 0) {                         // The message has been fully pushed to TX FIFO:
@@ -285,10 +287,6 @@ void fraise_master_reset(){
 // -----------------------------
 
 void fraise_master_assign(const char* fruitname, uint8_t id){
-	// TODO send 'assign' command
-	/*uint32_t status = save_and_disable_interrupts();
-	sleep_ms(1);
-	fraise_program_start_tx(strlen(fruitname) + 4);*/
 	if(strlen(fruitname) > 16) {
 	    printf("e fruit name too long! (16 chars max)");
 	    return;
@@ -301,7 +299,6 @@ void fraise_master_assign(const char* fruitname, uint8_t id){
 // -----------------------------
 
 void fraise_master_start_bootload(const char *fruitname){
-	// TODO send 'enter bootloader' command
 	if(strlen(fruitname) > 16) {
 	    printf("e fruit name too long! (16 chars max)");
 	    return;
@@ -318,7 +315,6 @@ void fraise_master_start_bootload(const char *fruitname){
 }
 
 void fraise_master_stop_bootload(){
-	// TODO send 'quit bootloader' command
 	is_bootloading = false;
 	state = FMS_POLL;
 	fraise_program_enable_rx_interrupt();
@@ -330,20 +326,18 @@ bool fraise_master_is_bootloading() {
 }
 
 void fraise_master_send_bootload(const char *buf){
-	// TODO bootloader communication
 	if(!is_bootloading) return;
 	int len = strlen(buf);
 	uint8_t checksum = len + 1;
 	const char *p = buf;
 	fraise_program_start_tx(len + 2);
-	fraise_program_putc_blocking(len + 1);
+	fraise_program_putc_blocking((uint8_t)(len + 1));
 	while(*p) {
 	    checksum += *p;
-	    fraise_program_putc_blocking(*p);
-	    //printf("l bld send: %c\n", *p);
+	    fraise_program_putc_blocking((uint8_t)*p);
 	    p++;
     }
-    fraise_program_putc_blocking(256 - checksum);
+    fraise_program_putc_blocking((uint8_t)(256 - checksum));
     //while(pio_sm_get_tx_fifo_level(pio, sm) != 0);
 }
 
@@ -358,7 +352,7 @@ void fraise_master_set_poll(uint8_t id, bool poll){
 		set_polled(id, poll);
 		set_detected(id, false);
 		restore_interrupts(status);
-		printf("l polled(%d):%d\n", id, is_polled(id));
+		//printf("l polled(%d):%d\n", id, is_polled(id));
 	}
 }
 
@@ -445,8 +439,10 @@ void fraise_master_service() {
 		}
 	}
 	if(is_bootloading) {
+	    char c;
 	    while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
-	        printf("b%c\n", fraise_program_getc());
+	        c = fraise_program_getc();
+	        if(c != ' ' && c != '*') printf("b%c\n", c);
 	    }
 	}
 }
@@ -490,7 +486,7 @@ void fraise_putchar(char c) {
 	if(count < 64) line[count++] = c;
 }
 
-void fraise_printf(char* fmt, ...) {
+void fraise_printf(const char* fmt, ...) {
 	va_list args;
 	char buf[64];
 	char *p = buf;
