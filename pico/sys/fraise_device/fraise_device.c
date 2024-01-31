@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "pico/stdlib.h"
 #include "pico/async_context_threadsafe_background.h"
@@ -387,7 +388,7 @@ void fraise_poll_rx(){
 }
 
 // Put a string, which must be null-terminated
-bool fraise_puts(char* msg){
+bool fraise_puts(const char* msg){
     if (!txbuf_write_init()) {
         //printf("tx buffer full!\n");
         return false;
@@ -403,7 +404,7 @@ bool fraise_puts(char* msg){
     return true;
 }
 
-bool fraise_putbytes(char* data, uint8_t len){
+bool fraise_putbytes(const char* data, uint8_t len){
     if (!txbuf_write_init()) {
         //printf("tx buffer full!\n");
         return false;
@@ -436,6 +437,28 @@ void fraise_out_chars(const char *buf, int len) {
         } else line[count++] = c;
     }
 }
+
+void fraise_putchar(char c) {
+	static char line[64];
+	static int count = 0;
+	if(c == '\n') {
+		line[count] = 0;
+		fraise_puts(line);
+		count = 0;
+		return;
+	}
+	if(count < 64) line[count++] = c;
+}
+
+void fraise_printf(const char* fmt, ...) {
+	va_list args;
+	char buf[64];
+	char *p = buf;
+	va_start(args, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, args);
+	while(*p) fraise_putchar(*p++);
+}
+
 
 void fraise_debug_print_next_txmessage(){
 #ifdef FRAISE_DEVICE_DEBUG
@@ -485,9 +508,9 @@ __attribute__((weak)) void setup(){}
 __attribute__((weak)) void loop(){}
 #define STRINGIFY(x) #x
 #ifdef FRAISE_DEVICE_DEBUG
-#define dummy_callback(f) __attribute__((weak)) void f(char *data, uint8_t len){ printf("dummy " STRINGIFY(f) "()\n");}
+#define dummy_callback(f) __attribute__((weak)) void f(const char *data, uint8_t len){ printf("dummy " STRINGIFY(f) "()\n");}
 #else
-#define dummy_callback(f) __attribute__((weak)) void f(char *data, uint8_t len){}
+#define dummy_callback(f) __attribute__((weak)) void f(const char *data, uint8_t len){}
 #endif
 
 dummy_callback(fraise_receivebytes);
