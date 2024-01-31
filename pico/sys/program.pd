@@ -1,4 +1,4 @@
-#N canvas 1136 508 751 471 10;
+#N canvas 668 485 1006 471 10;
 #X obj 24 34 inlet;
 #X obj 460 79 fudiformat -u;
 #N canvas 559 388 530 571 bootload 0;
@@ -43,6 +43,7 @@
 #X msg 345 431 \$2 prog_progress \$1;
 #X obj 390 387 r \$0-fruit_name;
 #X obj 345 453 s \$1-Bootloader-snd;
+#X obj 308 479 outlet;
 #X connect 0 0 6 0;
 #X connect 1 0 26 0;
 #X connect 2 0 3 0;
@@ -86,6 +87,7 @@
 #X connect 35 1 22 0;
 #X connect 35 2 14 0;
 #X connect 36 0 37 0;
+#X connect 36 0 41 0;
 #X connect 37 0 38 0;
 #X connect 38 0 40 0;
 #X connect 39 0 37 1;
@@ -114,12 +116,12 @@
 #X obj 260 132 s \$1-comport-pause;
 #X msg 260 109 1;
 #X msg 303 109 0;
-#X msg 24 331 runapp;
+#X msg 24 347 runapp;
 #X obj 433 32 r \$0-topied-text;
 #X obj 433 168 s \$0-pied-suspend;
 #X obj 460 105 s \$1-piedbytes-rcv;
 #X obj 51 254 s \$0-topied-text;
-#X obj 24 353 s \$0-topied-text;
+#X obj 24 369 s \$0-topied-text;
 #X obj 24 203 t b b;
 #X obj 433 54 t a a;
 #X obj 496 410 route ack;
@@ -143,9 +145,21 @@
 #X obj 303 85 del 1200;
 #X obj 24 282 del 1700;
 #X obj 108 141 text define \$0-hex;
+#N canvas 360 62 660 300 debug 1;
+#X obj 88 141 outlet;
+#X msg 88 105 list _none_ tests/debug_system/fraise_bootloader_debug/build/fraise_bootloader.hex, f 86;
+#X connect 1 0 0 0;
+#X restore 76 36 pd debug;
+#X obj 90 329 hsl 153 18 0 1 0 0 empty empty empty -2 -9 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 676 298 + 69632;
+#X obj 675 271 * 16;
+#X obj 668 236 hradio 18 1 0 8 empty empty empty 0 -9 0 10 #fcfcfc #000000 #000000 0;
+#X msg 676 323 readflash \$1;
+#X msg 716 194 19;
 #X connect 0 0 19 0;
 #X connect 1 0 30 0;
 #X connect 2 0 27 0;
+#X connect 2 1 57 0;
 #X connect 3 0 37 0;
 #X connect 4 0 37 0;
 #X connect 5 0 37 0;
@@ -197,3 +211,9 @@
 #X connect 52 0 25 0;
 #X connect 53 0 26 0;
 #X connect 54 0 2 0;
+#X connect 56 0 19 0;
+#X connect 58 0 61 0;
+#X connect 59 0 58 0;
+#X connect 60 0 59 0;
+#X connect 61 0 37 0;
+#X connect 62 0 59 0;
