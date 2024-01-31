@@ -20,7 +20,7 @@
 #define DEBUG
 #endif
 
-const uint LED_PIN = PICO_DEFAULT_LED_PIN;
+static const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 
 uint8_t lineBuf[256];
 uint8_t lineLen;
@@ -35,7 +35,10 @@ static inline void fraiseResetTimeout() { fraiseTimeout = make_timeout_time_ms(1
 
 #ifdef FRAISE_BLD_DEBUG
 void processLine() {
-	if(startsWith(lineBuf, "runapp")) run_app();
+	if(startsWith(lineBuf, "#R")) printf("sID02\n");
+	else if(startsWith(lineBuf, "#E")) puts((const char*)(lineBuf + 2));
+	else if(startsWith(lineBuf, "#V")) printf("sV UsbFraise PicoPied v0.1\n");
+	else if(startsWith(lineBuf, "runapp")) run_app();
 	else if(startsWith(lineBuf, "waitack")) printf("ack\n");
 	else if(startsWith(lineBuf, "reboot")) {
 		sleep_ms(50); // wait for the host to disconnect the USB device
@@ -125,7 +128,7 @@ void fraiseTask() {
 	while(fraise_getword(&w)) {
 		//printf("word: %d \t %c\n", w, w & 127);
 		if(w > 255) {
-			if( (w & 255) != 0) { run_app(); }
+			if( (w & 255) != 0) { run_app();}
 			fraiseResetTimeout();
 			lineResetTimeout();
 			lineLen = wcount = 0;
@@ -178,7 +181,6 @@ int main() {
 	gpio_init(LED_PIN);
 	gpio_set_dir(LED_PIN, GPIO_OUT);
 	gpio_put(LED_PIN, 1);
-
 	eeprom_setup();
 	fraise_setup(FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN);
 	nextLed = make_timeout_time_ms(100);
@@ -193,7 +195,9 @@ int main() {
 			gpio_put(LED_PIN, led = !led);
 			nextLed = make_timeout_time_ms(100);
 		}
+	#ifndef FRAISE_BLD_DEBUG
 		if(timed_out(fraiseTimeout) && !isVerified) run_app();
+	#endif
 	}
 }
 
