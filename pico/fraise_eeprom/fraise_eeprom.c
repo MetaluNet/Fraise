@@ -6,17 +6,22 @@
 
 #include "pico/stdlib.h"
 #include "hardware/flash.h"
+#include "pico/sync.h"
 #include "string.h"
 
 #include "fraise_eeprom.h"
 
-char eeprom_live[EEPROM_SIZE];
+static char eeprom_live[EEPROM_SIZE];
 extern int __fraise_app_start__, __fraise_app_length__;
 extern int __eeprom_start__;
-const char *eeprom_const = (char*)&__eeprom_start__;
+static const char *eeprom_const = (char*)&__eeprom_start__;
+static critical_section_t *critsec;
+static bool initialized = false;
 
 void eeprom_setup() {
 	memcpy(eeprom_live, eeprom_const, EEPROM_SIZE);
+	critical_section_init(critsec);
+	initialized = true;
 }
 
 char eeprom_read(int address) {
@@ -50,7 +55,10 @@ uint8_t eeprom_get_id() {
 }
 
 void eeprom_commit() {
+	if(!initialized) return;
+	critical_section_enter_blocking(critsec);
 	flash_range_erase((intptr_t)eeprom_const - (intptr_t)XIP_BASE, 4096);
 	flash_range_program((intptr_t)eeprom_const - (intptr_t)XIP_BASE, eeprom_live, EEPROM_SIZE);
+	critical_section_exit(critsec);
 }
 
