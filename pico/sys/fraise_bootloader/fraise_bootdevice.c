@@ -32,6 +32,10 @@ static uint irq_index;
 // IRQ called when the pio rx fifo is not empty, i.e. there are some characters on the uart
 static void pio_irq_func(void) {
     while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
+        if(pio_interrupt_get(pio, 4)) { // Framing error! Discard.
+            pio_interrupt_clear(pio, 4);
+            continue;
+        }
         uint16_t c = fraise_program_getc(pio, sm);
         if (!queue_try_add(&fifo, &c)) panic("fifo full");
     }
