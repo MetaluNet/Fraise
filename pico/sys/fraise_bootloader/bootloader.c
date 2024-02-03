@@ -23,10 +23,17 @@
 #include "boardconfig.h"
 
 #ifdef FRAISE_BLD_DEBUG
+
 #define DEBUG printf
+bool DONT_WRITE = true;
+
 #else
+
 #define DEBUG
+bool DONT_WRITE = false;
+
 #endif
+
 
 extern int __fraise_app_start__, __fraise_app_length__;
 #define FLASH_ADDR_MIN ((uint32_t)&__fraise_app_start__)
@@ -94,18 +101,15 @@ uint8_t gethexbyte(const char *buf)
 	return (ch << 4) + cl;
 }
 
-//#define DONT_WRITE
-
 static void programCurrentPage() {
 	uint32_t addr = lastAddress & ~(FLASH_PAGE_SIZE - 1);
 	if((addr < FLASH_ADDR_MIN) || (addr + FLASH_PAGE_SIZE >= FLASH_ADDR_MAX)) {
 		DEBUG("e programCurrentPage address error! addr = %#10lx\n", addr);
 		return;
 	}
+	if(DONT_WRITE) return;
 	uint32_t status = save_and_disable_interrupts();
-#ifndef DONT_WRITE
 	flash_range_program((lastAddress & ~(FLASH_PAGE_SIZE - 1)) - XIP_BASE, pageBuf, FLASH_PAGE_SIZE);
-#endif
 	restore_interrupts(status);
 }
 
@@ -114,17 +118,16 @@ static void eraseSector(uint32_t addr) {
 		DEBUG("e eraseSector address error! addr = %#10lx\n", addr);
 		return;
 	}
+	if(DONT_WRITE) return;
 	uint32_t status = save_and_disable_interrupts();
-#ifndef DONT_WRITE
 	flash_range_erase(addr - XIP_BASE, FLASH_SECTOR_SIZE);
-#endif
 	restore_interrupts(status);
 }
 
 static void addDataByte(uint32_t writeAddress, uint8_t b) {
 	if(
 		((writeAddress & ~(FLASH_PAGE_SIZE - 1)) != (lastAddress & ~(FLASH_PAGE_SIZE - 1)))
-		&& (lastAddress != -1)
+		&& (lastAddress != 0)
 	)
 	{
 		if(verbose) DEBUG("l program page change: writing page = %#08lx (currently writing to %#08lx)\n", (lastAddress & ~(FLASH_PAGE_SIZE - 1)) - XIP_BASE, writeAddress - XIP_BASE);
@@ -146,8 +149,14 @@ int processHexLine(const char *lineBuf, uint8_t lineLen) {
 	uint8_t nbytes = 0;
 	uint8_t checksum = 0;
 
-	for(uint8_t i = 1; i < lineLen; i += 2, nbytes++) {
-		checksum += bytes[nbytes] = gethexbyte(lineBuf + i);
+	if(lineBuf[0] == ':') {
+		for(uint8_t i = 1; i < lineLen; i += 2, nbytes++) {
+			checksum += bytes[nbytes] = gethexbyte(lineBuf + i);
+		}
+	} else if(lineBuf[0] == '%') {
+		for(uint8_t i = 1; i < lineLen; i += 1, nbytes++) {
+			checksum += bytes[nbytes] = lineBuf[i];
+		}
 	}
 
 	if(checksum != 0) {
@@ -159,6 +168,7 @@ int processHexLine(const char *lineBuf, uint8_t lineLen) {
 	uint16_t offset = ((uint16_t)bytes[1] << 8) + bytes[2];
 	uint8_t rectype = bytes[3];
 	
+	//if(verbose) DEBUG("l rectype: %d\n", rectype);
 	switch(rectype) {
 		case 0: /*data*/
 			for(uint8_t i = 0; i < datalen; i++) {
@@ -187,7 +197,7 @@ int processHexLine(const char *lineBuf, uint8_t lineLen) {
 			
 			if(address == FLASH_ADDR_MIN) { // start of file
 				pgmSize = 0;
-				lastAddress = -1;
+				lastAddress = 0;
 			}
 			return 0;
 		case 5: /* Start Linear Address */

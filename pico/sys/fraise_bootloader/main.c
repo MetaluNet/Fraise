@@ -20,6 +20,7 @@
 #define DEBUG
 #endif
 
+static const char version_string[] = "Ipico 1\n";
 static const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 
 uint8_t lineBuf[256];
@@ -27,7 +28,6 @@ uint8_t lineLen;
 
 bool isVerified = false;
 
-static inline bool timed_out(absolute_time_t t) { return (absolute_time_min(t, get_absolute_time()) == t); }
 absolute_time_t fraiseTimeout;
 static inline void fraiseResetTimeout() { fraiseTimeout = make_timeout_time_ms(1000); }
 
@@ -45,22 +45,26 @@ void processLine() {
 		reboot();
 	}
 	else if(startsWith(lineBuf, "whoami")) {
-		printf("whoami: fraise_bootloader\n");
+		printf("swhoami fraise_bootloader\n");
 	}
 	else if(startsWith(lineBuf, "readflash")) {
 		uint32_t addr;
 		sscanf((const char *)lineBuf, "readflash %ld", &addr);
-		printf("readflash at %#08lx:", addr);
+		printf("l readflash at %#08lx:", addr);
 		for(int i = 0; i < 16; i++) {
 			printf("%02X", *(const uint8_t *) (XIP_BASE + addr + i));
 		}
 		printf("\n");
 	}
 	else if(startsWith(lineBuf, "getsizeof")) {
-		printf("sizeof int=%d long=%d float=%d double=%d\n", sizeof(int), sizeof(long), sizeof(float), sizeof(double));
+		printf("l sizeof int=%d long=%d float=%d double=%d\n", sizeof(int), sizeof(long), sizeof(float), sizeof(double));
 	}
 	else if(startsWith(lineBuf, "testsend")) {
 		fraise_puts("hello world!");
+	}
+	else if(startsWith(lineBuf, "dontwrite")) {
+		DONT_WRITE = true;
+		printf("l will not write to flash!\n");
 	}
 }
 #endif
@@ -81,7 +85,7 @@ void verifyName(char *data, uint8_t len) {
 		return;
 	}
 	isVerified = (strncmp(data + 1, eeprom_get_name(), len - 1) == 0);
-	DEBUG("isVerified: %s\n", isVerified?"true":"false");
+	DEBUG("l isVerified: %s\n", isVerified?"true":"false");
 	if(isVerified) fraise_puts(" V\n");
 }
 
@@ -93,26 +97,32 @@ void setName(char *data, uint8_t len) {
 	isVerified = true;
 }
 
+void sendVersion() {
+	fraise_puts(version_string);
+}
+
 void fraiseLineReceived(char *data, uint8_t len) {
 	char c = data[0];
-	//printf("line: %s\n", data);
+	//printf("l line: %s\n", data);
 	if(c == 'V') verifyName(data, len);
-	//else if(c == 'G') getName();
+	else if(c == 'I') sendVersion();
 	else if(c == 'A') run_app();
 	else if(c == 'R') setName(data, len);
-	if(isVerified) {
-		if(c == ':') {
+	else if(c == ':' || c == '%') {
+		if(isVerified) {
 			int ret = processHexLine(data, len);
 			switch(ret) {
-				case 0: fraise_puts(" X\n"); break;
-				case 1: fraise_puts(" Y\n"); break;
-				case -1: fraise_puts(" z\n"); break;
-				case -2: fraise_puts(" u\n"); break;
-				case -3: fraise_puts(" l\n"); break;
+				case 0: fraise_puts("X"); /*printf("l send 'X'\n");*/ /*sleep_ms(1);*/ break;
+				case 1: fraise_puts("Y"); break;
+				case -1: fraise_puts("z"); break;
+				case -2: fraise_puts("u"); break;
+				case -3: fraise_puts("l"); break;
+				default: DEBUG("e unrecognized return code from processHexLine()!\n");
 			}
 		}
-		//else
+		else DEBUG("l trying to flash while not verified!\n");
 	}
+	else DEBUG("e unrecognized command!\n");
 }
 
 void fraiseTask() {
@@ -122,11 +132,11 @@ void fraiseTask() {
 	static uint8_t checksum;
 	static absolute_time_t lineTimeout;
 	uint16_t w;
-	#define lineTimedOut() timed_out(lineTimeout)
+	#define lineTimedOut() time_reached(lineTimeout)
 	#define lineResetTimeout() lineTimeout = make_timeout_time_ms(100)
 
 	while(fraise_getword(&w)) {
-		//printf("word: %d \t %c\n", w, w & 127);
+		//printf("l w: %d \t %c\n", w, w & 127);
 		if(w > 255) {
 			if( (w & 255) != 0) { run_app();}
 			fraiseResetTimeout();
@@ -147,7 +157,7 @@ void fraiseTask() {
 						line[wcount - 1] = 0;
 						fraiseLineReceived(line, lineLen - 1);
 					}
-					else { DEBUG("checksum error! %d\n", checksum);/* signal checksum error)*/}
+					else { DEBUG("e checksum error! %d\n", checksum);/* signal checksum error)*/}
 					lineLen = wcount = 0;
 				}
 			}
@@ -177,26 +187,34 @@ int main() {
 #ifdef FRAISE_BLD_DEBUG
 	stdio_init_all();
 	setVerbose(true); // bootloader verbose
+	absolute_time_t to = make_timeout_time_ms(5000);
+	while(!stdio_usb_connected()){
+		if(time_reached(to)) break;
+	}
+	sleep_ms(100);
+	DEBUG("l fraise_bootloader running!\n");
+	sleep_ms(100);
+
 #endif
 	gpio_init(LED_PIN);
 	gpio_set_dir(LED_PIN, GPIO_OUT);
 	gpio_put(LED_PIN, 1);
 	eeprom_setup();
 	fraise_setup(FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN);
+	fraiseResetTimeout();
 	nextLed = make_timeout_time_ms(100);
 
-	fraiseResetTimeout();
 	while(true) {
 	#ifdef FRAISE_BLD_DEBUG
-		stdioTask(NULL);
+		stdioTask();
 	#endif
 		fraiseTask();
-		if(timed_out(nextLed)) {
+		if(time_reached(nextLed)) {
 			gpio_put(LED_PIN, led = !led);
 			nextLed = make_timeout_time_ms(100);
 		}
 	#ifndef FRAISE_BLD_DEBUG
-		if(timed_out(fraiseTimeout) && !isVerified) run_app();
+		if(time_reached(fraiseTimeout) && !isVerified) run_app();
 	#endif
 	}
 }

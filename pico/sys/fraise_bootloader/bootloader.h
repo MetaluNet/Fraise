@@ -13,4 +13,6 @@ uint8_t gethexbyte(const char *buf);
 void run_app();
 void reboot();
 
+extern bool DONT_WRITE;
+
 #endif // _BOOTLOADER_H

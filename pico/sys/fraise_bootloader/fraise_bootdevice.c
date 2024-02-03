@@ -34,10 +34,11 @@ static void pio_irq_func(void) {
     while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
         if(pio_interrupt_get(pio, 4)) { // Framing error! Discard.
             pio_interrupt_clear(pio, 4);
+            pio_sm_clear_fifos(pio, sm); // flush the rx fifo
             continue;
         }
         uint16_t c = fraise_program_getc(pio, sm);
-        if (!queue_try_add(&fifo, &c)) panic("fifo full");
+        if (!queue_try_add(&fifo, &c)) /*panic("fifo full")*/;
     }
 }
 
@@ -70,7 +71,7 @@ void fraise_setup(uint rxpin, uint txpin, uint drvpin) {
         panic("failed to setup pio");
     }
     fraise_program_init(pio, sm, offset, rxpin, txpin, drvpin);
-
+	pio_sm_clear_fifos(pio, sm);
     // Find a free irq
     static_assert(PIO0_IRQ_1 == PIO0_IRQ_0 + 1 && PIO1_IRQ_1 == PIO1_IRQ_0 + 1, "");
     pio_irq = (pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0;
@@ -104,15 +105,20 @@ bool fraise_getword(uint16_t *res) {
 	if (queue_is_empty(&fifo)) return false;
 	uint16_t c;
 	if (!queue_try_remove(&fifo, &c)) {
-		panic("fifo empty");
+		/*panic("fifo empty");*/
+		return false;
 	}
 	*res = c;
 	return true;
 }
 
-void fraise_puts(char *msg){
+void fraise_puts(const char *msg){
     fraise_program_start_tx(pio, sm, strlen(msg));
+    //printf("l puts %s\n", msg);
     char c;
+    absolute_time_t t = make_timeout_time_us(44 * strlen(msg));
     while((c = *msg++)) fraise_program_putc(pio, sm, c);
+    //sleep_us(absolute_time_diff_us(get_absolute_time(), t);
+    sleep_us(44 * 8);
 }
 
