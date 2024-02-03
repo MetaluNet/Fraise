@@ -11,6 +11,8 @@
 const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 int ledPeriod = 250;
 
+extern void stdioTask();
+
 void setup() {
 	gpio_init(0);
 	gpio_set_dir(0, GPIO_OUT);
@@ -23,29 +25,15 @@ void setup() {
 
 int testval = 10;
 void loop(){
-	static absolute_time_t nextLed;// = make_timeout_time_ms(100);
+	static absolute_time_t nextLed;
 	static bool led = false;
 
-	if(absolute_time_min(nextLed, get_absolute_time()) == nextLed) {
+	if(time_reached(nextLed)) {
 		gpio_put(LED_PIN, led = !led);
 		nextLed = make_timeout_time_ms(ledPeriod);
-		//printf("tv %d\n", testval);
 	}
+	stdioTask();
 }
-
-void print_next_txmessage(){
-    int len = txbuf_read_init();
-    if(!len) {
-        printf("no pending message\n");
-        return;
-    }
-    while(len--) printf("%02x ", txbuf_read_getc());
-    putchar('\n');
-    txbuf_read_finish();
-}
-
-extern void fraise_master_print_stats();
-extern void fraise_master_reset();
 
 void fraise_receivebytes(const char *data, uint8_t len){
 	if(data[0] == 1) ledPeriod = (int)data[1] * 10;	
