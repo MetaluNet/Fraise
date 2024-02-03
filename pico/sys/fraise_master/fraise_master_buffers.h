@@ -6,7 +6,7 @@
 #ifndef _FRAISE_MASTER_BUFFER_H
 #define _FRAISE_MASTER_BUFFER_H
 
-bool    txbuf_write_init();                 // Init a new message; returns false if txbuf is full.
+bool    txbuf_write_init(int len);          // Init a new message of length len; returns false if not enough space in txbuf.
 void    txbuf_write_putc(char c);           // Add byte to the message.
 void    txbuf_write_finish();               // Validate the message.
 

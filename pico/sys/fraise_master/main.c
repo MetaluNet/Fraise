@@ -8,17 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*#include "pico/stdlib.h"
-#include "pico/async_context_threadsafe_background.h"
-#include "pico/async_context_poll.h"
-#include "hardware/pio.h"
-#include "pico/stdio/driver.h"
-#include "RP2040.h"
-#include "hardware/resets.h"
-
-#include "fraise.pio.h"
-#include "fraise_master.h"
-#include "fraise_buffers.h"*/
 #define _FRAISE_INTERNAL_
 #include "hardware/watchdog.h"
 #include "hardware/structs/watchdog.h"
@@ -38,20 +27,10 @@ void reboot() {
 	}
 }
 
-uint8_t gethexbyte(const uint8_t *buf)
-{
-	uint8_t cl, ch;
-	ch = buf[0] -'0';
-	if(ch > 9) ch += '9' - 'A' + 1;
-	cl = buf[1] -'0';
-	if(cl > 9) cl += '9' - 'A' + 1;
-	return (ch << 4) + cl;
-}
-
 void processSysLine() {
 	static bool unlocked = false;
 	switch(lineBuf[1]) {
-		case 'R': printf("sID%02X\n", piedID); break;
+		case 'R': printf("sID%02X\n", piedID); fraise_master_bootload_stop(); break;
 		case 'V': printf("sV UsbFraise PicoPied v0.1\n"); break;
 		case 'E': puts((const char*)(lineBuf + 2)); break;
 		case 'U': if(!strncmp(lineBuf, "#UNLOCK", 7)) unlocked = true; return;
@@ -64,7 +43,8 @@ void processSysLine() {
 		case 'S': fraise_master_set_poll(gethexbyte(lineBuf + 2), true); break;
 		case 'C': fraise_master_set_poll(gethexbyte(lineBuf + 2), false); break;
 		case 'i': fraise_master_reset_polls(); break;
-		case 'F': fraise_master_stop_bootload(); break;
+		case 'F': fraise_master_bootload_stop(); break;
+		case 'P': fraise_bootloader_use_pico(lineBuf[2] != '0');
 	}
 	unlocked = false;
 }
@@ -84,7 +64,7 @@ void processBroadcast() {
 			}
 			break;
 		case 'B': fraise_master_sendchars_broadcast(lineBuf + 2); break;
-		case 'F': fraise_master_start_bootload(lineBuf + 2); break;
+		case 'F': fraise_master_bootload_start(lineBuf + 2); break;
 	}
 }
 
@@ -92,29 +72,29 @@ void processBroadcast() {
 #define ishex(x) ((x >= '0'&& x <='9') || (x >= 'A' && x <= 'F'))
 void processLine() {
 	if(lineBuf[0] == '#') processSysLine();
-	else if(fraise_master_is_bootloading()) {
-		fraise_master_send_bootload(lineBuf);
-	} else {
-		if(ishex(lineBuf[0]) && ishex(lineBuf[1])) {
-			uint8_t id = gethexbyte(lineBuf);
-			if(id < 128) {
-				char buf[64];
-				uint8_t count = 2;
-				uint8_t bufcount = 0;
-				while(count < lineLen - 1) {
-					buf[bufcount++] = gethexbyte(lineBuf + count);
-					count += 2;
-				}
-				fraise_master_sendbytes(id, buf, bufcount);
+	else if(startsWith(lineBuf, "waitack")) printf("ack\n");
+	else if(startsWith(lineBuf, "reboot")) {
+		sleep_ms(50); // wait for the host to disconnect the USB device
+		reboot();
+	}
+	else if(startsWith(lineBuf, "whoami")) {
+		printf("swhoami fraise_master\n");
+	}
+	else if(fraise_master_is_bootloading()) fraise_master_bootload_getline(lineBuf, strlen(lineBuf));
+	else if(lineBuf[0] == '!') processBroadcast();
+	else if(ishex(lineBuf[0]) && ishex(lineBuf[1])) { // normal output to fruit
+		uint8_t id = gethexbyte(lineBuf);
+		if(id < 128) {
+			char buf[64];
+			uint8_t count = 2;
+			uint8_t bufcount = 0;
+			while(count < lineLen - 1) {
+				buf[bufcount++] = gethexbyte(lineBuf + count);
+				count += 2;
 			}
-			else fraise_master_sendchars(id & 127, lineBuf + 2);
+			fraise_master_sendbytes(id, buf, bufcount);
 		}
-		else if(lineBuf[0] == '!') processBroadcast();
-		else if(startsWith(lineBuf, "waitack")) printf("ack\n");
-		else if(startsWith(lineBuf, "reboot")) {
-			sleep_ms(50); // wait for the host to disconnect the USB device
-			reboot();
-		}
+		else fraise_master_sendchars(id & 127, lineBuf + 2);
 	}
 }
 
@@ -141,7 +121,8 @@ int main() {
 	setup();
 	while(true) {
 		stdioTask();
-		fraise_master_service();
+		if(fraise_master_is_bootloading()) fraise_master_bootload_service();
+		else fraise_master_service();
 		loop();
 	}
 }

@@ -37,10 +37,10 @@ static inline int txbuf_inc_head(int h) {
 // ------ Write a message to the TX buffer: ------ 
 
 // Init a new message; returns false if txbuf is full.
-bool txbuf_write_init(){
+bool txbuf_write_init(int len){
     int freespace = txbuf_read_head - txbuf_write_head;
     if(freespace < 0) freespace += TXBUF_SIZE;
-    if(freespace < 34) return false;
+    if(freespace < len + 2) return false;
     txbuf_write_tmphead = txbuf_inc_head(txbuf_write_head); // keep first byte for length byte
     txbuf_write_len = 0;
     txbuf_write_checksum = 0;
@@ -70,7 +70,7 @@ uint8_t txbuf_read_init(){
     if(usedspace < 0) usedspace += TXBUF_SIZE;
     if(usedspace == 0) return 0;
     txbuf_read_tmphead = txbuf_inc_head(txbuf_read_head);
-    txbuf_read_len = (txbuf[txbuf_read_tmphead] & 31) + 2; // total_len = data_len + 1(length byte) + 1(checksum byte)
+    txbuf_read_len = (txbuf[txbuf_read_tmphead] & 63) + 2; // total_len = data_len + 1(length byte) + 1(checksum byte)
     return txbuf_read_len;
 }
 

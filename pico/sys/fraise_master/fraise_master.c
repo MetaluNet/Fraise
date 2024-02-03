@@ -17,10 +17,44 @@
 #define _FRAISE_PRIVATE_DEFINE_VARS
 #include "fraise.pio.h"
 #include "fraise_master.h"
-#include "fraise_master_private.h"
 #include "fraise_master_buffers.h"
 
 #include "boardconfig.h"
+
+#define MAX_FRUITS 128
+
+typedef struct {
+	bool detected:1;
+} fruit_vstate_t;
+
+typedef struct {
+	bool polled:1;
+	bool detected_sent:1;
+} fruit_state_t;
+
+static volatile fruit_vstate_t fruit_vstates[MAX_FRUITS];
+static fruit_state_t fruit_states[MAX_FRUITS];
+
+static inline void set_polled(uint8_t id, bool v) {
+	fruit_states[id].polled = v;
+}
+static inline bool is_polled(uint8_t id) {
+	return fruit_states[id].polled;
+}
+
+static inline void set_detected(uint8_t id, bool v) {
+	fruit_vstates[id].detected = v;
+}
+static inline bool is_detected(uint8_t id) {
+	return fruit_vstates[id].detected;
+}
+
+static inline void set_detected_sent(uint8_t id, bool v) {
+	fruit_states[id].detected_sent = v;
+}
+static inline bool is_detected_sent(uint8_t id) {
+	return fruit_states[id].detected_sent;
+}
 
 static bool is_bootloading = false;
 
@@ -92,7 +126,7 @@ static void fraise_master_irq_handler(void) {
             }
 
             // if rxbuf isn't full, poll next fruit if any
-            if(!rxbuf_write_init()) {                           // if rxbuf is full, don't poll and retry later.
+            if(is_bootloading || !rxbuf_write_init()) {         // if rxbuf is full or is_bootloading, don't poll and retry later.
                 fraise_program_disable_tx_interrupt();
                 fraise_add_alarm(PIO_TXFULL_RETRY_TIME);
                 return;
@@ -189,7 +223,8 @@ static void fraise_master_irq_handler(void) {
 	        } else {                                        // If the message is broadcast, remove it from the buffer.
 	            txbuf_read_finish();                            // remove it from the buffer,
 	            state = FMS_POLL;                               // and restart the state machine 
-	            fraise_add_alarm(ONE_BYTE_TIME * pio_sm_get_tx_fifo_level (pio, sm)); // after all bytes are sent.
+	            fraise_add_alarm(ONE_BYTE_TIME *                // after all bytes are sent; we need to add one to the fifo_level
+	                (pio_sm_get_tx_fifo_level(pio, sm) + 1));   // to take account of the byte being transferred currently.
             }
         }
     }
@@ -266,6 +301,7 @@ void fraise_unsetup() {
     irq_remove_handler(pio_irq, fraise_master_irq_handler);
 
     // Cleanup pio
+	pio_sm_clear_fifos(pio, sm);
     pio_sm_set_enabled(pio, sm, false);
     pio_remove_program(pio, &fraise_program, pgm_offset);
     pio_sm_unclaim(pio, sm);
@@ -298,24 +334,27 @@ void fraise_master_assign(const char* fruitname, uint8_t id){
 
 // -----------------------------
 
-void fraise_master_start_bootload(const char *fruitname){
+extern bool waitAck; // from fraise_bootload.c
+void fraise_master_bootload_start(const char *fruitname){
 	if(strlen(fruitname) > 16) {
-	    printf("e fruit name too long! (16 chars max)");
-	    return;
-    }
+		printf("e fruit name too long! (16 chars max)");
+		return;
+	}
 	is_bootloading = true;
 	char buffer[32];
 	sprintf(buffer, "F%s", fruitname);
 	fraise_master_sendchars_broadcast(buffer);
-	sleep_ms(1);
-
+	sleep_ms(10);
+	waitAck = false;
 	fraise_program_disable_rx_interrupt();
 	fraise_program_disable_tx_interrupt();
 	fraise_cancel_alarm();
+	fraise_master_buffers_reset();
 }
 
-void fraise_master_stop_bootload(){
+void fraise_master_bootload_stop(){
 	is_bootloading = false;
+	fraise_master_buffers_reset();
 	state = FMS_POLL;
 	fraise_program_enable_rx_interrupt();
 	fraise_program_enable_tx_interrupt();
@@ -325,22 +364,53 @@ bool fraise_master_is_bootloading() {
 	return is_bootloading;
 }
 
-void fraise_master_send_bootload(const char *buf){
+void fraise_master_bootload_send(const char *buf, int len){
 	if(!is_bootloading) return;
-	int len = strlen(buf);
 	uint8_t checksum = len + 1;
 	const char *p = buf;
 	fraise_program_start_tx(len + 2);
 	fraise_program_putc_blocking((uint8_t)(len + 1));
-	while(*p) {
+	while(len--) {
 	    checksum += *p;
 	    fraise_program_putc_blocking((uint8_t)*p);
 	    p++;
     }
     fraise_program_putc_blocking((uint8_t)(256 - checksum));
-    //while(pio_sm_get_tx_fifo_level(pio, sm) != 0);
+    while(pio_sm_get_tx_fifo_level(pio, sm) != 0);  // wait the fifo is empty, then wait for
+    sleep_us(44);                                   // the current byte to be fully transferred.
 }
 
+void fraise_master_bootload_send_broadcast(const char *buf, int len){ // e.g "Fmyfruit"
+	if(!is_bootloading) return;
+
+	uint8_t checksum = len | 128;
+	const char *p = buf;
+	fraise_program_start_tx(len + 3); 
+	fraise_program_putc_blocking(256);
+	fraise_program_putc_blocking(len | 128);
+	while(len--) {
+	    checksum += *p;
+	    fraise_program_putc_blocking((uint8_t)*p);
+	    p++;
+    }
+    fraise_program_putc_blocking((uint8_t)(256 - checksum));
+    while(pio_sm_get_tx_fifo_level(pio, sm) != 0);  // wait the fifo is empty, then wait for
+    sleep_us(44);                                   // the current byte to be fully transferred.
+}
+
+bool fraise_master_get_raw_byte(char *w) {
+	*w = 0;
+	if(pio_interrupt_get(pio, 4)) { // Framing error! Discard.
+		pio_interrupt_clear(pio, 4);
+		pio_sm_clear_fifos(pio, sm); // flush the rx fifo
+		printf("l FERR\n");
+		return false;
+	}
+	if(pio_sm_is_rx_fifo_empty(pio, sm)) return false;
+	//*w = fraise_program_getc();
+	*w = pio_sm_get_blocking(pio, sm) >> 23;
+	return true;
+}
 // -----------------------------
 
 void fraise_master_set_poll(uint8_t id, bool poll){
@@ -369,7 +439,7 @@ void fraise_master_reset_polls() {
 
 void fraise_master_sendbytes_raw(uint8_t id, const char *data, uint8_t len, bool isChar) {
 	if(id >= MAX_FRUITS) return;
-	if(!txbuf_write_init()) {
+	if(!txbuf_write_init(len)) {
 		printf("e TXBUF full!\n");
 		return;
 	}
@@ -410,14 +480,12 @@ void fraise_master_sendchars_broadcast(const char *data) {
 // -----------------------------
 
 void fraise_master_service() {
-	int l;
-	bool isChar;
-	uint8_t id;
 	// Process incoming message
+	int l;
 	while((l = rxbuf_read_init())) {
-		isChar = l > 127;
+		bool isChar = l > 127;
 		l = (l & 63) - 2;
-		id = rxbuf_read_getc();
+		uint8_t id = rxbuf_read_getc();
 		printf("%02X", id | (isChar?128:0));
 		if(isChar) while(l--) putchar(rxbuf_read_getc());
 		else while(l--) printf("%02X", rxbuf_read_getc());
@@ -437,13 +505,6 @@ void fraise_master_service() {
 				printf("sc%02X\n", i);
 			}
 		}
-	}
-	if(is_bootloading) {
-	    char c;
-	    while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
-	        c = fraise_program_getc();
-	        if(c != ' ' && c != '*') printf("b%c\n", c);
-	    }
 	}
 }
 
