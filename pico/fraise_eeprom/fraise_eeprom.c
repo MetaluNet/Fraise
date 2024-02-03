@@ -56,9 +56,9 @@ uint8_t eeprom_get_id() {
 
 void eeprom_commit() {
 	if(!initialized) return;
-	critical_section_enter_blocking(critsec);
+	//critical_section_enter_blocking(critsec);
 	flash_range_erase((intptr_t)eeprom_const - (intptr_t)XIP_BASE, 4096);
 	flash_range_program((intptr_t)eeprom_const - (intptr_t)XIP_BASE, eeprom_live, EEPROM_SIZE);
-	critical_section_exit(critsec);
+	//critical_section_exit(critsec);
 }
 
