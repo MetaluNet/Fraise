@@ -1,4 +1,4 @@
-#N canvas 668 485 1006 471 10;
+#N canvas 844 468 844 471 10;
 #X obj 24 34 inlet;
 #X obj 460 79 fudiformat -u;
 #N canvas 559 388 530 571 bootload 0;
@@ -116,12 +116,12 @@
 #X obj 260 132 s \$1-comport-pause;
 #X msg 260 109 1;
 #X msg 303 109 0;
-#X msg 24 347 runapp;
+#X msg 24 352 runapp;
 #X obj 433 32 r \$0-topied-text;
 #X obj 433 168 s \$0-pied-suspend;
 #X obj 460 105 s \$1-piedbytes-rcv;
 #X obj 51 254 s \$0-topied-text;
-#X obj 24 369 s \$0-topied-text;
+#X obj 24 374 s \$0-topied-text;
 #X obj 24 203 t b b;
 #X obj 433 54 t a a;
 #X obj 496 410 route ack;
@@ -140,12 +140,12 @@
 #X msg 364 173 0;
 #X msg 393 173 1;
 #X text 19 5 Program pied firmware;
-#X obj 198 64 bng 18 250 50 0 empty empty empty 0 -9 0 10 #fcfcfc #000000 #000000;
+#X obj 226 29 bng 18 250 50 0 empty empty empty 0 -9 0 10 #fcfcfc #000000 #000000;
 #X obj 260 86 del 20;
 #X obj 303 85 del 1200;
 #X obj 24 282 del 1700;
 #X obj 108 141 text define \$0-hex;
-#N canvas 360 62 660 300 debug 1;
+#N canvas 360 62 660 300 debug 0;
 #X obj 88 141 outlet;
 #X msg 88 105 list _none_ tests/debug_system/fraise_bootloader_debug/build/fraise_bootloader.hex, f 86;
 #X connect 1 0 0 0;
@@ -156,6 +156,9 @@
 #X obj 668 236 hradio 18 1 0 8 empty empty empty 0 -9 0 10 #fcfcfc #000000 #000000 0;
 #X msg 676 323 readflash \$1;
 #X msg 716 194 19;
+#X obj 75 58 r __pied_\$2_usb_bootload__;
+#X obj 86 351 s __pied_\$2_usb_bootload__-progress;
+#X obj 166 219 r __pied_\$2_out__;
 #X connect 0 0 19 0;
 #X connect 1 0 30 0;
 #X connect 2 0 27 0;
@@ -212,8 +215,11 @@
 #X connect 53 0 26 0;
 #X connect 54 0 2 0;
 #X connect 56 0 19 0;
+#X connect 57 0 64 0;
 #X connect 58 0 61 0;
 #X connect 59 0 58 0;
 #X connect 60 0 59 0;
 #X connect 61 0 37 0;
 #X connect 62 0 59 0;
+#X connect 63 0 19 0;
+#X connect 65 0 37 0;
