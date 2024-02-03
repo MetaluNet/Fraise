@@ -33,7 +33,7 @@ inline void smooth_pwm_set(smooth_pwm_t *p, float value) {
 }
 
 inline void smooth_pwm_set_smooth(smooth_pwm_t *p, float smooth) {
-    p->smooth = smooth;
+    p->smooth = 1.0 / (smooth * smooth * 500 + 1.0);
 }
 
 inline void smooth_pwm_tick(smooth_pwm_t *p) {
