@@ -227,8 +227,16 @@ void switch_to_bootloader()
 
 void switch_to_bootloader_if_name_matches(char *data, uint8_t len)
 {
-    if(strncmp(data, eeprom_get_name(), len)) return; // continue only if the name matches
-
+    if(strncmp(data, eeprom_get_name(), len)) {
+#ifdef FRAISE_DEVICE_DEBUG
+		printf("l name mismatch!\n");
+#endif
+    	return; // returnif the name doesn't match
+	}
+#ifdef FRAISE_DEVICE_DEBUG
+	printf("l name match, rebooting\n");
+#endif
+	
     //switch_to_bootloader();
     reboot();
 }
