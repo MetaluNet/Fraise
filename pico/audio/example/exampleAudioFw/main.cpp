@@ -111,7 +111,7 @@ void fraise_receivebytes(const char *data, uint8_t len){
 		audio_pwm_set_correction_mode(m);
 	}
 	else if(data[0] == 6) { // get nb notes
-		printf("nb notes %d\n", voice_getNbNotes());
+		printf("nbnotes %d\n", voice_getNbNotes());
 	}
 	else if(data[0] == 8) { // debug
 		voice_debug();
