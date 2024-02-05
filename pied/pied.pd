@@ -1,4 +1,4 @@
-#N canvas 106 487 514 468 10;
+#N canvas 399 208 514 468 10;
 #X declare -path ggee;
 #X declare -path comport;
 #X declare -path extra;
@@ -1140,7 +1140,7 @@
 #X connect 5 2 1 0;
 #X restore 142 209 pd tosystem;
 #N canvas 549 26 439 457 Bootloader/Compiler 0;
-#N canvas 1103 465 725 490 enter-boot-quit 1;
+#N canvas 1103 465 725 490 enter-boot-quit 0;
 #X msg 123 204 0;
 #X obj 123 225 s \$0-verified;
 #X msg 199 157 !F\$1;
@@ -1243,7 +1243,7 @@
 #X connect 50 0 22 0;
 #X connect 51 0 22 0;
 #X restore 232 17 pd enter-boot-quit;
-#N canvas 1076 183 804 763 sendfile 1;
+#N canvas 1076 183 804 763 sendfile 0;
 #X obj 32 76 bng 15 250 50 0 empty empty program 17 7 0 10 #fc8000 #000000 #000000;
 #X obj 70 542 t a b;
 #X obj 363 125 sel X, f 21;
@@ -1575,7 +1575,7 @@
 #X obj 275 179 list trim;
 #X obj 275 199 s \$0-Fr2;
 #X obj 11 40 t a b;
-#N canvas 465 196 644 654 rename 0;
+#N canvas 700 315 644 654 rename 0;
 #X obj 270 162 s \$0-bootloadermode;
 #X msg 270 142 1;
 #X obj 270 234 s \$0-enterbld;
@@ -1641,6 +1641,7 @@
 #X msg 53 94 pied renamed;
 #X obj 53 68 del 100;
 #X text 235 25 (rename) Fruitname is_pied_fruit;
+#X obj 321 219;
 #X connect 1 0 0 0;
 #X connect 3 0 8 0;
 #X connect 3 0 51 0;
@@ -1716,7 +1717,7 @@
 #X connect 63 0 62 0;
 #X restore 11 209 pd rename;
 #X obj 58 47 s \$0-bootstoptimers;
-#N canvas 220 267 666 705 program 0;
+#N canvas 306 311 666 705 program 0;
 #X obj 292 182 s \$0-bootloadermode;
 #X msg 292 162 1;
 #X obj 292 281 s \$0-enterbld;

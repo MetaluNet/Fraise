@@ -1,5 +1,5 @@
 # to be invoked from ${projDir}/build with:
-# cmake -S . -B  . -Dfraise_path=path/to/Fraise -Dfruit_name=fruitname
+# cmake -S . -B  . -Dfraise_path=path/to/Fraise -is_pied_fruit=[0/1]
 cmake_minimum_required(VERSION 3.13)
 
 message("fraise_path: '${fraise_path}'")
@@ -19,7 +19,7 @@ pico_sdk_init()
 
 # get source files
 file(GLOB_RECURSE srcfiles FOLLOW_SYMLINKS CONFIGURE_DEPENDS ${projDir}/*.c ${projDir}/*.cpp ${projDir}/*.cc)
-list(FILTER srcfiles EXCLUDE REGEX "build/*")
+list(FILTER srcfiles EXCLUDE REGEX "build.*/*|board/*")
 message("source files recursive: ${srcfiles}")
 add_executable(${CMAKE_PROJECT_NAME} ${srcfiles})
 
@@ -59,9 +59,14 @@ target_link_libraries(${CMAKE_PROJECT_NAME} pico_stdlib)
 pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 0)
 pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
 
-if(DEFINED ENV{FRUIT_NAME})
-	set(fruit_name $ENV{FRUIT_NAME})
+#if(DEFINED ENV{FRUIT_NAME})
+#	set(fruit_name $ENV{FRUIT_NAME})
+#endif()
+
+if(DEFINED ENV{is_pied_fruit})
+	set(is_pied_fruit $ENV{is_pied_fruit})
 endif()
+
 message("is_pied_fruit = ${is_pied_fruit}")
 if(${is_pied_fruit} EQUAL 1)
 	pico_set_linker_script(${CMAKE_PROJECT_NAME} "${fraise_path}/pico/sys/master_app.ld")
@@ -72,13 +77,20 @@ else()
 	target_link_libraries(${CMAKE_PROJECT_NAME} fraise fraise_device)
 endif()
 
+
+if(${is_pied_fruit} EQUAL 1)
+	set(target_file ${CMAKE_PROJECT_NAME}-0.hex)
+else()
+	set(target_file ${CMAKE_PROJECT_NAME}.hex)
+endif()
+
 add_custom_command(
 	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
 	COMMAND ${CMAKE_COMMAND} -E echo "-- Calculating memory usage"
 	COMMAND size -G ${CMAKE_PROJECT_NAME}.elf > size.txt
 	COMMAND ${CMAKE_COMMAND} -E echo "-- Copying hex file to source directory"
 	COMMAND ${CMAKE_COMMAND} -E 
-		copy "${PROJECT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.hex" "${PROJECT_SOURCE_DIR}/../"
+		copy "${PROJECT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.hex" "${PROJECT_SOURCE_DIR}/../${target_file}"
 )
 
 if(EXISTS "${projDir}/config.cmake")
