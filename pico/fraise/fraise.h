@@ -33,11 +33,12 @@ void fraise_receivechars_broadcast(const char *data, uint8_t len); // Called whe
 // Get the pin numbers that Fraise is using
 void fraise_get_pins(int *rxpin, int *txpin, int *drvpin);
 
-#ifndef _FRAISE_INTERNAL_
-void fraise_printf(const char* fmt, ...);
+void fraise_printf(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
 void fraise_putchar(char c);
-#define printf(fmt, ...) fraise_printf((const char*)(fmt), ##__VA_ARGS__)
-#define putchar(c) fraise_putchar(c)
+
+#ifndef FRAISE_DONT_OVERWRITE_PRINTF
+#define printf fraise_printf
+#define putchar fraise_putchar
 #endif
 
 #ifdef __cplusplus

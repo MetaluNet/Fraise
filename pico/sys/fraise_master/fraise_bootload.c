@@ -8,7 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define _FRAISE_INTERNAL_
+#define FRAISE_DONT_OVERWRITE_PRINTF
+#include "fraise.h"
 #include "fraise_master.h"
 #include "fraise_master_buffers.h"
 

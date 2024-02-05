@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define _FRAISE_INTERNAL_
+#define FRAISE_DONT_OVERWRITE_PRINTF
 #include "hardware/watchdog.h"
 #include "hardware/structs/watchdog.h"
 #include "fraise_eeprom.h"

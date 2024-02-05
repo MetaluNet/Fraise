@@ -13,8 +13,7 @@
 #include "hardware/pio.h"
 #include "hardware/sync.h"
 
-#define _FRAISE_INTERNAL_
-#define _FRAISE_PRIVATE_DEFINE_VARS
+#define FRAISE_DONT_OVERWRITE_PRINTF
 #include "fraise.pio.h"
 #include "fraise_master.h"
 #include "fraise_master_buffers.h"

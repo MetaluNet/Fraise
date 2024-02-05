@@ -13,7 +13,6 @@
 #include "pico/async_context_threadsafe_background.h"
 #include "pico/async_context_poll.h"
 #include "hardware/pio.h"
-#include "pico/stdio/driver.h"
 #include "RP2040.h"
 #include "hardware/resets.h"
 #include "hardware/watchdog.h"
@@ -54,16 +53,6 @@ static async_context_poll_t poll_context;
 static async_context_t *context_core;
 // The worker that will be assigned to the async context:
 static async_when_pending_worker_t worker = { .do_work = async_worker_func };
-
-// Function that will be called by stdout.
-void fraise_out_chars(const char *buf, int len);
-// Data structure for registering this function with the stdout plumbing.
-stdio_driver_t stdio_fraise = {
-    .out_chars = fraise_out_chars,
-#ifdef PICO_STDIO_ENABLE_CRLF_SUPPORT
-    .crlf_enabled = PICO_STDIO_DEFAULT_CRLF
-#endif
-};
 
 static uint8_t FraiseID = 10; // default Fraise ID is 10
 
@@ -359,9 +348,6 @@ void fraise_setup(/*bool background_rx*/) {
     irq_set_enabled(pio_irq, true); // Enable the IRQ
     irq_index = pio_irq - ((pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0); // Get index of the IRQ
     pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, true); // Set pio to tell us when the FIFO is NOT empty
-
-    // Register the print function with stdio_fraise
-    stdio_set_driver_enabled(&stdio_fraise, true);
 }
 
 void fraise_setID(uint8_t id) {
@@ -425,25 +411,6 @@ bool fraise_putbytes(const char* data, uint8_t len){
     }
     txbuf_write_finish(false);
     return true;
-}
-
-// For stdout:
-void fraise_out_chars(const char *buf, int len) {
-    static char line[64];
-    static int count;
-    for (int i = 0; i < len; i++) {
-        char c = buf[i];
-        if(c == '\n') {                             // On end-of-line:
-            if (txbuf_write_init()) {               // If there is room in txbuf,
-                for (int j = 0; j < count; j++) {   // copy the message to txbuf.
-                    if(j < 31) txbuf_write_putc(line[j]);
-                    else break;
-                }
-                txbuf_write_finish(true);           // Validate the message.
-            }
-            count = 0;                              // Clear line.
-        } else line[count++] = c;
-    }
 }
 
 void fraise_putchar(char c) {
