@@ -59,10 +59,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} pico_stdlib)
 pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 0)
 pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
 
-#if(DEFINED ENV{FRUIT_NAME})
-#	set(fruit_name $ENV{FRUIT_NAME})
-#endif()
-
 if(DEFINED ENV{is_pied_fruit})
 	set(is_pied_fruit $ENV{is_pied_fruit})
 endif()
@@ -97,4 +93,6 @@ if(EXISTS "${projDir}/config.cmake")
 	message("including custom config.cmake")
 	include("${projDir}/config.cmake")
 endif()
+
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wall")
 
