@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include "fraise.h"
 
-void fraise_unsetup();
-
 // Process incoming messages.
 // This function is called automatically every loop()
 void fraise_poll_rx();
