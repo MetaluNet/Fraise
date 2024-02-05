@@ -11,10 +11,21 @@
 
 #include "fraise_eeprom.h"
 
+#ifndef EEPROM_SIZE
+#define EEPROM_SIZE 1024
+#endif
+
+#if EEPROM_SIZE > 4095
+#error EEPROM_SIZE too big!
+#endif
+
+#define EEPROM_NAME_MAX_LENGTH 16
+#define EEPROM_ID_LOC 16
+#define EEPROM_USER_START 20
+
 static char eeprom_live[EEPROM_SIZE];
-extern int __fraise_app_start__, __fraise_app_length__;
-extern int __eeprom_start__;
-static const char *eeprom_const = (char*)&__eeprom_start__;
+extern const char __eeprom_start__;
+static const char *eeprom_const = &__eeprom_start__;
 static critical_section_t critsec;
 static bool initialized = false;
 
@@ -34,6 +45,14 @@ void eeprom_write(int address, char data) {
 	eeprom_live[address] = data;
 }
 
+char eeprom_user_read(int address) {
+	return eeprom_read(address + EEPROM_USER_START);
+}
+
+void eeprom_user_write(int address, char data) {
+	eeprom_write(address + EEPROM_USER_START, data);
+}
+
 void eeprom_write_name(char *name) {
 	if(strlen(name) > EEPROM_NAME_MAX_LENGTH) return;
 	for(int i = 0; i < EEPROM_NAME_MAX_LENGTH; i++) {
@@ -47,6 +66,7 @@ const char *eeprom_get_name() {
 }
 
 void eeprom_set_id(uint8_t newid) {
+	if(newid <= 0 || newid > 126) return; // 0 and 127 are reserved. More than 127 is an error.
 	eeprom_write(EEPROM_ID_LOC, newid);
 }
 
@@ -58,7 +78,7 @@ void eeprom_commit() {
 	if(!initialized) return;
 	critical_section_enter_blocking(&critsec);
 	flash_range_erase((intptr_t)eeprom_const - (intptr_t)XIP_BASE, 4096);
-	flash_range_program((intptr_t)eeprom_const - (intptr_t)XIP_BASE, eeprom_live, EEPROM_SIZE);
+	flash_range_program((intptr_t)eeprom_const - (intptr_t)XIP_BASE, (const uint8_t *)eeprom_live, EEPROM_SIZE);
 	critical_section_exit(&critsec);
 }
 

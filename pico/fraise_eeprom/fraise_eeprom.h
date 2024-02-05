@@ -4,32 +4,86 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _EEPROM_H
-#define _EEPROM_H
+#ifndef _FRAISE_EEPROM_H
+#define _FRAISE_EEPROM_H
 
-#ifndef EEPROM_SIZE
-#define EEPROM_SIZE 1024
+/** \file fraise_eeprom.h
+ *  \defgroup fraise_eeprom fraise_eeprom
+ *
+ * EEPROM emulation in flash memory
+ *
+ * Eeprom must first be initialized with eeprom_setup(), than can be read or modified,
+ * then (if modified) must be committed with eeprom_commit(). This function is auto-protected
+ * with a critical section, which ensures that interrupt are fully disabled during actual flash writing.
+ *
+ * The fraise_eeprom API reserves some bytes at the beginning of the allocated space, to store fraise system data,
+ * such as the "name" and the "ID" of the device.
+ */
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#if EEPROM_SIZE > 4095
-#error EEPROM_SIZE too big!
-#endif
-
-#define EEPROM_NAME_MAX_LENGTH 16
-#define EEPROM_ID_LOC 16
-#define EEPROM_USER_START 20
-
+/**
+ * Initialize the eeprom
+ * \ingroup fraise_eeprom
+ * 
+ * \note This actually copies the flash area to RAM, so that it can be accessed in both read and write modes.
+ */
 void eeprom_setup();
 
-char eeprom_read(int address);
-void eeprom_write(int address, char data);
+/**
+ * Read a byte
+ * \ingroup fraise_eeprom
+ * \param address the address to read
+ * \return the data at this address
+ */
+char eeprom_user_read(int address);
 
-void eeprom_write_name(char *name);
+/**
+ * Write a byte
+ * \ingroup fraise_eeprom
+ * \param address the address to write to
+ * \param data the value of the byte to write
+ */
+void eeprom_user_write(int address, char data);
+
+/**
+ * Change the device name in eeprom
+ * \ingroup fraise_eeprom
+ * \param newname the new name to store (no more than 16 chars)
+ */
+void eeprom_write_name(char *newname);
+
+/**
+ * Read the device name stored in eeprom
+ * \ingroup fraise_eeprom
+ * \return the currently stored name
+ */
 const char *eeprom_get_name();
 
+/**
+ * Change the device ID in eeprom
+ * \ingroup fraise_eeprom
+ * \param newid the new ID to store (must be in range [1:126])
+ */
 void eeprom_set_id(uint8_t newid);
+
+/**
+ * Read the device ID stored in eeprom
+ * \ingroup fraise_eeprom
+ * \return the currently stored ID
+ */
 uint8_t eeprom_get_id();
 
+/**
+ * Actually write the eeprom area to flash
+ * \ingroup fraise_eeprom
+ */
 void eeprom_commit();
 
-#endif // _EEPROM_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // _FRAISE_EEPROM_H
