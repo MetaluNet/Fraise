@@ -56,6 +56,8 @@ static async_when_pending_worker_t worker = { .do_work = async_worker_func };
 
 static uint8_t FraiseID = 10; // default Fraise ID is 10
 
+static bool is_initialized = false;
+
 typedef enum {
     FS_LISTEN,
     FS_POLL,
@@ -310,6 +312,8 @@ static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *
 }
 
 void fraise_setup(/*bool background_rx*/) {
+    if(is_initialized) return;
+
     // Get the pin numbers
     int rxpin, txpin, drvpin;
     fraise_get_pins(&rxpin, &txpin, &drvpin);
@@ -348,6 +352,8 @@ void fraise_setup(/*bool background_rx*/) {
     irq_set_enabled(pio_irq, true); // Enable the IRQ
     irq_index = pio_irq - ((pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0); // Get index of the IRQ
     pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, true); // Set pio to tell us when the FIFO is NOT empty
+
+    is_initialized = true;
 }
 
 void fraise_setID(uint8_t id) {
@@ -362,6 +368,8 @@ void fraise_get_pins(int *rxpin, int *txpin, int *drvpin)
 }
 
 void fraise_unsetup() {
+    if(!is_initialized) return;
+
     // Disable interrupt
     fraise_program_disable_tx_interrupt(pio, sm, irq_index);
     pio_set_irqn_source_enabled(pio, irq_index, pis_sm0_rx_fifo_not_empty + sm, false);
@@ -375,6 +383,8 @@ void fraise_unsetup() {
 
     async_context_remove_when_pending_worker(context_core, &worker);
     async_context_deinit(context_core);
+
+    is_initialized = false;
 }
 
 void fraise_poll_rx(){

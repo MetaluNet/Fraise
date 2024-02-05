@@ -55,6 +55,7 @@ static inline bool is_detected_sent(uint8_t id) {
 	return fruit_states[id].detected_sent;
 }
 
+static bool is_initialized = false;
 static bool is_bootloading = false;
 
 static uint8_t polled_fruit = 1;
@@ -251,6 +252,8 @@ static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *
 }
 
 void fraise_setup() {
+    if(is_initialized) return;
+
     // Get the pin numbers
     int rxpin, txpin, drvpin;
     fraise_get_pins(&rxpin, &txpin, &drvpin);
@@ -282,6 +285,8 @@ void fraise_setup() {
     fraise_program_enable_rx_interrupt(); // Set pio to tell us when the FIFO is NOT empty
 
     fraise_program_enable_tx_interrupt(); // This should instantly run the IRQ handler.
+
+    is_initialized = true;
 }
 
 void fraise_get_pins(int *rxpin, int *txpin, int *drvpin)
@@ -292,6 +297,8 @@ void fraise_get_pins(int *rxpin, int *txpin, int *drvpin)
 }
 
 void fraise_unsetup() {
+    if(!is_initialized) return;
+
     // Disable interrupt
     fraise_program_disable_tx_interrupt();
     fraise_program_disable_rx_interrupt();
@@ -304,10 +311,11 @@ void fraise_unsetup() {
     pio_sm_set_enabled(pio, sm, false);
     pio_remove_program(pio, &fraise_program, pgm_offset);
     pio_sm_unclaim(pio, sm);
+
+    is_initialized = false;
 }
 
 void fraise_master_reset(){
-	//fraise_master_reset_polls();
 	fraise_program_disable_tx_interrupt();
 	fraise_cancel_alarm();
 	uint32_t status = save_and_disable_interrupts();
