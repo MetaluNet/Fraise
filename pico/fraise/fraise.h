@@ -9,6 +9,7 @@
 
 #include "pico/stdlib.h"
 #include <stdio.h>
+#include "hardware/pio.h"
 
 /** \file fraise.h
  *  \defgroup fraise fraise
@@ -122,6 +123,17 @@ void fraise_receivechars_broadcast(const char *data, uint8_t len); // Called whe
 // Get the pin numbers that Fraise is using
 void fraise_get_pins(int *rxpin, int *txpin, int *drvpin);
 
+/**
+ * Request attribution of a pio/sm (and optionnaly irq) for a given pio program
+ * \ingroup fraise
+ * \param program the pio program we want a sm to run
+ * \param pio_hw the address where to store the available pio
+ * \param sm the address where to store the index of the available state machine
+ * \param program_offset the address where to store the offset from which the program can be written
+ * \param irq if not null, the address where to store the index of the chosen irq
+ * \return false if this fails.
+ */
+bool claim_pio_sm_irq(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *program_offset, uint *irq);
 
 #ifndef FRAISE_DONT_OVERWRITE_PRINTF
 #define printf fraise_printf

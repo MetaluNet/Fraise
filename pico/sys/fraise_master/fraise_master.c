@@ -230,27 +230,6 @@ static void fraise_master_irq_handler(void) {
     }
 }
 
-// Find a free pio and state machine and load the program into it.
-// Returns false if this fails.
-static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *offset) {
-    // Find a free pio
-    *pio_hw = pio1;
-    if (!pio_can_add_program(*pio_hw, program)) {
-        *pio_hw = pio0;
-        if (!pio_can_add_program(*pio_hw, program)) {
-            *offset = -1;
-            return false;
-        }
-    }
-    *offset = pio_add_program(*pio_hw, program);
-    // Find a state machine
-    *sm = (int8_t)pio_claim_unused_sm(*pio_hw, false);
-    if (*sm < 0) {
-        return false;
-    }
-    return true;
-}
-
 void fraise_setup() {
     if(is_initialized) return;
 
@@ -261,21 +240,11 @@ void fraise_setup() {
     // Reset the buffers
     fraise_master_buffers_reset();
 
-    // Set up the state machine we're going to use
-    if (!init_pio(&fraise_program, &pio, &sm, &pgm_offset)) {
+    // Set up the state machine and irq we're going to use
+    if (!claim_pio_sm_irq(&fraise_program, &pio, &sm, &pgm_offset, &pio_irq)) {
         panic("failed to setup pio");
     }
     fraise_program_init(rxpin, txpin, drvpin);
-
-    // Find a free irq
-    static_assert(PIO0_IRQ_1 == PIO0_IRQ_0 + 1 && PIO1_IRQ_1 == PIO1_IRQ_0 + 1, "");
-    pio_irq = (pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0;
-    if (irq_get_exclusive_handler(pio_irq)) {
-        pio_irq++;
-        if (irq_get_exclusive_handler(pio_irq)) {
-            panic("All IRQs are in use");
-        }
-    }
 
     // Enable interrupt
     irq_add_shared_handler(pio_irq, fraise_master_irq_handler, PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY); // Add a shared IRQ handler

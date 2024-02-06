@@ -71,7 +71,7 @@ static uint jmp_rx; // Jump to RX instruction
 static PIO pio;
 static uint sm;
 static uint pgm_offset; // Offset of the program in the pio
-static int8_t pio_irq;  // The irq used by the sm
+static uint pio_irq;  // The irq used by the sm
 static uint irq_index;  // The offset of pio_irq relatively to PIO0_IRQ_0 or PIO1_IRQ_0
 
 static inline void fraise_program_init(uint rxpin, uint txpin, uint drvpin) {

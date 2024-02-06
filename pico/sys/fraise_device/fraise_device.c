@@ -38,7 +38,7 @@ static bool background_rx = false;
 static PIO pio;
 static uint sm;
 static uint pgm_offset; // Offset of the program in the pio
-static int8_t pio_irq;  // The irq used by the sm
+static uint pio_irq;  // The irq used by the sm
 static uint irq_index;  // The offset of pio_irq relatively to PIO0_IRQ_0 or PIO1_IRQ_0
 
 static uint irq_count, irq_rx_count; // Debugging counters
@@ -290,27 +290,6 @@ static void async_worker_func(async_context_t *async_context, async_when_pending
     }
 }
 
-// Find a free pio and state machine and load the program into it.
-// Returns false if this fails.
-static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *offset) {
-    // Find a free pio
-    *pio_hw = pio1;
-    if (!pio_can_add_program(*pio_hw, program)) {
-        *pio_hw = pio0;
-        if (!pio_can_add_program(*pio_hw, program)) {
-            *offset = -1;
-            return false;
-        }
-    }
-    *offset = pio_add_program(*pio_hw, program);
-    // Find a state machine
-    *sm = (int8_t)pio_claim_unused_sm(*pio_hw, false);
-    if (*sm < 0) {
-        return false;
-    }
-    return true;
-}
-
 void fraise_setup(/*bool background_rx*/) {
     if(is_initialized) return;
 
@@ -331,21 +310,11 @@ void fraise_setup(/*bool background_rx*/) {
     }
     async_context_add_when_pending_worker(context_core, &worker);
 
-    // Set up the state machine we're going to use
-    if (!init_pio(&fraise_program, &pio, &sm, &pgm_offset)) {
+    // Set up the state machine and irq we're going to use
+    if (!claim_pio_sm_irq(&fraise_program, &pio, &sm, &pgm_offset, &pio_irq)) {
         panic("failed to setup pio");
     }
     fraise_program_init(pio, sm, pgm_offset, rxpin, txpin, drvpin);
-
-    // Find a free irq
-    static_assert(PIO0_IRQ_1 == PIO0_IRQ_0 + 1 && PIO1_IRQ_1 == PIO1_IRQ_0 + 1, "");
-    pio_irq = (pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0;
-    if (irq_get_exclusive_handler(pio_irq)) {
-        pio_irq++;
-        if (irq_get_exclusive_handler(pio_irq)) {
-            panic("All IRQs are in use");
-        }
-    }
 
     // Enable interrupt
     irq_add_shared_handler(pio_irq, fraise_irq, PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY); // Add a shared IRQ handler

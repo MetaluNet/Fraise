@@ -21,6 +21,7 @@ target_link_libraries(fraise_device INTERFACE
 	pico_async_context_poll
 	cmsis_core
 	fraise_eeprom
+	fraise
 )
 
 #set_target_properties(fraise_device PROPERTIES INTERFACE_COMPILE_OPTIONS "-DFRAISE_DEVICE_DEBUG")
