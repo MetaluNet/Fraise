@@ -13,8 +13,9 @@
  * RF24 Fraise module declarations
  */
 
-/** @defgroup RF24 nRF24L01+ module
+/** @defgroup RF24 RF24 nRF24L01+ module
  *  2.4GHz wireless communication.
+ * \ingroup pic
  */
 
 #ifndef __RF24_H__

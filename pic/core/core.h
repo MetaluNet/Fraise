@@ -38,6 +38,7 @@
 
 /** @defgroup core Core module
  *  Core module implements eeprom, pins and time.
+ * \ingroup pic
  *  @{
  */
 

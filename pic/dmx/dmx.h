@@ -30,6 +30,7 @@
 /** @file */
 
 /** @defgroup dmx DMX master module
+ * \ingroup pic
  *  
   
  *  Example :

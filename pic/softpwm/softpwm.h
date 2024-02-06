@@ -30,6 +30,7 @@
 
 /** @defgroup softpwm Software PWM module
  *  Implements 8channels(max) 10bits 100Hz(max) software PWM.
+ * \ingroup pic
   
  *  Example :
  *   main.c

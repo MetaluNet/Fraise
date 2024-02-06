@@ -12,8 +12,9 @@
 
 /** \file fraise.h
  *  \defgroup fraise fraise
- *
  * Common Fraise API
+ *  \ingroup pico
+ *
  */
 
 #ifdef __cplusplus

@@ -10,9 +10,9 @@
 #include "pico/types.h"
 
 /** \file buffer.h
- * \defgroup util_buffer buffer
+ * \_defgroup util_buffer buffer
  * \brief Buffer management
- * \ingroup pico_util
+ * \ingroup none
  */
 
 #ifdef PICO_BUFFER_USB_ALLOC_HACK

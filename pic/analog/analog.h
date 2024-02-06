@@ -30,7 +30,9 @@
 
 /** @defgroup analog Analog module
  *  Automates the use of analog input pins.
-
+ *
+ * \ingroup pic
+ *
  *  Example:
  * \include analog/examples/example1/main.c
  *  @{

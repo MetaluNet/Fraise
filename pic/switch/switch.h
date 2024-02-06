@@ -31,6 +31,7 @@
 #include <fruit.h>
 /** @defgroup switch Switch module
  *  Automates the use of digital input pins.
+ * \ingroup pic
   
  *  Example :
  * \include switch/examples/example1/main.c

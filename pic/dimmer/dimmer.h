@@ -30,7 +30,7 @@
 
 /** @defgroup dimmer Dimmer module
  *  8 channels AC dimmer 
-  
+ * \ingroup pic
  *  Example :
  *
  *   main.c

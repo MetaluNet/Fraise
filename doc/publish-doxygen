@@ -23,8 +23,10 @@ cd -
 # make a copy of the Fraise directory here, where we can tweak it a bit
 rm -Rf doxy_copy/
 mkdir -p doxy_copy/
-cd ..
-git archive --prefix=Fraise/ HEAD | (cd doc/doxy_copy && tar xf -)
+
+cd ../..
+#git archive --prefix=Fraise/ HEAD | (cd doc/doxy_copy && tar xf -)
+tar -c --exclude="*doc/doxy_copy" --exclude="*doc/publish-deken" Fraise | (cd Fraise/doc/doxy_copy && tar xf -)
 cd -
 mv doxy_copy/Fraise/doc/protocol.md doxy_copy/Fraise
 sed -i 's#(doc/protocol.md)#(@ref protocol)#' doxy_copy/Fraise/README.md

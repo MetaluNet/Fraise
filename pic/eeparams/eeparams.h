@@ -28,6 +28,7 @@
 #include "core.h"
 /** @defgroup eeparams EEPROM parameters module
   Save parameters values into EEPROM, and load them at setup.
+ * \ingroup pic
 
  -------------
  example :

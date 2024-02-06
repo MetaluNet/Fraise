@@ -28,10 +28,11 @@
 #define _FSLP__H_
 /** @file */
 
-/** @defgroup FSLP Force-sensing linear potentiometers module
- *  
+/** @defgroup FSLP FSLP
+ * Force-sensing linear potentiometers module
+ * \ingroup pic
   
- *  Example :
+ * Example:
  * \include analog/examples/example1/main.c
  *  @{
  */

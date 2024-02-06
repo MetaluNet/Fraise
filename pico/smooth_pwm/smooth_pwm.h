@@ -7,6 +7,12 @@
 #ifndef _SMOOTH_PWM_H
 #define _SMOOTH_PWM_H
 
+/** \file smooth_pwm.h
+ *  \defgroup smooth_pwm smooth_pwm
+ * Demo module, implementing smoothed configurable PWM channels.
+ *  \ingroup pico
+ */
+
 typedef struct _smooth_pwm_t {
     int pin;
     float smooth; 

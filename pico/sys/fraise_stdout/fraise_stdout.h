@@ -9,9 +9,8 @@
 
 /** \file fraise_stdout.h
  *  \defgroup fraise_stdout fraise_stdout
- *
  * Setup Fraise output as a regular stdout
- *
+ *  \ingroup pico
  */
 
 #ifdef __cplusplus

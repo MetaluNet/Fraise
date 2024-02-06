@@ -18,6 +18,8 @@
  *
  * The fraise_eeprom API reserves some bytes at the beginning of the allocated space, to store fraise system data,
  * such as the "name" and the "ID" of the device.
+ *
+ * \ingroup pico
  */
 
 #ifdef __cplusplus

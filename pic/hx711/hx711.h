@@ -30,7 +30,9 @@
 
 /** @file */
 
-/** @defgroup hx711 Load Cell Amplifier HX711 module
+/** @defgroup hx711 hx711
+ * load cell amplifier module
+ * \ingroup pic
  *  
   
  *  Example :

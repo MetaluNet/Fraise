@@ -30,6 +30,7 @@
 
 /** @defgroup fraisedevice Fraise device module
  *  Implements Fraise device protocol on the serial device.
+ * \ingroup pic
  *  @{
  */
 
