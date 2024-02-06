@@ -8,8 +8,7 @@
 
 /**
 
- * \defgroup pico Pico modules
- * These modules are to be used with rp2040 based boards, such as Raspberry Pi pico.
+ * \defgroup pico
  * @{
  *     \defgroup pico_audio pico_audio
        \defgroup pico_audio_pwm pico_audio_pwm
