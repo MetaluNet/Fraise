@@ -27,7 +27,7 @@ void fraise_master_bootload_send_broadcast(const char *buf, int len);
 bool fraise_master_is_bootloading();
 bool fraise_master_get_raw_byte(char *w);
 
-bool fraise_master_bootload_getline(const char *buf, int len);
+void fraise_master_bootload_getline(const char *buf, int len);
 void fraise_master_bootload_service();
 void fraise_bootloader_use_pico(bool useit);
 
@@ -36,7 +36,7 @@ void fraise_master_reset();
 
 // Take the first 2 bytes and convert them from hexadecimal string representation to unsigned char.
 // Example: if buf starts with "0A", gethexbyte will return 10
-uint8_t gethexbyte(const uint8_t *buf);
+uint8_t gethexbyte(const char *buf);
 
 #endif // _FRAISE_MASTER_H
 

@@ -77,6 +77,7 @@ int64_t fraise_alarm_callback(alarm_id_t id, void *user_data) {
             break;
         case FMS_WAITACK:           // the fruit didn't aknowledge the packet
             break;
+        default: break;
     }
     state = FMS_POLL;
     fraise_program_enable_tx_interrupt();
@@ -103,7 +104,6 @@ static void fraise_master_irq_handler(void) {
     static uint8_t rx_bytes;
     static uint8_t rx_msg_length;
     static uint8_t tx_bytes_to_send;
-    static bool    rx_is_broadcast;
     static bool    rx_is_char;
     switch(state) {
         case FMS_POLL:
@@ -208,6 +208,7 @@ static void fraise_master_irq_handler(void) {
                 fraise_add_alarm(WAIT_ANSWER_TIME);
             }
             return;
+        default: break;
     }
 
     while((state == FMS_SEND) && !pio_sm_is_tx_fifo_full(pio, sm)) {
@@ -506,6 +507,7 @@ bool fraise_putbytes(const char* data, uint8_t len) {
 	printf("00");
 	for(int i = 0; i < len ; i++) printf("%02X", data[i]);
 	putchar('\n');
+	return true;
 }
 
 // ------------------------------

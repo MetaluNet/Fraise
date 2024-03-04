@@ -14,7 +14,7 @@
 #include "fraise_eeprom.h"
 #include "fraise_master.h"
 
-uint8_t lineBuf[256];
+char lineBuf[256];
 uint8_t lineLen;
 uint8_t piedID = 1;
 
@@ -101,7 +101,6 @@ void processLine() {
 void stdioTask()
 {
 	int c;
-	static bool led;
 	while((c = getchar_timeout_us(0)) != PICO_ERROR_TIMEOUT){
 		if(c == '\n') {
 			lineBuf[lineLen] = 0;

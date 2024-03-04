@@ -18,7 +18,7 @@
 bool usePicoBootloader = false;
 bool waitAck = false;
 
-uint8_t gethexbyte(const uint8_t *buf)
+uint8_t gethexbyte(const char *buf)
 {
 	uint8_t cl, ch;
 	ch = buf[0] -'0';
@@ -51,7 +51,7 @@ bool fraise_master_bootload_pop_send(){
 	return true;
 }
 
-bool fraise_master_bootload_getline(const char *lineBuf, int lineLen) {
+void fraise_master_bootload_getline(const char *lineBuf, int lineLen) {
 	if(lineBuf[0] == '!' && lineBuf[1] == 'F') {
 		fraise_master_bootload_send_broadcast(lineBuf + 1 , lineLen - 1);
 		waitAck = false;
@@ -75,7 +75,7 @@ void fraise_bootloader_use_pico(bool useit) {
 
 void fraise_master_bootload_service(){
     static absolute_time_t no_response_timeout;
-    static absolute_time_t data_request_timeout;
+    //static absolute_time_t data_request_timeout;
     static int nb_retries;
     char c;
 
@@ -93,7 +93,7 @@ void fraise_master_bootload_service(){
         		txbuf_read_finish(); // remove the message from the buffer
         		if(txbuf_write_init(256)) {
 					printf("bX\n"); // if enough space in tx buf, request new lines.
-					data_request_timeout = make_timeout_time_ms(100);
+					//data_request_timeout = make_timeout_time_ms(100);
 			    }
         	}
         }
