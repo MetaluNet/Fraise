@@ -13,7 +13,7 @@
  *  \ingroup pico
  */
 
-bool ws2812_setup(bool rgbw);
+bool ws2812_setup(int pin, bool rgbw);
 
 void ws2812_put_pixel(uint32_t pixel_rgb);
 

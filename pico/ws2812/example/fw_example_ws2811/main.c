@@ -15,12 +15,14 @@
 #include "ws2812.h"
 #include "fraise.h"
 
+#define WS2812_PIN 2
 #define IS_RGBW false
 #define NUM_PIXELS 150
 
 //#define put_pixel ws2812_put_pixel
 
 uint32_t framebuffer[NUM_PIXELS];
+uint32_t framebuffer2[NUM_PIXELS];
 int fb_index;
 
 void set_pixel(int n, uint8_t r, uint8_t g, uint8_t b) {
@@ -98,6 +100,14 @@ int t = 0;
 int i = 1000;
 bool pattern_play = false;
 bool pattern_rnd = false;
+int rotate_pos;
+int rotate_speed;
+
+void rotate_buffer(int steps) {
+	for(int i = 0; i < NUM_PIXELS - 1; i++) {
+		framebuffer2[i] = framebuffer[(i + steps)%NUM_PIXELS];
+	}
+}
 
 bool tick_callback(repeating_timer_t *rt)
 {
@@ -114,12 +124,16 @@ bool tick_callback(repeating_timer_t *rt)
 		t += dir;
 	}
 	//framebuffer_send();
-	ws2812_dma_transfer(framebuffer, NUM_PIXELS);
+	rotate_pos += rotate_speed;
+	if(rotate_pos <= -(NUM_PIXELS << 16)) rotate_pos += (NUM_PIXELS << 16);
+	else if(rotate_pos >= (NUM_PIXELS << 16)) rotate_pos -= (NUM_PIXELS << 16);
+	rotate_buffer(rotate_pos >> 16);
+	ws2812_dma_transfer(framebuffer2, NUM_PIXELS);
 	return true;
 }
 
 void setup() {
-	ws2812_setup(IS_RGBW);
+	ws2812_setup(WS2812_PIN, IS_RGBW);
 	add_repeating_timer_ms(5, tick_callback, NULL, &tick_timer);
 }
 
@@ -133,6 +147,7 @@ void fraise_receivebytes(const char* data, uint8_t len) {
 			pat = data[3];
 			dir = data[4] != 0 ? 1 : -1;
 			break;
+		case 30: rotate_speed = (int32_t)((data[1] << 24) | (data[2]  << 16) | (data[3] << 8) | data[4]); break;
 	}
 }
 

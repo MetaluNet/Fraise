@@ -15,12 +15,6 @@
 #include "fraise.h"
 #include "ws2812.pio.h"
 
-#ifdef PICO_DEFAULT_WS2812_PIN
-#define WS2812_PIN PICO_DEFAULT_WS2812_PIN
-#else
-// default to pin 2 if the board doesn't have a default WS2812 pin defined
-#define WS2812_PIN 2
-#endif
 
 static PIO pio;
 static uint sm;
@@ -34,12 +28,12 @@ void ws2812_put_pixel(uint32_t pixel_rgb) {
     pio_sm_put_blocking(pio, sm, pixel_rgb);
 }
 
-bool ws2812_setup(bool rgbw) {
+bool ws2812_setup(int pin, bool rgbw) {
     if (!claim_pio_sm_irq(&ws2812_program, &pio, &sm, &pgm_offset, NULL /*&pio_irq*/)) {
         //panic("failed to setup pio");
         return false;
     }
-    ws2812_program_init(pio, sm, pgm_offset, WS2812_PIN, 800000, rgbw);
+    ws2812_program_init(pio, sm, pgm_offset, pin, 800000, rgbw);
     return true;
 }
 
