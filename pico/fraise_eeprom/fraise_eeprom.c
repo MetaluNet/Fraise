@@ -50,6 +50,7 @@ char eeprom_user_read(int address) {
 }
 
 void eeprom_user_write(int address, char data) {
+	if(address < 0) return;
 	eeprom_write(address + EEPROM_USER_START, data);
 }
 
@@ -81,4 +82,35 @@ void eeprom_commit() {
 	flash_range_program((intptr_t)eeprom_const - (intptr_t)XIP_BASE, (const uint8_t *)eeprom_live, EEPROM_SIZE);
 	critical_section_exit(&critsec);
 }
+
+// --- user utilities ---
+static enum {LOAD, SAVE} eeprom_mode;
+static int eeprom_count;
+
+void eeprom_declare_data(char *data, uint8_t size) {
+	switch(eeprom_mode) {
+		case LOAD:
+			for(int i = 0; i < size ; i++) data[i] = eeprom_user_read(eeprom_count++);
+			break;
+		case SAVE:
+			for(int i = 0; i < size ; i++) eeprom_user_write(eeprom_count++, data[i]);
+			break;
+	}
+}
+
+void eeprom_load() {
+	eeprom_mode = LOAD;
+	eeprom_count = 0;
+	eeprom_declare_main();
+}
+
+void eeprom_save() {
+	eeprom_mode = SAVE;
+	eeprom_count = 0;
+	eeprom_declare_main();
+	eeprom_commit();
+}
+
+
+
 
