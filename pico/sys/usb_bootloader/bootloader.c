@@ -236,10 +236,10 @@ int main() {
 	gpio_put(LED_PIN, 0);
 	eeprom_setup();
 	piedID = eeprom_get_id();
-	/*while(!stdio_usb_connected()){
+	while(!stdio_usb_connected()){
 		ms_since_boot = to_ms_since_boot(get_absolute_time());
 		if(ms_since_boot > 2000) runapp();
-	}*/
+	}
 	gpio_put(LED_PIN, 1);
 
 	while(true){
