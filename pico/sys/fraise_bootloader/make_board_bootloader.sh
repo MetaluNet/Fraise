@@ -5,7 +5,7 @@ if [ x$1 == x ] ; then
 	exit
 fi
 
-cmake -B build -S . -Dfraise_board=$1
+../../../../Fraise-toolchain/cmake/bin/cmake -B build -S . -Dfraise_board=$1
 cd build
 make -j8
 

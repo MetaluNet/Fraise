@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.13)
-set(pico_sys_path "${CMAKE_CURRENT_SOURCE_DIR}/..")
-include(${pico_sys_path}/pico_sdk_import.cmake)
+
+get_filename_component(fraise_path "${CMAKE_CURRENT_SOURCE_DIR}/../../../" REALPATH)
+get_filename_component(fraise_toolchain_path ${fraise_path}/../Fraise-toolchain/ REALPATH)
+set(PICO_TOOLCHAIN_PATH ${fraise_toolchain_path}/gcc)
+set(PICO_SDK_PATH ${fraise_toolchain_path}/pico-sdk)
+include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
 project("fraise_bootloader" C CXX ASM)
 get_filename_component(board "${fraise_board}" NAME)
 get_filename_component(boardDir "${fraise_board}" DIRECTORY)
 if( "${boardDir}" STREQUAL "") 
-	get_filename_component(boardDir "${pico_sys_path}/../../boards/${fraise_board}" REALPATH)
+	get_filename_component(boardDir "${fraise_path}/boards/${fraise_board}" REALPATH)
 else()
 	get_filename_component(boardDir "${fraise_board}" REALPATH)
 endif()
@@ -23,7 +27,7 @@ pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/fraise.
 
 pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
 
-add_subdirectory("${pico_sys_path}/../fraise_eeprom" fraise_eeprom)
+add_subdirectory("${fraise_path}/pico/fraise_eeprom" fraise_eeprom)
 
 #set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wall")
 #set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES COMPILE_OPTIONS "-DFRAISE_BLD_DEBUG")
@@ -33,8 +37,8 @@ add_subdirectory("${pico_sys_path}/../fraise_eeprom" fraise_eeprom)
 
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -I${boardDir})
 
-target_link_options(${CMAKE_PROJECT_NAME} PUBLIC "-L${pico_sys_path}")
-pico_set_linker_script(${CMAKE_PROJECT_NAME} ${pico_sys_path}/device_bootloader.ld)
+target_link_options(${CMAKE_PROJECT_NAME} PUBLIC "-L${fraise_path}/pico/sys")
+pico_set_linker_script(${CMAKE_PROJECT_NAME} ${fraise_path}/pico/sys/device_bootloader.ld)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} 
     pico_stdlib

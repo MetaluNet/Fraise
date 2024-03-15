@@ -4,7 +4,10 @@ cmake_minimum_required(VERSION 3.13)
 
 message("fraise_path: '${fraise_path}'")
 
-include(${fraise_path}/pico/sys/pico_sdk_import.cmake)
+get_filename_component(fraise_toolchain_path ${fraise_path}/../Fraise-toolchain/ REALPATH)
+set(PICO_TOOLCHAIN_PATH ${fraise_toolchain_path}/gcc)
+set(PICO_SDK_PATH ${fraise_toolchain_path}/pico-sdk)
+include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
