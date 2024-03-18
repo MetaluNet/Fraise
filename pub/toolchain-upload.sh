@@ -1,10 +1,10 @@
 #!/bin/bash -e
 
 # to be called from the pub/ directory (here)
-usage="usage: toolchain-upload.sh OS(linux/windows/macos) ARCH(i386/amd64/arm32/arm64)"
+usage="usage: toolchain-upload.sh OS(linux/windows/macos) ARCH(i386/amd64/arm32/arm64) [test]"
 
 FRAISE_PATH=$PWD/..
-VERSION=`git describe --abbrev=0`
+VERSION="0.1.0" # `git describe --abbrev=0`
 
 oses="linux macos windows"
 arches="i386 amd64 arm32 arm64"
@@ -12,10 +12,10 @@ arches="i386 amd64 arm32 arm64"
 os=$1
 arch=$2
 
-declare -A deken_arch
-deken_arch[linux]=Linux
-deken_arch[macos]=Darwin
-deken_arch[windows]=Windows
+declare -A deken_os
+deken_os[linux]=Linux
+deken_os[macos]=Darwin
+deken_os[windows]=Windows
 
 declare -A deken_arch
 deken_arch[i386]=i386
@@ -73,7 +73,7 @@ case $binpath in
     return ;;
     esac
 
-mkdir -p toolchain-build/toolchain/bin
+mkdir -p toolchain-build/Fraise-toolchain/bin
 cd toolchain-build
 
 # ----------------- clone Fraise-bins and copy bins and pic-sdk
@@ -84,13 +84,13 @@ cd Fraise-bins
 git pull
 cd ..
 
-cp Fraise-bins/bin/$binpath/* toolchain/bin
-cp -r Fraise-bins/pic-sdk toolchain/
+cp Fraise-bins/bin/$binpath/* Fraise-toolchain/bin
+cp -r Fraise-bins/pic-sdk Fraise-toolchain/
 # ----------------- clone pico-sdk
 
-if ! [ -e toolchain/pico-sdk ] ; then
-    git clone https://github.com/raspberrypi/pico-sdk.git toolchain/pico-sdk
-    cd toolchain/pico-sdk
+if ! [ -e Fraise-toolchain/pico-sdk ] ; then
+    git clone https://github.com/raspberrypi/pico-sdk.git Fraise-toolchain/pico-sdk
+    cd Fraise-toolchain/pico-sdk
     git submodule init
     git submodule update
     cd -
@@ -98,7 +98,7 @@ if ! [ -e toolchain/pico-sdk ] ; then
 
 # remove unused stuff in sdk-pico
 
-cd toolchain/pico-sdk
+cd Fraise-toolchain/pico-sdk
 rm -rf .git/ docs/* test/ lib/mbedtls/tests
 touch docs/CMakeLists.txt
 cd lib/tinyusb/hw
@@ -125,18 +125,18 @@ cmake_file=$(basename $cmake_url)
 cmake_dir="${cmake_file%.*}" # remove ".gz" or ".zip"
 if [ os != windows ] ; then cmake_dir="${cmake_dir%.*}" ; fi # remove ".tar"
 
-if ! [ -e toolchain/cmake ] ; then
+if ! [ -e Fraise-toolchain/cmake ] ; then
     if ! [ -e $cmake_file ] ; then
         wget $cmake_url
     fi
     $extract $cmake_file
-    mv $cmake_dir toolchain/cmake
+    mv $cmake_dir Fraise-toolchain/cmake
 fi
 
 # remove unused stuff in cmake
 
-rm -rf toolchain/cmake/bin/{cmake-gui,ccmake,ctest,cpack}
-rm -rf toolchain/cmake/{doc,man}
+rm -rf Fraise-toolchain/cmake/bin/{cmake-gui,ccmake,ctest,cpack}
+rm -rf Fraise-toolchain/cmake/{doc,man}
 
 # ----------------- get gcc
 
@@ -144,17 +144,17 @@ gcc_file=$(basename $gcc_url)
 gcc_dir="${gcc_file%.*}" # remove ".xz"
 gcc_dir="${gcc_dir%.*}" # remove ".tar"
 
-if ! [ -e toolchain/gcc ] ; then
+if ! [ -e Fraise-toolchain/gcc ] ; then
     if ! [ -e $gcc_file ] ; then
         wget $gcc_url
     fi
-    mkdir -p toolchain/gcc
-    tar -xJf $gcc_file -C toolchain/gcc --strip-components=1
+    mkdir -p Fraise-toolchain/gcc
+    tar -xJf $gcc_file -C Fraise-toolchain/gcc --strip-components=1
 fi
 
 # remove unused stuff in gcc
 
-cd toolchain/gcc
+cd Fraise-toolchain/gcc
 cd arm-none-eabi/lib
     mv thumb/nofp .
     rm -rf thumb/*
@@ -172,6 +172,22 @@ cd arm-none-eabi/include/c++/13.2.1/arm-none-eabi
     cd -
 rm -rf share/{doc,info,man,gdb,gcc-arm-none-eabi}
 rm -rf bin/{arm-none-eabi-gdb,arm-none-eabi-lto-dump,arm-none-eabi-gfortran}
+cd ../..
+# ----------------- package to deken
+DEKEN_ARCH=${deken_os[$os]}-${deken_arch[$arch]}-32
+echo deken arch: $DEKEN_ARCH
+deken package --version $VERSION Fraise-toolchain
+
+mv "Fraise-toolchain[v$VERSION](Sources).dek"        "Fraise-toolchain[v$VERSION]($DEKEN_ARCH).dek"
+mv "Fraise-toolchain[v$VERSION](Sources).dek.sha256" "Fraise-toolchain[v$VERSION]($DEKEN_ARCH).dek.sha256"
+if [ -e "Fraise-toolchain[v$VERSION](Sources).dek.asc" ]; then
+mv "Fraise-toolchain[v$VERSION](Sources).dek.asc"    "Fraise-toolchain[v$VERSION]($DEKEN_ARCH).dek.asc"
+fi
+
+if [ x$3 != xtest ] ; then
+    deken upload --no-source-error "Fraise-toolchain[v$VERSION]($DEKEN_ARCH).dek"
+fi
 
 echo OK
+
 
