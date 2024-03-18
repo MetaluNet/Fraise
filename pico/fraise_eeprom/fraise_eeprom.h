@@ -160,6 +160,9 @@ void eeprom_commit();
 
 ///@}
 
+// usb_bootloader needs it
+#define EEPROM_ID_LOC 16
+
 #ifdef __cplusplus
 }
 #endif
