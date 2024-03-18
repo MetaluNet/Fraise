@@ -47,29 +47,25 @@ if ! $(in_array $arch $arches) ; then
     fi
 
 extract="tar -xzf"
-
-case $os-$arch in
+binpath=$os-$arch
+case $binpath in
     linux-amd64)
-        binpath=linux64 
         cmake_url=https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-linux-x86_64.tar.gz
         gcc_url=https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
         ;;
     linux-arm32)
-        binpath=linuxarm
+        # todo
         ;;
     windows-amd64)
-        binpath=windows
         cmake_url=https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-windows-x86_64.zip
         gcc_url=https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-mingw-w64-i686-arm-none-eabi.zip
         extract="unzip"
         ;;
     macos-amd64)
-        binpath=macos
         cmake_url=https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-macos-universal.tar.gz
         gcc_url=https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-darwin-x86_64-arm-none-eabi.tar.xz
         ;;
     macos-arm64)
-        binpath=macos
         cmake_url=https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-macos-universal.tar.gz
         gcc_url=https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-darwin-arm64-arm-none-eabi.tar.xz
         ;;
@@ -80,13 +76,24 @@ case $os-$arch in
 mkdir -p toolchain-build/toolchain/bin
 cd toolchain-build
 
-# ----------------- copy bins
-cp $FRAISE_PATH/pied/bin/$binpath/* toolchain/bin
+# ----------------- clone Fraise-bins and copy bins and pic-sdk
+if ! [ -e Fraise-bins ] ; then
+    git clone https://github.com/MetaluNet/Fraise-bins.git
+    fi
+cd Fraise-bins
+git pull
+cd ..
 
+cp Fraise-bins/bin/$binpath/* toolchain/bin
+cp -r Fraise-bins/pic-sdk toolchain/
 # ----------------- clone pico-sdk
 
 if ! [ -e toolchain/pico-sdk ] ; then
-    git clone --recursive https://github.com/raspberrypi/pico-sdk.git toolchain/pico-sdk
+    git clone https://github.com/raspberrypi/pico-sdk.git toolchain/pico-sdk
+    cd toolchain/pico-sdk
+    git submodule init
+    git submodule update
+    cd -
     fi
 
 # remove unused stuff in sdk-pico
