@@ -67,11 +67,10 @@ endif()
 
 add_custom_command(
 	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E echo "-- Calculating memory usage"
+	COMMENT "-- Calculating memory usage"
 	COMMAND ${fraise_toolchain_path}/gcc/bin/arm-none-eabi-size -G ${CMAKE_PROJECT_NAME}.elf > size.txt
-	COMMAND ${CMAKE_COMMAND} -E echo "-- Copying hex file to source directory"
-	COMMAND ${CMAKE_COMMAND} -E 
-		copy "${PROJECT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.hex" "${PROJECT_SOURCE_DIR}/../${target_file}"
+	COMMENT "-- Copying hex file to source directory"
+	COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.hex" "${PROJECT_SOURCE_DIR}/../${target_file}"
 )
 
 if(EXISTS "${projDir}/config.cmake")
