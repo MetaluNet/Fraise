@@ -1,5 +1,5 @@
 /**
- * 12-channel PWM driver
+ * Simple fruit
  */
 
 #define BOARD pico
@@ -15,7 +15,8 @@ void loop(){
 	static absolute_time_t nextLed;// = make_timeout_time_ms(100);
 	static bool led = false;
 
-	if(absolute_time_min(nextLed, get_absolute_time()) == nextLed) {
+	if(time_reached(nextLed)) {
+		//if(absolute_time_min(nextLed, get_absolute_time()) == nextLed) {
 		gpio_put(LED_PIN, led = !led);
 		nextLed = make_timeout_time_ms(ledPeriod);
 	}
