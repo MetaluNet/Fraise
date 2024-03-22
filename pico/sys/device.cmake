@@ -2,6 +2,8 @@
 # cmake -S . -B  . -Dfraise_path=path/to/Fraise -is_pied_fruit=[0/1]
 cmake_minimum_required(VERSION 3.13)
 
+#set(fraise_path /c/Users/Admin/Documents/PD/externals/Fraise)
+
 # get source files
 file(GLOB_RECURSE srcfiles FOLLOW_SYMLINKS CONFIGURE_DEPENDS ${projDir}/*.c ${projDir}/*.cpp ${projDir}/*.cc)
 list(FILTER srcfiles EXCLUDE REGEX "build.*/*|board/*")
@@ -68,7 +70,7 @@ endif()
 add_custom_command(
 	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
 	COMMENT "-- Calculating memory usage"
-	COMMAND ${fraise_toolchain_path}/gcc/bin/arm-none-eabi-size -G ${CMAKE_PROJECT_NAME}.elf > size.txt
+	COMMAND ${size_command} -G ${CMAKE_PROJECT_NAME}.elf > size.txt
 	COMMENT "-- Copying hex file to source directory"
 	COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.hex" "${PROJECT_SOURCE_DIR}/../${target_file}"
 )
