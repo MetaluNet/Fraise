@@ -214,42 +214,48 @@ void processLine() {
 	else if(startsWith(lineBuf, "whoami")) {
 		printf("swhoami usb_bootloader\n");
 	}
-	else if(startsWith(lineBuf, "readflash")) {
+	/*else if(startsWith(lineBuf, "readflash")) {
 		uint32_t addr;
-		sscanf(lineBuf, "readflash %d", &addr);
+		sscanf(lineBuf, "readflash %d", &addr); // scanf adds 50k to the final bin...
 		printf("l readflash at %#08x:", addr);
 		for(int i = 0; i < 16; i++) {
 			printf("%02X", *(const uint8_t *) (XIP_BASE + addr + i));
 		}
 		printf("\n");
-	}
+	}*/
 	else if(startsWith(lineBuf, "verbose")) verbose = true;
 	else if(startsWith(lineBuf, "noverbose")) verbose = false;
 	else if(startsWith(lineBuf, "getms")) printf("l boot to connected %ldms\n", ms_since_boot);
 }
 
 int main() {
-	stdio_init_all();
 	const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 	gpio_init(LED_PIN);
 	gpio_set_dir(LED_PIN, GPIO_OUT);
-	gpio_put(LED_PIN, 0);
+	gpio_put(LED_PIN, 1);
+
+	stdio_init_all();
 	eeprom_setup();
 	piedID = eeprom_get_id();
-	while(!stdio_usb_connected()){
-		ms_since_boot = to_ms_since_boot(get_absolute_time());
-		if(ms_since_boot > 2000) runapp();
+
+	if(piedID == 255) { // piedID isn't initialized, default to ID 1
+		eeprom_set_id(piedID = 1);
+		eeprom_commit();
 	}
+
 	gpio_put(LED_PIN, 1);
 
 	while(true){
-		unsigned char c = getchar();
-		if(c == '\n') {
+		int c = getchar_timeout_us(100000);
+		if(c == PICO_ERROR_TIMEOUT) {
+			//if(!stdio_usb_connected() && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
+		}
+		else if(c == '\n') {
 			lineBuf[lineLen] = 0;
 			processLine();
 			lineLen = 0;
 		}
-		else lineBuf[lineLen++] = c;
+		else lineBuf[lineLen++] = (uint8_t) c;
 	}
 }
 
