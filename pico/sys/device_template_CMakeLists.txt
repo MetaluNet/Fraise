@@ -11,6 +11,7 @@ get_filename_component(projName ${projDir} NAME)
 message("project directory name: '${projDir}'")
 message("project name: '${projName}'")
 project(${projName} C CXX ASM)
+
 pico_sdk_init()
 
 include(${fraise_path}/pico/sys/device.cmake)

@@ -1,66 +1,33 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.12)
 
-get_filename_component(fraise_path "${CMAKE_CURRENT_SOURCE_DIR}/../../../" REALPATH)
-get_filename_component(fraise_toolchain_path ${fraise_path}/../Fraise-toolchain/ REALPATH)
-set(PICO_TOOLCHAIN_PATH ${fraise_toolchain_path}/gcc)
-set(PICO_SDK_PATH ${fraise_toolchain_path}/pico-sdk)
-include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+get_filename_component(fraise_path ../../.. REALPATH)
+# Pull in SDK (must be before project)
+include(../find_tools.cmake)
 
-project("fraise_bootloader" C CXX ASM)
-get_filename_component(board "${fraise_board}" NAME)
-get_filename_component(boardDir "${fraise_board}" DIRECTORY)
-if( "${boardDir}" STREQUAL "") 
-	get_filename_component(boardDir "${fraise_path}/boards/${fraise_board}" REALPATH)
-else()
-	get_filename_component(boardDir "${fraise_board}" REALPATH)
-endif()
-message("board: ${board} ; board directory: ${boardDir}")
-
+project(fraise_bootloader C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
+if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
+    message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
+endif()
+
+# Initialize the SDK
 pico_sdk_init()
 
-add_executable(${CMAKE_PROJECT_NAME} main.c fraise_bootdevice.c bootloader.c)
+add_subdirectory("${PROJECT_SOURCE_DIR}/blink" blink)
+add_subdirectory("${PROJECT_SOURCE_DIR}/bootloader" bootloader)
 
-pico_generate_pio_header(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/fraise.pio)
+set(APP_BIN ${CMAKE_CURRENT_BINARY_DIR}/blink/blink.bin)
+set(BLD_ELF ${CMAKE_CURRENT_BINARY_DIR}/bootloader/bootloader.elf)
 
-pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
-
-add_subdirectory("${fraise_path}/pico/fraise_eeprom" fraise_eeprom)
-
-#set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wall")
-#set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES COMPILE_OPTIONS "-DFRAISE_BLD_DEBUG")
-
-# get every asm intermediate output
-#target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -save-temps -fverbose-asm)
-
-target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -I${boardDir})
-
-target_link_options(${CMAKE_PROJECT_NAME} PUBLIC "-L${fraise_path}/pico/sys")
-pico_set_linker_script(${CMAKE_PROJECT_NAME} ${fraise_path}/pico/sys/device_bootloader.ld)
-
-target_link_libraries(${CMAKE_PROJECT_NAME} 
-    pico_stdlib
-    hardware_irq
-    hardware_watchdog
-    hardware_structs
-    hardware_pio
-	hardware_resets
-	hardware_sync
-	hardware_flash
-	#pico_unique_id
-	cmsis_core
-	fraise_eeprom
+add_custom_target(fraise_bootloader ALL
+    DEPENDS blink bootloader
+    COMMAND ${CMAKE_OBJCOPY} --update-section .app_bin=${APP_BIN} ${BLD_ELF} fraise_bootloader.elf
+    COMMAND ELF2UF2 fraise_bootloader.elf fraise_bootloader.uf2
+    COMMAND ${CMAKE_COMMAND} -E copy fraise_bootloader.uf2 "${boardDir}/fraise_bootloader.uf2"
 )
 
-pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 0)
-pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
-
-add_custom_command(
-	TARGET ${CMAKE_PROJECT_NAME} POST_BUILD 
-	COMMAND ${CMAKE_COMMAND} -E echo "-- Copying uf2 file to board directory"
-	COMMAND ${CMAKE_COMMAND} -E
-		copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.uf2" "${boardDir}/${board}.uf2"
-)
+message("fraise_board: ${fraise_board}")
+message("boardDir: ${boardDir}")
 

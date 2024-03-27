@@ -238,10 +238,10 @@ int main() {
 	eeprom_setup();
 	piedID = eeprom_get_id();
 
-	if(piedID == 255) { // piedID isn't initialized, default to ID 1
+	/*if(piedID == 255) { // piedID isn't initialized, default to ID 1
 		eeprom_set_id(piedID = 1);
 		eeprom_commit();
-	}
+	}*/
 
 	gpio_put(LED_PIN, 1);
 

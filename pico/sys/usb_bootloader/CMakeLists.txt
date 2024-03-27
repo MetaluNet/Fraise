@@ -17,30 +17,19 @@ endif()
 # Initialize the SDK
 pico_sdk_init()
 
-add_executable(${CMAKE_PROJECT_NAME} bootloader.c)
+add_subdirectory("${PROJECT_SOURCE_DIR}/blink" blink)
+add_subdirectory("${PROJECT_SOURCE_DIR}/bootloader" bootloader)
 
-add_subdirectory("${PROJECT_SOURCE_DIR}/../../fraise_eeprom" fraise_eeprom)
+set(APP_BIN ${CMAKE_CURRENT_BINARY_DIR}/blink/blink.bin)
+set(BLD_ELF ${CMAKE_CURRENT_BINARY_DIR}/bootloader/bootloader.elf)
 
-# pull in common dependencies
-target_link_libraries(${CMAKE_PROJECT_NAME} 
-	pico_stdlib 
-	hardware_flash
-	hardware_structs
-	hardware_resets
-	hardware_sync
-	cmsis_core
-	fraise_eeprom
+add_custom_target(usb_bootloader ALL 
+    DEPENDS blink bootloader
+    COMMAND ${CMAKE_OBJCOPY} --update-section .app_bin=${APP_BIN} ${BLD_ELF} usb_bootloader.elf
+    COMMAND ELF2UF2 usb_bootloader.elf usb_bootloader.uf2
+    COMMAND ${CMAKE_COMMAND} -E copy usb_bootloader.uf2 "${boardDir}/usb_bootloader.uf2"
 )
 
-# create map/bin/hex file etc.
-pico_add_extra_outputs(${CMAKE_PROJECT_NAME})
-
-pico_enable_stdio_usb(${CMAKE_PROJECT_NAME} 1)
-pico_enable_stdio_uart(${CMAKE_PROJECT_NAME} 0)
-
-pico_set_float_implementation(${CMAKE_PROJECT_NAME} none)
-pico_set_double_implementation(${CMAKE_PROJECT_NAME} none)
-
-target_link_options(${CMAKE_PROJECT_NAME} PUBLIC "-L${PROJECT_SOURCE_DIR}/..")
-pico_set_linker_script(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../master_bootloader.ld)
+message("fraise_board: ${fraise_board}")
+message("boardDir: ${boardDir}")
 

@@ -29,6 +29,24 @@ SECTIONS
     ASSERT(__boot2_end__ - __boot2_start__ == 256,
         "ERROR: Pico second stage bootloader must be 256 bytes in size")
 
+    .eeprom_section    : {
+        /* 7 chars fruit name: */
+        ASCIZ "fruit1"
+        BYTE(0)
+        QUAD(0)
+        /* fruit ID = 1: */
+        LONG(1)
+    } > EEPROM
+    /*
+     * Name a section for the app binary
+     * In combined builds, the contents will get replaced post-build (thx picowota!)
+     */
+    .app_bin : {
+        . = ALIGN(4k);
+        __app_bin = .;
+        LONG(0)
+    } > APP
+
     /* The second stage will always enter the image at the start of .text.
        The debugger will use the ELF entry point, which is the _entry_point
        symbol if present, otherwise defaults to start of .text.
