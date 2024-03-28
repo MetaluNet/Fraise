@@ -9,16 +9,18 @@ COMMIT_USER="Documentation Builder"
 COMMIT_EMAIL="_antoine_@metalu.net"
 CHANGESET=$(git rev-parse --verify HEAD)
 
-# Get a clean version of the HTML documentation repo.
-rm -rf ${HTML_PATH}
-mkdir -p ${HTML_PATH}
-git clone -b gh-pages "${REPO_PATH}" ${HTML_PATH}
+if [ x$1 != "xnogit" ] ; then
+    # Get a clean version of the HTML documentation repo.
+    rm -rf ${HTML_PATH}
+    mkdir -p ${HTML_PATH}
+    git clone -b gh-pages "${REPO_PATH}" ${HTML_PATH}
 
-# rm all the files through git to prevent stale files.
-cd ${HTML_PATH}
-if [ `git config remote.origin.url` != ${REPO_PATH} ] ; then cd -; echo "ERROR cloning ${REPO_PATH} !" ;exit ; fi
-git rm -rf .
-cd -
+    # rm all the files through git to prevent stale files.
+    cd ${HTML_PATH}
+    if [ `git config remote.origin.url` != ${REPO_PATH} ] ; then cd -; echo "ERROR cloning ${REPO_PATH} !" ;exit ; fi
+    git rm -rf .
+    cd -
+fi
 
 # make a copy of the Fraise directory here, where we can tweak it a bit
 rm -Rf doxy_copy/
