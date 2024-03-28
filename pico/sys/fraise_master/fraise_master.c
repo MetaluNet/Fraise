@@ -428,6 +428,7 @@ void fraise_master_sendbytes_raw(uint8_t id, const char *data, uint8_t len, bool
 
 void fraise_master_sendbytes(uint8_t id, const char *data, uint8_t len) {
 	if(id == 0) {
+		fraise_init_get_buffer(data, len);
 		fraise_receivebytes(data, len);
 		return;
 	}
@@ -444,6 +445,7 @@ void fraise_master_sendchars(uint8_t id, const char *data){
 }
 
 void fraise_master_sendbytes_broadcast(const char *data, uint8_t len) {
+	fraise_init_get_buffer(data, len);
 	fraise_receivebytes_broadcast(data, len);
 	fraise_master_sendbytes_raw(0, data, len, false);
 }

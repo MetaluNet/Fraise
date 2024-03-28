@@ -282,10 +282,16 @@ static void async_worker_func(async_context_t *async_context, async_when_pending
                 else if(c == 'F') switch_to_bootloader_if_name_matches(message + 1, message_count - 1);
                 else if(c == 'N') assign(message + 1, message_count - 1);
             }
-            else fraise_receivebytes_broadcast(message, message_count);
+            else {
+                fraise_init_get_buffer(message, message_count);
+                fraise_receivebytes_broadcast(message, message_count);
+            }
         } else {
             if(message_is_chars) fraise_receivechars(message, message_count);
-            else fraise_receivebytes(message, message_count);
+            else {
+                fraise_init_get_buffer(message, message_count);
+                fraise_receivebytes(message, message_count);
+            }
         }
     }
 }

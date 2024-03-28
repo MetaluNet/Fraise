@@ -42,7 +42,30 @@ void fraise_unsetup();
 ///@}
 
 /**
- * \name Message sending utilities
+ * \name Sending raw bytes messages
+ * \{
+*/
+
+/**
+ * \brief Send a raw bytes message
+ * \param data the address of the first byte to send
+ * \param len the number of bytes to send
+ * \return false if the TX buffer is full, true otherwise
+ */
+bool fraise_putbytes(const char* data, uint8_t len); // returns true on success
+
+void fraise_put_init(); /**< \brief Initialize the 'put' buffer */
+void fraise_put_int8(int8_t b);
+void fraise_put_uint8(uint8_t b);
+void fraise_put_int16(int16_t b);
+void fraise_put_uint16(uint16_t b);
+void fraise_put_int32(int32_t b);
+void fraise_put_uint32(uint32_t b);
+bool fraise_put_send(); /**< \brief Send the 'put' buffer with fraise_putbytes() */
+///@}
+
+/**
+ * \name Sending text messages
  * \{
 */
 
@@ -54,23 +77,15 @@ void fraise_unsetup();
 bool fraise_puts(const char* msg); // returns true on success
 
 /**
- * \brief Send a raw bytes message
- * \param data the address of the first byte to send
- * \param len the number of bytes to send
- * \return false if the TX buffer is full, true otherwise
- */
-bool fraise_putbytes(const char* data, uint8_t len); // returns true on success
-
-/**
  * \brief push a single character to the text buffer
  * \param c the char to send
- * \note the message will be sent and flushed after each '\n' character
+ * \note the message will be sent with fraise_puts() and flushed after each '\n' character
  */
 void fraise_putchar(char c);
 /**
  * \brief Push a printf-formatted buffered text to the text buffer
  * \param fmt,... the formatted text
- * \note the message will be sent and flushed after each '\n' character (fraise_printf() internally uses fraise_putchar())
+ * \note the message will be sent and flushed after each '\n' character (fraise_printf() internally calls fraise_putchar())
  */
 void fraise_printf(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
@@ -119,6 +134,27 @@ void fraise_receivebytes_broadcast(const char *data, uint8_t len); // Called whe
  * \note the user can define this function, which will be called when a broadcast text message has been received
  */
 void fraise_receivechars_broadcast(const char *data, uint8_t len); // Called when a text broadcast message has been received
+
+/**
+ * \name Bytes receive decoding utils:
+ * \note These functions are only valid when called from fraise_receivebytes() or fraise_receivebytes_broadcast().
+ * If there's not enough data left, they return 0.
+*/
+int8_t fraise_get_int8();
+uint8_t fraise_get_uint8();
+int16_t fraise_get_int16();
+uint16_t fraise_get_uint16();
+int32_t fraise_get_int32();
+uint32_t fraise_get_uint32();
+
+/**
+ * \brief Init the 'get' buffer.
+ * \param data the buffer containing the data to decode
+ * \param len the number of data bytes
+ * \note this function is automatically called before fraise_receivebytes() or fraise_receivebytes_broadcast() are called.
+ */
+void fraise_init_get_buffer(const char *data, uint8_t len);
+
 ///@}
 
 
