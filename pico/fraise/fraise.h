@@ -23,28 +23,10 @@
 extern "C" {
 #endif
 
-/**
- * \name Global fraise driver management
- * \{
-*/
-
-/**
- * \brief Initialize the Fraise driver
- * \note This is automatically called at startup, so in most cases you won't need it.
- */
-void fraise_setup();
-
-/**
- * \brief Stop and cleanup the Fraise driver
- */
-void fraise_unsetup();
-
-///@}
-
-/**
+/** -----------------------------------------------------------------
  * \name Sending raw bytes messages
  * \{
-*/
+ */
 
 /**
  * \brief Send a raw bytes message
@@ -64,10 +46,10 @@ void fraise_put_uint32(uint32_t b);
 bool fraise_put_send(); /**< \brief Send the 'put' buffer with fraise_putbytes() */
 ///@}
 
-/**
+/** -----------------------------------------------------------------
  * \name Sending text messages
  * \{
-*/
+ */
 
 /**
  * \brief Send a text message
@@ -79,19 +61,19 @@ bool fraise_puts(const char* msg); // returns true on success
 /**
  * \brief push a single character to the text buffer
  * \param c the char to send
- * \note the message will be sent with fraise_puts() and flushed after each '\n' character
+ * \note the message will be sent with fraise_puts() and flushed after each `\n` (newline) character
  */
 void fraise_putchar(char c);
 /**
  * \brief Push a printf-formatted buffered text to the text buffer
  * \param fmt,... the formatted text
- * \note the message will be sent and flushed after each '\n' character (fraise_printf() internally calls fraise_putchar())
+ * \note the message will be sent and flushed after each `\n` character (fraise_printf() internally calls fraise_putchar())
  */
 void fraise_printf(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
 ///@}
 
-/**
+/** -----------------------------------------------------------------
  * \name Optional user defined callbacks
  * \{
 */
@@ -135,7 +117,7 @@ void fraise_receivebytes_broadcast(const char *data, uint8_t len); // Called whe
  */
 void fraise_receivechars_broadcast(const char *data, uint8_t len); // Called when a text broadcast message has been received
 
-/**
+/** -----------------------------------------------------------------
  * \name Bytes receive decoding utils:
  * \note These functions are only valid when called from fraise_receivebytes() or fraise_receivebytes_broadcast().
  * If there's not enough data left, they return 0.
@@ -157,9 +139,36 @@ void fraise_init_get_buffer(const char *data, uint8_t len);
 
 ///@}
 
+/** -----------------------------------------------------------------
+ * \name Global fraise driver management
+ * \{
+*/
 
-// Get the pin numbers that Fraise is using
-void fraise_get_pins(int *rxpin, int *txpin, int *drvpin);
+/**
+ * \brief Initialize the Fraise driver
+ * \note This is automatically called at startup, so in most cases you won't need it.
+ */
+void fraise_setup();
+
+/**
+ * \brief Stop and cleanup the Fraise driver
+ */
+void fraise_unsetup();
+
+/**
+ * \brief Get the pin numbers that Fraise is using
+ * \param rxpin the address where to store the number of the RX pin
+ * \param txpin the address where to store the number of the TX pin
+ * \param drvpin the address where to store the number of the DRV pin
+ */
+ void fraise_get_pins(int *rxpin, int *txpin, int *drvpin);
+
+///@}
+
+/** -----------------------------------------------------------------
+ * \name Misc
+ * \{
+*/
 
 /**
  * \brief Request attribution of a pio/sm (and optionnaly irq) for a given pio program
@@ -171,6 +180,8 @@ void fraise_get_pins(int *rxpin, int *txpin, int *drvpin);
  * \return false if this fails.
  */
 bool claim_pio_sm_irq(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *program_offset, uint *irq);
+
+///@}
 
 #ifndef FRAISE_DONT_OVERWRITE_PRINTF
 #define printf fraise_printf

@@ -20,6 +20,7 @@
 #endif
 
 #define EEPROM_NAME_MAX_LENGTH 16
+#define EEPROM_ID_LOC 16
 #define EEPROM_USER_START 20
 
 static char eeprom_live[EEPROM_SIZE];

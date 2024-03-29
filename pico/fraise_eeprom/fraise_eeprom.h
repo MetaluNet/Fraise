@@ -12,11 +12,12 @@
  *
  * EEPROM emulation in flash memory
  *
- * Eeprom must first be initialized with eeprom_setup(), than can be read or modified,
- * then (if modified) must be committed with eeprom_commit(). This function is auto-protected
- * with a critical section, which ensures that interrupt are fully disabled during actual flash writing.
+ * Eeprom is first initialized at boot time by the system calling eeprom_setup(), 
+ * which copies the last saved version of the data from flash to an dedicated RAM area.
+ * This area can then be read or modified.
+ * If modified, the RAM area must be written back to flash with eeprom_commit().
  *
- * The fraise_eeprom API reserves some bytes at the beginning of the allocated space, to store fraise system data,
+ * The fraise_eeprom API reserves some bytes at the beginning of the emulated EEPROM to store fraise system data,
  * such as the "name" and the "ID" of the device.
  *
  * \ingroup pico
@@ -103,25 +104,25 @@ void eeprom_save();
 
 
 /**
- * \name Low-level eeprom API
+ * \name Low-level API
  */
 ///@{
 
 /**
- * \brief Initialize the eeprom
- * \note This actually copies the flash area to RAM, so that it can be accessed in both read and write modes.
+ * \brief Initialize the eeprom by copying data from flash to RAM
+ * \note This function is automatically called at startup. You shouldn't need to call it manually.
  */
 void eeprom_setup();
 
 /**
- * \brief Read a byte
+ * \brief Read a byte from eeprom user space
  * \param address the address to read
  * \return the data at this address
  */
 char eeprom_user_read(int address);
 
 /**
- * \brief Write a byte
+ * \brief Write a byte to eeprom user space
  * \param address the address to write to
  * \param data the value of the byte to write
  */
@@ -153,15 +154,14 @@ uint8_t eeprom_get_id();
 
 /**
  * \brief Actually write the eeprom area to flash
+ * \note This function is protected with a critical section, which ensures
+ * that interrupt are fully disabled during actual flash writing.
  */
 void eeprom_commit();
 
 ///@}
 
 ///@}
-
-// usb_bootloader needs it
-#define EEPROM_ID_LOC 16
 
 #ifdef __cplusplus
 }
