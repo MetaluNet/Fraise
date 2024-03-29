@@ -71,7 +71,7 @@ void fraise_setup(uint rxpin, uint txpin, uint drvpin) {
         panic("failed to setup pio");
     }
     fraise_program_init(pio, sm, offset, rxpin, txpin, drvpin);
-	pio_sm_clear_fifos(pio, sm);
+    pio_sm_clear_fifos(pio, sm);
     // Find a free irq
     static_assert(PIO0_IRQ_1 == PIO0_IRQ_0 + 1 && PIO1_IRQ_1 == PIO1_IRQ_0 + 1, "");
     pio_irq = (pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0;
@@ -102,17 +102,17 @@ void fraise_unsetup() {
 }
 
 bool fraise_getword(uint16_t *res) {
-	if (queue_is_empty(&fifo)) return false;
-	uint16_t c;
-	if (!queue_try_remove(&fifo, &c)) {
-		/*panic("fifo empty");*/
-		return false;
-	}
-	*res = c;
-	return true;
+    if (queue_is_empty(&fifo)) return false;
+    uint16_t c;
+    if (!queue_try_remove(&fifo, &c)) {
+        /*panic("fifo empty");*/
+        return false;
+    }
+    *res = c;
+    return true;
 }
 
-void fraise_puts(const char *msg){
+void fraise_puts(const char *msg) {
     fraise_program_start_tx(pio, sm, strlen(msg));
     //printf("l puts %s\n", msg);
     char c;
