@@ -2,13 +2,13 @@ add_executable(bootloader bootloader.c)
 
 # pull in common dependencies
 target_link_libraries(bootloader
-	pico_stdlib 
-	hardware_flash
-	hardware_structs
-	hardware_resets
-	hardware_sync
-	cmsis_core
-	fraise_eeprom
+    pico_stdlib 
+    hardware_flash
+    hardware_structs
+    hardware_resets
+    hardware_sync
+    cmsis_core
+    fraise_eeprom
 )
 
 # create map/bin/hex file etc.
