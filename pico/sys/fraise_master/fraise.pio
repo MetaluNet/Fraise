@@ -120,9 +120,9 @@ static inline void fraise_program_init(uint rxpin, uint txpin, uint drvpin) {
 // Switch to packet transmit mode: ask sm to switch to tx mode, and push 'length' word to FIFO.
 static inline void fraise_program_start_tx(uint8_t count) {
     if(count < 1) {
-    	printf("e ERROR ON fraise_program_start_tx()! count = %d\n", count);
-    	return;
-	}
+        printf("e ERROR ON fraise_program_start_tx()! count = %d\n", count);
+        return;
+    }
     pio_sm_clear_fifos(pio, sm);
     pio_sm_exec_wait_blocking (pio, sm, jmp_tx);
     pio_sm_put_blocking(pio, sm, (uint32_t)(count - 1)); // first word is (length - 1)

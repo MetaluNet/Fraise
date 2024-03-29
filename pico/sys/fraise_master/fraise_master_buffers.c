@@ -11,7 +11,7 @@
 #include "fraise_master_buffers.h"
 
 // ------------------------------------------------------------------------------------
-// ------------ TX buffer ------------ 
+// ------------ TX buffer ------------
 // The message is encoded like this:
 // data_length data data (...) checksum (the first 'data' byte is the destination fruit ID)
 // data_length is the number of data bytes, so the whole message takes (data_length&63 + 2) bytes in txbuf.
@@ -34,10 +34,10 @@ static inline int txbuf_inc_head(int h) {
     return h;
 }
 
-// ------ Write a message to the TX buffer: ------ 
+// ------ Write a message to the TX buffer: ------
 
 // Init a new message; returns false if txbuf is full.
-bool txbuf_write_init(int len){
+bool txbuf_write_init(int len) {
     int freespace = txbuf_read_head - txbuf_write_head;
     if(freespace < 0) freespace += TXBUF_SIZE;
     if(freespace < len + 2) return false;
@@ -48,7 +48,7 @@ bool txbuf_write_init(int len){
 }
 
 // Add byte to the message
-void txbuf_write_putc(char c){
+void txbuf_write_putc(char c) {
     txbuf[txbuf_write_tmphead] = c;
     txbuf_write_tmphead = txbuf_inc_head(txbuf_write_tmphead);
     txbuf_write_len++;
@@ -56,7 +56,7 @@ void txbuf_write_putc(char c){
 }
 
 // Validate the message
-void txbuf_write_finish(){
+void txbuf_write_finish() {
     txbuf[txbuf_write_head] = txbuf_write_len; // write length byte
     txbuf[txbuf_write_tmphead] = -txbuf_write_checksum; // write checksum byte
     txbuf_write_head = txbuf_inc_head(txbuf_write_tmphead);
@@ -65,7 +65,7 @@ void txbuf_write_finish(){
 // ------ Read a message from the TX buffer:
 
 // Initialize the sender for next message. Returns the length of the next message (0 if none).
-uint8_t txbuf_read_init(){
+uint8_t txbuf_read_init() {
     int usedspace = txbuf_write_head - txbuf_read_head - 1;
     if(usedspace < 0) usedspace += TXBUF_SIZE;
     if(usedspace == 0) return 0;
@@ -75,7 +75,7 @@ uint8_t txbuf_read_init(){
 }
 
 // Get next byte to send
-char txbuf_read_getc(){
+char txbuf_read_getc() {
     if(txbuf_read_len == 0) return 0;
     char c = txbuf[txbuf_read_tmphead];
     txbuf_read_len--;
@@ -84,13 +84,13 @@ char txbuf_read_getc(){
 }
 
 // Signal that the message has been successfully sent
-void txbuf_read_finish(){
+void txbuf_read_finish() {
     txbuf_read_head = txbuf_read_tmphead;
 }
 
 
 // ------------------------------------------------------------------------------------
-// ------------ RX buffer ------------ 
+// ------------ RX buffer ------------
 
 // The message is encoded like this:
 // data_length data data (...) (the first 'data' byte is the fruit ID which sends the message)
@@ -115,7 +115,7 @@ static inline int rxbuf_inc_head(int h) {
 // ------ Write a message to the RX buffer:
 
 // Init a new message; returns false if rxbuf is full.
-bool rxbuf_write_init(){
+bool rxbuf_write_init() {
     int freespace = rxbuf_read_head - rxbuf_write_head;
     if(freespace < 0) freespace += RXBUF_SIZE;
     if(freespace < 34) {
@@ -128,14 +128,14 @@ bool rxbuf_write_init(){
 }
 
 // Add byte to the message
-void rxbuf_write_putc(char c){
+void rxbuf_write_putc(char c) {
     rxbuf[rxbuf_write_tmphead] = c;
     rxbuf_write_tmphead = rxbuf_inc_head(rxbuf_write_tmphead);
     rxbuf_write_len++;
 }
 
 // Validate the message
-void rxbuf_write_finish(bool isChar){
+void rxbuf_write_finish(bool isChar) {
     if(isChar) rxbuf_write_len |= 128;
     rxbuf[rxbuf_write_head] = rxbuf_write_len; // write length byte
     rxbuf_write_head = rxbuf_write_tmphead;
@@ -144,7 +144,7 @@ void rxbuf_write_finish(bool isChar){
 // ------ Read a message from the RX buffer:
 
 // Start reading the next available next message. Returns the length of the message (0 if none).
-uint8_t rxbuf_read_init(){
+uint8_t rxbuf_read_init() {
     int usedspace = rxbuf_write_head - rxbuf_read_head - 1;
     if(usedspace < 0) usedspace += RXBUF_SIZE;
     if(usedspace == 0) return 0;
@@ -156,7 +156,7 @@ uint8_t rxbuf_read_init(){
 }
 
 // Get next byte to send
-char rxbuf_read_getc(){
+char rxbuf_read_getc() {
     if(rxbuf_read_len == 0) return 0;
     char c = rxbuf[rxbuf_read_tmphead];
     rxbuf_read_len--;
@@ -165,17 +165,17 @@ char rxbuf_read_getc(){
 }
 
 // Signal that the message has been read
-void rxbuf_read_finish(){
+void rxbuf_read_finish() {
     rxbuf_read_head = rxbuf_read_tmphead;
 }
 
 // ------------------------------------------------------------------------------------
 // ------ Reset buffers:
 void fraise_master_buffers_reset() {
-	rxbuf_write_head = 1;
-	rxbuf_read_head = 0;
-	txbuf_write_head = 1;
-	txbuf_read_head = 0;
+    rxbuf_write_head = 1;
+    rxbuf_read_head = 0;
+    txbuf_write_head = 1;
+    txbuf_read_head = 0;
 }
 
 

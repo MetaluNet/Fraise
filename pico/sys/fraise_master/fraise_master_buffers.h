@@ -19,8 +19,8 @@ bool    rxbuf_write_init();                 // Init a new message; returns false
 void    rxbuf_write_putc(char c);           // Add byte to the message.
 void    rxbuf_write_finish(bool isChar);    // Validate the message.
 
-uint8_t rxbuf_read_init();                  // Start reading the next available message. Returns the length of the message (0 if none), 
-                                            // plus 128 if it's a "char" one.
+uint8_t rxbuf_read_init();                  // Start reading the next available message. Returns the length of the message (0 if none),
+// plus 128 if it's a "char" one.
 char    rxbuf_read_getc();                  // Get next byte of the message.
 void    rxbuf_read_finish();                // Remove the message from the buffer.
 
