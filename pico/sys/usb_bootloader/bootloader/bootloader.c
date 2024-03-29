@@ -105,7 +105,7 @@ void eraseSector(uint32_t addr) {
 void addDataByte(uint32_t writeAddress, uint8_t b) {
     if(
         ((writeAddress & ~(FLASH_PAGE_SIZE - 1)) != (lastAddress & ~(FLASH_PAGE_SIZE - 1)))
-        && (lastAddress != -1)
+        && (lastAddress != 0)
     )
     {
         if(verbose) printf("l program page change: writing page = %#08lx (currently writing to %#08lx)\n", (lastAddress & ~(FLASH_PAGE_SIZE - 1)) - XIP_BASE, writeAddress - XIP_BASE);
@@ -168,7 +168,7 @@ void processHexLine() {
 
         if(address == FLASH_ADDR_MIN) { // start of file
             pgmSize = 0;
-            lastAddress = -1;
+            lastAddress = 0;
         }
         break;
     case 5: /* Start Linear Address */
