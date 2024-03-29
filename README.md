@@ -53,8 +53,8 @@ then logout (close your session) and re-login.
 
 ## documentation
 
-The documentation for the Fraise firmware API is available there: [Fraise API doc ](http://metalunet.github.io/Fraise-doc).
-
+The main Fraise documentation is the WIP [Wiki](https://github.com/MetaluNet/Fraise/wiki), for a start have to look at the [First-steps](https://github.com/MetaluNet/Fraise/wiki/1.-First-steps) page.  
+The documentation for the Fraise firmware API is available there: [Fraise API doc ](http://metalunet.github.io/Fraise-doc).  
 The low-level Fraise protocol is documented here: [protocol.md](doc/protocol.md).  
 
 Also, you can have a look at <http://metalu.net/en/outils/fraise-overview/>.
