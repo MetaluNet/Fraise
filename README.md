@@ -13,8 +13,8 @@ Fraise is at the same time:
 
 Two different microcontrollers board are currently supported by Fraise:
 
-- RaspberryPi Pico which is the more powerful of the two, and is readily available from many retailers at low cost;
-- legacy Fraise boards powered by Microchip's PIC18F26K22, which are currently only manufactured at home for personal use. Their main advantage is the number of analog inputs; unfortunately they require the use of SDCC compiler, which isn't maintained anymore for PIC targets.
+- the [RaspberryPi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/) is the more powerful of the two, and is readily available from many retailers at low cost;
+- the legacy Fraise boards are powered by Microchip's PIC18F26K22; they are currently only manufactured at home for personal use. Their main advantage is the number of analog inputs (and 5V compliance); unfortunately they require the use of SDCC compiler, which isn't maintained anymore for PIC targets.
 
 --------------------------------
 
@@ -23,9 +23,10 @@ Two different microcontrollers board are currently supported by Fraise:
 Fraise allows multiple boards to be connected to each other and to communicate with the host computer, via the USB connection of the first board.
 
 The first board is fully programmable; it can be the only one in simple cases.  
-Additionally, it automatically implements the *Fraise protocol*, which can connect to up to 127 other boards (in the simplest case, the bus is formed by shorting Pico's pins 20 and 21; the buses on the various boards simply need to be connected together).
 
-The Fraise bus is based on 9-bit asynchronous serial communication. Thanks to a carefully selected, moderate bitrate (250 kbs), the microcontroller boards can be located hundreds of meter away from the computer when connected through RS485 transceivers (called Fraiseivers).  
+Additionally, the program of the first board automatically implements the *Fraise protocol*, which can connect to up to 127 other boards ; in the simplest case, the *Fraise bus* is formed by shorting Pico's pins 20 and 21; the buses of the all the boards simply need to be connected together.
+
+The Fraise protocol is based on 9-bit asynchronous serial communication. Thanks to a carefully selected, moderate bitrate (250 kbs), the microcontroller boards can be located hundreds of meter away from the computer when connected through RS485 transceivers (called Fraiseivers).  
 
 This unique feature allows to build relatively complex installations, involving multiple distant sensors/actuators sets, that communicate reliably via wire with the central application, with minimal latency.
 
@@ -50,20 +51,23 @@ then logout (close your session) and re-login.
 1. connect the Pico board in BOOTSEL mode via USB (you may need to hold down the BOOTSEL button if the boards has been previously programmed with another firmware)
 2. copy the file `boards/pico/usb_bootloader.uf2` to the Pico's mass-storage directory, which should have been created
 3. open `pico/fraise/example/blink.pd` with Pd.
+4. move the upper **led period** slider, and see how the Pico LED flashes at different speeds.
 
+--------------------------------
 ## documentation
 
-The main Fraise documentation is the WIP [Wiki](https://github.com/MetaluNet/Fraise/wiki), for a start have to look at the [First-steps](https://github.com/MetaluNet/Fraise/wiki/1.-First-steps) page.  
-The documentation for the Fraise firmware API is available there: [Fraise API doc ](http://metalunet.github.io/Fraise-doc).  
-The low-level Fraise protocol is documented here: [protocol.md](doc/protocol.md).  
+General documentation for Fraise is available in the (WIP) [Wiki](https://github.com/MetaluNet/Fraise/wiki), for a start take a look at the [First-steps](https://github.com/MetaluNet/Fraise/wiki/1.-First-steps) page.  
+The doxygen-generated documentation for the Fraise firmware API is published there: [Fraise API doc ](http://metalunet.github.io/Fraise-doc).  
+The specification of the low-level Fraise protocol is described here: [protocol.md](doc/protocol.md).  
 
-Also, you can have a look at <http://metalu.net/en/outils/fraise-overview/>.
-
+Also, you can have a look at the short overview and history hosted by [metalu.net](http://metalu.net/en/outils/fraise-overview).
 
 
 --------------------------------
 Fraise code is hosted at <https://github.com/MetaluNet/Fraise>,  
 the toolchain builder at <https://github.com/MetaluNet/Fraise-toolchain>.
 
-	Antoine Rousseau 2007-2024  
+**[metalu.net](http://metalu.net) / [Métalu A Chahuter](http://http://metaluachahuter.com)** is an artistic collective, where Fraise boards are widely used to build all kind of installations involving sound, light, control interfaces, motor control...
+
+	Antoine Rousseau @ metalu.net 2007-2024  
 license : GNU GPL (see [LICENSE.txt](LICENSE.txt) )
