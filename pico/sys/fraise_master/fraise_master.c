@@ -106,6 +106,9 @@ static void fraise_master_irq_handler(void) {
     static uint8_t rx_msg_length;
     static uint8_t tx_bytes_to_send;
     static bool    rx_is_char;
+    static int last_txbuf_head;
+    static uint8_t tx_number_tries;
+
     switch(state) {
     case FMS_POLL:
         fraise_cancel_alarm();
@@ -117,10 +120,17 @@ static void fraise_master_irq_handler(void) {
         }
         tx_bytes_to_send = txbuf_read_init();               // if message available on tx_buffer, send it:
         if(tx_bytes_to_send) {
-            state = FMS_SEND;
-            fraise_program_start_tx_with_interrupt(tx_bytes_to_send - 1);
             txbuf_read_getc();                              // discard the first byte in the buffer (the length of the data).
             destination_fruit = txbuf_read_getc();          // the second byte in the buffer is the ID of the destination fruit.
+            if(last_txbuf_head != txbuf_read_get_head()) tx_number_tries = 0;
+            else if(tx_number_tries++ > 3) {
+                txbuf_read_finish();
+                printf("sT%02X\n", destination_fruit & 127); // signal timeout and discard the message.
+                return;
+            }
+            last_txbuf_head = txbuf_read_get_head();
+            state = FMS_SEND;
+            fraise_program_start_tx_with_interrupt(tx_bytes_to_send - 1);
             fraise_program_putc_blocking(destination_fruit | 256);   // set bit9
             tx_bytes_to_send -= 2;
             break;

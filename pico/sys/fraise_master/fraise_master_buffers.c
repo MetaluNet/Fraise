@@ -85,10 +85,13 @@ char txbuf_read_getc() {
 
 // Signal that the message has been successfully sent
 void txbuf_read_finish() {
+    while(txbuf_read_len) txbuf_read_getc(); // flush the message if not fully transmitted
     txbuf_read_head = txbuf_read_tmphead;
 }
 
-
+int txbuf_read_get_head() {
+    return txbuf_read_head;
+}
 // ------------------------------------------------------------------------------------
 // ------------ RX buffer ------------
 
