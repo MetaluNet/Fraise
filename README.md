@@ -24,7 +24,7 @@ In simple cases, a single board will suffice for the interfacing needs of the ap
 In these cases, Fraise already shows its usefulness in offering both a development environment and a communication solution.
 
 But Fraise also allows multiple boards to be connected to each other, and to communicate with the host computer via the only USB connection of the first board.  
-The program of the first board indeed implements the master-side of the *Fraise protocol*, which can connect to up to 127 other boards (in the simplest case, the *Fraise bus* is formed by shorting Pico's pins 20 and 21; the buses of the all the boards simply need to be connected together).
+The program of the first board indeed implements the master-side of the *Fraise protocol*, which can connect to up to 127 other boards (in the simplest case, the *Fraise bus* is formed by shorting Pico's gpio pins 20 and 21; the buses of the all the boards simply need to be connected together).
 
 The Fraise protocol is based on 9-bit asynchronous serial communication. Thanks to a carefully selected, moderate bitrate (250 kbs), the microcontroller boards can be located hundreds of meter away from the computer when connected through RS485 transceivers (called Fraiseivers).  
 
