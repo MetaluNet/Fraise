@@ -37,6 +37,7 @@ extern "C" {
 bool fraise_putbytes(const char* data, uint8_t len); // returns true on success
 
 void fraise_put_init(); /**< \brief Initialize the 'put' buffer */
+void fraise_put_bytes(const char* data, uint8_t len);
 void fraise_put_int8(int8_t b);
 void fraise_put_uint8(uint8_t b);
 void fraise_put_int16(int16_t b);

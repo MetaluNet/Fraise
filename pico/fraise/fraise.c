@@ -133,6 +133,11 @@ void fraise_put_uint32(uint32_t b){
     put_buffer.buf[put_buffer.len++] = (char)(b >> 8);
     put_buffer.buf[put_buffer.len++] = (char)b;
 }
+
+void fraise_put_bytes(const char* data, uint8_t len){
+    while(len--) fraise_put_int8(*data++);
+}
+
 bool fraise_put_send(){
     return fraise_putbytes(put_buffer.buf, put_buffer.len);
 }
