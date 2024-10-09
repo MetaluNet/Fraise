@@ -1,4 +1,4 @@
-comport - PD external for unix/windows to use the serial ports
+comport - Pd external for unix/windows to use the serial ports
 
  (c) 1998-2005  Winfried Ritsch (see LICENCE.txt)
  Institute for Electronic Music - Graz
@@ -14,17 +14,14 @@ USE: There should be a external comport.dll for windows, comport.pd_linux for li
 just copy it to the extra folder of your pd Installation or working directory. 
 Please see testcomport.pd for more help.
 
-compile:
-
- Unix (Linux):   
-  make pd_linux,  make pd_irix5, make pd_irix6, make pd_darwin
-  should produce a comport.pd_linux, ....
-  
-
- Windows: use nmake or just use Fast Build under MSVC++
-   nmake pd_nt 
-
-
-
-If you have improvements or questions feel free to contact me under
+if you have improvements or questions feel free to contact me under
 ritsch _at_ iem.at
+
+if you want to compile the newest (bleeding edge, and possibly unstable) source
+code yourself, you can get a copy from the public git repository:
+   https://git.iem.at/pd/comport/
+
+there's also an issue tracker for reporting bugs and requesting new features
+available at:
+   https://git.iem.at/pd/comport/-/issues
+
