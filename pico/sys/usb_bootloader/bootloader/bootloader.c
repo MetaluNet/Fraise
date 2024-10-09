@@ -255,9 +255,9 @@ int main() {
     gpio_put(LED_PIN, 1);
 
     while(true) {
-        int c = getchar_timeout_us(100000);
+        int c = getchar_timeout_us(1000000);
         if(c == PICO_ERROR_TIMEOUT) {
-            //if(!stdio_usb_connected() && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
+            if(!stdio_usb_connected() && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
         }
         else if(c == '\n') {
             lineBuf[lineLen] = 0;
