@@ -53,7 +53,7 @@ extern void eeprom_declare_main();
  * \param data the address of the declared data
  * \param size the size of the data
  */
-void eeprom_declare_data(char *data, uint8_t size);
+void eeprom_declare_data(char *data, int size);
 /**
  * \brief Declare a 8-bit signed parameter.
  * \note use in eeprom_declare_main() only

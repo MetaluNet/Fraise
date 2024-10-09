@@ -90,7 +90,7 @@ void eeprom_commit() {
 static enum {LOAD, SAVE} eeprom_mode;
 static int eeprom_count;
 
-void eeprom_declare_data(char *data, uint8_t size) {
+void eeprom_declare_data(char *data, int size) {
 	switch(eeprom_mode) {
 		case LOAD:
 			for(int i = 0; i < size ; i++) data[i] = eeprom_user_read(eeprom_count++);
