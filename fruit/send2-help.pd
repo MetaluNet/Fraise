@@ -1,0 +1,16 @@
+#N canvas 500 77 491 230 12;
+#X declare -path Fraise;
+#X obj 8 7 declare -path Fraise;
+#X text 7 95 usage:;
+#X msg 60 70 1 2 3;
+#X msg 204 70 Hello fruit;
+#X obj 60 95 fruit/send2 fruitname;
+#X obj 28 151 fruit/send2;
+#X text 123 152 is the same as;
+#X obj 230 151 fruit/send;
+#X text 303 153 \,;
+#X text 26 172 except if only forwards the messages to the pied if the fruit is detected. This avoids flooding the pied with useless messages.;
+#X text 57 50 send raw bytes;
+#X text 201 51 send text;
+#X connect 2 0 4 0;
+#X connect 3 0 4 1;

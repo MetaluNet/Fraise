@@ -1,0 +1,9 @@
+#N canvas 705 322 500 173 12;
+#X declare -path Fraise;
+#X obj 8 7 declare -path Fraise;
+#X obj 8 44 fruit/receive fruitname;
+#X listbox 8 69 20 0 0 0 - - - 0;
+#X text 181 43 receives messages from fruit "fruitname". Raw bytes will be received as a list of numbers each comprised between 0 and 255 Text messages will be received as is., f 41;
+#X obj 226 133 fruit/decode;
+#X text 9 133 Raw bytes can be decoded with:;
+#X connect 1 0 2 0;
