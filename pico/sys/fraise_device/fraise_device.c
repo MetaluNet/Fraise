@@ -300,8 +300,8 @@ void fraise_setup(/*bool background_rx*/) {
     if(is_initialized) return;
 
     // Get the pin numbers
-    int rxpin, txpin, drvpin;
-    fraise_get_pins(&rxpin, &txpin, &drvpin);
+    int rxpin, txpin, drvpin, drvlevel;
+    fraise_get_pins(&rxpin, &txpin, &drvpin, &drvlevel);
 
     // Setup an async context and worker to perform work when needed
     //background_rx = _background_rx;
@@ -320,7 +320,7 @@ void fraise_setup(/*bool background_rx*/) {
     if (!claim_pio_sm_irq(&fraise_program, &pio, &sm, &pgm_offset, &pio_irq)) {
         panic("failed to setup pio");
     }
-    fraise_program_init(pio, sm, pgm_offset, rxpin, txpin, drvpin);
+    fraise_program_init(pio, sm, pgm_offset, rxpin, txpin, drvpin, drvlevel);
 
     // Enable interrupt
     irq_add_shared_handler(pio_irq, fraise_irq, PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY); // Add a shared IRQ handler
@@ -335,11 +335,12 @@ void fraise_setID(uint8_t id) {
     FraiseID = id;
 }
 
-void fraise_get_pins(int *rxpin, int *txpin, int *drvpin)
+void fraise_get_pins(int *rxpin, int *txpin, int *drvpin, int *drvlevel)
 {
-	*rxpin = (watchdog_hw->scratch[7] >> 10) & 31;
-	*txpin = (watchdog_hw->scratch[7] >> 5) & 31;
-	*drvpin = (watchdog_hw->scratch[7] >> 0) & 31;
+    *rxpin = (watchdog_hw->scratch[7] >> 10) & 31;
+    *txpin = (watchdog_hw->scratch[7] >> 5) & 31;
+    *drvpin = (watchdog_hw->scratch[7] >> 0) & 31;
+    *drvlevel = (watchdog_hw->scratch[7] >> 15) & 1;
 }
 
 void fraise_unsetup() {

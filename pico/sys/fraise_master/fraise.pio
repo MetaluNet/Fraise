@@ -74,7 +74,7 @@ static uint pgm_offset; // Offset of the program in the pio
 static uint pio_irq;  // The irq used by the sm
 static uint irq_index;  // The offset of pio_irq relatively to PIO0_IRQ_0 or PIO1_IRQ_0
 
-static inline void fraise_program_init(uint rxpin, uint txpin, uint drvpin) {
+static inline void fraise_program_init(uint rxpin, uint txpin, uint drvpin, uint drvlevel) {
     pio_sm_config c = fraise_program_get_default_config(pgm_offset);
 
     // Setup RX
@@ -88,12 +88,13 @@ static inline void fraise_program_init(uint rxpin, uint txpin, uint drvpin) {
     sm_config_set_in_shift(&c, true, false, 32);
 
     // Setup TX
-    pio_sm_set_pins_with_mask(pio, sm, 0, (1u << txpin) | (1u << drvpin)); // init tx and drv pins as LOW
+    pio_sm_set_pins_with_mask(pio, sm, drvlevel ? (1u << drvpin) : 0, (1u << txpin) | (1u << drvpin)); // init tx LOW and drv DRV_LEVEL
     pio_sm_set_pindirs_with_mask(pio, sm, 0, (1u << txpin) | (1u << drvpin)); // init tx and drv pindirs as INPUT
     pio_gpio_init(pio, txpin);
     pio_gpio_init(pio, drvpin);
     gpio_pull_up(txpin);
-    gpio_pull_up(drvpin);
+    if(drvlevel) gpio_pull_down(drvpin);
+    else gpio_pull_up(drvpin);
     // OUT shifts to right, no autopull
     sm_config_set_out_shift(&c, true, false, 32);
     // We are mapping both OUT and side-set to the same pin, because sometimes

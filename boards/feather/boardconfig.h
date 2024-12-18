@@ -9,4 +9,5 @@
 #define FRAISE_RX_PIN  20
 #define FRAISE_TX_PIN  21
 #define FRAISE_DRV_PIN 22
+#define FRAISE_DRV_LEVEL 0
 

@@ -63,14 +63,14 @@ static bool init_pio(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *
     return true;
 }
 
-void fraise_setup(uint rxpin, uint txpin, uint drvpin) {
+void fraise_setup(uint rxpin, uint txpin, uint drvpin, bool drvlevel) {
     // create a queue so the irq can save the data somewhere
     queue_init(&fifo, 2, FIFO_SIZE);
 
     if (!init_pio(&fraise_program, &pio, &sm, &offset)) {
         panic("failed to setup pio");
     }
-    fraise_program_init(pio, sm, offset, rxpin, txpin, drvpin);
+    fraise_program_init(pio, sm, offset, rxpin, txpin, drvpin, drvlevel);
     pio_sm_clear_fifos(pio, sm);
     // Find a free irq
     static_assert(PIO0_IRQ_1 == PIO0_IRQ_0 + 1 && PIO1_IRQ_1 == PIO1_IRQ_0 + 1, "");

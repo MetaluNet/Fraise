@@ -216,7 +216,7 @@ int main() {
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, 1);
     eeprom_setup();
-    fraise_setup(FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN);
+    fraise_setup(FRAISE_RX_PIN, FRAISE_TX_PIN, FRAISE_DRV_PIN, FRAISE_DRV_LEVEL);
     fraiseResetTimeout();
     nextLed = make_timeout_time_ms(100);
 

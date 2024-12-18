@@ -70,7 +70,7 @@ void run_app()
 {
     // save pins in watchdog scratch registers
     watchdog_hw->scratch[6] = ('p' << 24) + ('i' << 16) + ('n' << 8) + 's';
-    watchdog_hw->scratch[7] = (FRAISE_RX_PIN << 10) + (FRAISE_TX_PIN << 5) + FRAISE_DRV_PIN;
+    watchdog_hw->scratch[7] = (FRAISE_DRV_LEVEL << 15) + (FRAISE_RX_PIN << 10) + (FRAISE_TX_PIN << 5) + FRAISE_DRV_PIN;
 
     fraise_unsetup();
     disable_interrupts();

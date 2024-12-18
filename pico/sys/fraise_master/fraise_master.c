@@ -247,8 +247,8 @@ void fraise_setup() {
     if(is_initialized) return;
 
     // Get the pin numbers
-    int rxpin, txpin, drvpin;
-    fraise_get_pins(&rxpin, &txpin, &drvpin);
+    int rxpin, txpin, drvpin, drvlevel;
+    fraise_get_pins(&rxpin, &txpin, &drvpin, &drvlevel);
 
     // Reset the buffers
     fraise_master_buffers_reset();
@@ -257,7 +257,7 @@ void fraise_setup() {
     if (!claim_pio_sm_irq(&fraise_program, &pio, &sm, &pgm_offset, &pio_irq)) {
         panic("failed to setup pio");
     }
-    fraise_program_init(rxpin, txpin, drvpin);
+    fraise_program_init(rxpin, txpin, drvpin, drvlevel);
 
     // Enable interrupt
     irq_add_shared_handler(pio_irq, fraise_master_irq_handler, PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY); // Add a shared IRQ handler
@@ -271,11 +271,12 @@ void fraise_setup() {
     is_initialized = true;
 }
 
-void fraise_get_pins(int *rxpin, int *txpin, int *drvpin)
+void fraise_get_pins(int *rxpin, int *txpin, int *drvpin, int *drvlevel)
 {
     *rxpin = FRAISE_RX_PIN;
     *txpin = FRAISE_TX_PIN;
     *drvpin = FRAISE_DRV_PIN;
+    *drvlevel = FRAISE_DRV_LEVEL;
 }
 
 void fraise_unsetup() {

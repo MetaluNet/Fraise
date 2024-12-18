@@ -161,8 +161,9 @@ void fraise_unsetup();
  * \param rxpin the address where to store the number of the RX pin
  * \param txpin the address where to store the number of the TX pin
  * \param drvpin the address where to store the number of the DRV pin
+ * \param drvlevel the level of DRV pin must have to drive the bus and send data
  */
- void fraise_get_pins(int *rxpin, int *txpin, int *drvpin);
+ void fraise_get_pins(int *rxpin, int *txpin, int *drvpin, int *drvlevel);
 
 ///@}
 
