@@ -1,4 +1,4 @@
-#N canvas 1224 57 514 468 10;
+#N canvas 215 100 514 468 10;
 #X declare -path ggee;
 #X declare -path comport;
 #X declare -path extra;
@@ -1489,7 +1489,7 @@
 #X connect 32 0 29 0;
 #X connect 34 0 12 0;
 #X restore 142 189 pd Bootloader/Compiler;
-#N canvas 162 297 1146 494 autoReconnect 0;
+#N canvas 62 343 1146 494 autoReconnect 0;
 #X obj 128 43 r \$0-on-snd;
 #X obj 128 446 s \$0-comport-on-snd;
 #X obj 523 380 s \$0-pied-rcv;
@@ -1522,7 +1522,7 @@
 #X obj 761 155 metro 1000;
 #X obj 847 197 del 800;
 #X obj 847 136 r \$0-echo;
-#X msg 847 156 stop;
+#X msg 847 168 stop;
 #X obj 239 70 r \$0-pied;
 #X obj 239 92 route actif;
 #X obj 169 143 f;
@@ -1662,6 +1662,7 @@
 #X connect 61 0 88 0;
 #X connect 62 0 60 1;
 #X connect 62 0 80 0;
+#X connect 62 0 32 0;
 #X connect 64 0 63 0;
 #X connect 65 0 76 0;
 #X connect 68 0 13 0;
