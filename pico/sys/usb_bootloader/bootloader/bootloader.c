@@ -239,6 +239,7 @@ void processLine() {
 
 int main() {
     const uint LED_PIN = PICO_DEFAULT_LED_PIN;
+    bool had_usb = false;
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, 1);
@@ -255,9 +256,13 @@ int main() {
     gpio_put(LED_PIN, 1);
 
     while(true) {
-        int c = getchar_timeout_us(1000000);
+        int c = getchar_timeout_us(100000);
+        if(stdio_usb_connected()) {
+            had_usb = true;
+            gpio_put(LED_PIN, 0);
+        }
         if(c == PICO_ERROR_TIMEOUT) {
-            if(!stdio_usb_connected() && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
+            if((!had_usb/*stdio_usb_connected()*/) && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
         }
         else if(c == '\n') {
             lineBuf[lineLen] = 0;
