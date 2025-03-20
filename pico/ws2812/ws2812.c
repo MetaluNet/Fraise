@@ -58,3 +58,6 @@ void ws2812_dma_transfer(uint32_t *pixels, int num) {
     );
 }
 
+void ws2812_print_status() {
+    printf("l ws psold %d %d %d %d %d\n", PIO_NUM(pio), sm, pgm_offset, ws2812_program.length, dma_chan);  // pio sm offset length dma_chan
+}

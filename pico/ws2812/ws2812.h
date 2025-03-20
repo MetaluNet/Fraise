@@ -29,7 +29,7 @@ static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void ws2812_dma_transfer(uint32_t *pixels, int num);
-
+int ws2812_print_status();
 #ifdef __cplusplus
 }
 #endif
