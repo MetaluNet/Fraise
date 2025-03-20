@@ -11,6 +11,10 @@
 #include <stdio.h>
 #include "fraise.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void fraise_master_set_poll(uint8_t id, bool poll);
 void fraise_master_reset_polls();
 void fraise_master_assign(const char* fruitname, uint8_t id);
@@ -37,6 +41,11 @@ void fraise_master_reset();
 // Take the first 2 bytes and convert them from hexadecimal string representation to unsigned char.
 // Example: if buf starts with "0A", gethexbyte will return 10
 uint8_t gethexbyte(const char *buf);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif // _FRAISE_MASTER_H
 
