@@ -71,11 +71,17 @@ else()
 	set(target_file ${projName}.hex)
 endif()
 
-if (NOT DEFINED no_hex_copy)
 add_custom_command(
-	TARGET ${projName} POST_BUILD 
+	TARGET ${projName} POST_BUILD
 	COMMENT "-- Calculating memory usage"
 	COMMAND ${size_command} -G ${projName}.elf > size.txt
+)
+
+if (NOT DEFINED no_hex_copy)
+add_custom_command(
+	TARGET ${projName} POST_BUILD
+	# COMMENT "-- Calculating memory usage"
+	# COMMAND ${size_command} -G ${projName}.elf > size.txt
 	COMMENT "-- Copying hex file to source directory"
 	COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/${projName}.hex" "${PROJECT_SOURCE_DIR}/../${target_file}"
 )
