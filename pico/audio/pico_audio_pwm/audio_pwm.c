@@ -232,6 +232,7 @@ const audio_format_t *audio_pwm_setup(const audio_format_t *intended_audio_forma
         // disable auto-pull for !OSRE (which doesn't work with auto-pull)
         static_assert(CYCLES_PER_SAMPLE <= 18, "");
         sm_config_set_out_shift(&sm_config, true, false, CMD_BITS + CYCLES_PER_SAMPLE);
+        sm_config_set_clkdiv(&sm_config, 2.393); // so SR = 24000 samples/sec
         pio_sm_init(audio_pio, sm, offset, &sm_config);
 
         pio_sm_set_consecutive_pindirs(audio_pio, sm, config->core.base_pin, 1, true);
