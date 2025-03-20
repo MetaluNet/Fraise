@@ -12,6 +12,8 @@ message("project directory name: '${projDir}'")
 message("project name: '${projName}'")
 project(${projName} C CXX ASM)
 
+include(${fraise_path}/pico/sys/find_board.cmake)
+
 pico_sdk_init()
 
 include(${fraise_path}/pico/sys/device.cmake)
