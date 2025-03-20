@@ -163,7 +163,7 @@ void fraise_unsetup();
  * \param drvpin the address where to store the number of the DRV pin
  * \param drvlevel the level of DRV pin must have to drive the bus and send data
  */
- void fraise_get_pins(int *rxpin, int *txpin, int *drvpin, int *drvlevel);
+void fraise_get_pins(int *rxpin, int *txpin, int *drvpin, int *drvlevel);
 
 ///@}
 
@@ -182,6 +182,12 @@ void fraise_unsetup();
  * \return false if this fails.
  */
 bool claim_pio_sm_irq(const pio_program_t *program, PIO *pio_hw, uint *sm, uint *program_offset, uint *irq);
+
+#ifndef PIO_NUM
+#define PIO_NUM(pio) (((uintptr_t)(pio) - PIO0_BASE) >> 20)
+#endif
+
+void fraise_print_status();
 
 ///@}
 

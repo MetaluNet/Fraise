@@ -508,6 +508,10 @@ void fraise_master_print_stats() {
     }
 }
 
+void fraise_print_status() {
+    printf("l fr psol %d %d %d %d\n", PIO_NUM(pio), sm, pgm_offset, fraise_program.length); // pio sm offset length
+}
+
 // ------------------------------
 // virtual fruit fraise_put* emulation
 

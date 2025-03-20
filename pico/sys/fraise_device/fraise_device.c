@@ -434,6 +434,10 @@ void fraise_debug_print_next_txmessage(){
 #endif
 }
 
+void fraise_print_status() {
+    printf("l fr psol %d %d %d %d\n", PIO_NUM(pio), sm, pgm_offset, fraise_program.length); // pio sm offset length
+}
+
 uint fraise_debug_get_irq_count() {
     uint c = irq_count;
     irq_count = 0;
