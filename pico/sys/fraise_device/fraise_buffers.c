@@ -17,7 +17,7 @@
 // data_length&63 is the number of data bytes, so the whole message takes (data_length&63 + 2) bytes in txbuf.
 // data_length = number_of_data_bytes + 128 * message_is_char
 
-#define TXBUF_SIZE 512
+#define TXBUF_SIZE 2048
 static char txbuf[TXBUF_SIZE];
 static int txbuf_write_head = 1;
 static int txbuf_write_tmphead;
