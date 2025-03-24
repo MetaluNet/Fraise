@@ -167,3 +167,8 @@ dummy_callback(fraise_receivechars);
 dummy_callback(fraise_receivebytes_broadcast);
 dummy_callback(fraise_receivechars_broadcast);
 
+__attribute__((weak)) void fraise_master_receivebytes(uint8_t fruit_id, const char *data, uint8_t len) {}
+__attribute__((weak)) void fraise_master_receivechars(uint8_t fruit_id, const char *data, uint8_t len) {}
+__attribute__((weak)) void fraise_master_fruit_detected(uint8_t fruit_id, bool detected) {}
+
+

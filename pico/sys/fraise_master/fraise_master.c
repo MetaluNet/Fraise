@@ -473,15 +473,26 @@ void fraise_master_sendchars_broadcast(const char *data) {
 
 void fraise_master_service() {
     // Process incoming message
-    int l;
-    while((l = rxbuf_read_init())) {
-        bool isChar = l > 127;
-        l = (l & 63) - 2;
+    char buf[64];
+    int len;
+    while((len = rxbuf_read_init())) {
+        bool isChar = len > 127;
+        len = (len & 63) - 2;
         uint8_t id = rxbuf_read_getc();
-        printf("%02X", id | (isChar ? 128 : 0));
-        if(isChar) while(l--) putchar(rxbuf_read_getc());
-        else while(l--) printf("%02X", rxbuf_read_getc());
-        putchar('\n');
+        for(int i = 0; i < len; i++) buf[i] = rxbuf_read_getc();
+        if(isChar) {
+            printf("%02X", id | 128);
+            for(int i = 0; i < len; i++) putchar(buf[i]);
+            putchar('\n');
+            buf[len] = 0; // end string
+            fraise_master_receivechars(id, buf, len);
+        }
+        else {
+            printf("%02X", id);
+            for(int i = 0; i < len; i++) printf("%02X", buf[i]);
+            putchar('\n');
+            fraise_master_receivebytes(id, buf, len);
+        }
         rxbuf_read_finish();
     }
     // TODO: pace 'detected changes' updates
@@ -490,10 +501,12 @@ void fraise_master_service() {
             bool d = is_detected(i);
             if(d) {
                 set_detected_sent(i, true);
+                fraise_master_fruit_detected(i, true);
                 printf("sC%02X\n", i);
             }
             else {
                 set_detected_sent(i, false);
+                fraise_master_fruit_detected(i, false);
                 printf("sc%02X\n", i);
             }
         }
@@ -552,5 +565,4 @@ void fraise_printf(const char* fmt, ...) {
     vsnprintf(buf, sizeof(buf), fmt, args);
     while(*p) fraise_putchar(*p++);
 }
-
 

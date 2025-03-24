@@ -38,6 +38,11 @@ void fraise_bootloader_use_pico(bool useit);
 void fraise_master_service();
 void fraise_master_reset();
 
+// User define callbacks receiving messages from fruits:
+void fraise_master_receivebytes(uint8_t fruit_id, const char *data, uint8_t len);
+void fraise_master_receivechars(uint8_t fruit_id, const char *data, uint8_t len);
+void fraise_master_fruit_detected(uint8_t fruit_id, bool detected);
+
 // Take the first 2 bytes and convert them from hexadecimal string representation to unsigned char.
 // Example: if buf starts with "0A", gethexbyte will return 10
 uint8_t gethexbyte(const char *buf);
