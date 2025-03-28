@@ -255,8 +255,11 @@ void fraise_setup() {
 
     // Set up the state machine and irq we're going to use
     if (!claim_pio_sm_irq(&fraise_program, &pio, &sm, &pgm_offset, &pio_irq)) {
-        panic("failed to setup pio");
+        //panic("failed to setup pio");
+        fraise_printf("fraise_master failed to setup pio!\n");
+        return;
     }
+
     fraise_program_init(rxpin, txpin, drvpin, drvlevel);
 
     // Enable interrupt
@@ -264,8 +267,12 @@ void fraise_setup() {
     irq_set_enabled(pio_irq, true); // Enable the IRQ
     irq_index = pio_irq - ((pio == pio0) ? PIO0_IRQ_0 : PIO1_IRQ_0); // Get index of the IRQ
 
-    fraise_program_enable_rx_interrupt(); // Set pio to tell us when the FIFO is NOT empty
+    // Cleanup pio
+    pio_sm_clear_fifos(pio, sm);
+    fraise_master_buffers_reset();
 
+    fraise_program_enable_rx_interrupt(); // Set pio to tell us when the FIFO is NOT empty
+    state = FMS_POLL;
     fraise_program_enable_tx_interrupt(); // This should instantly run the IRQ handler.
 
     is_initialized = true;
@@ -282,6 +289,7 @@ void fraise_get_pins(int *rxpin, int *txpin, int *drvpin, int *drvlevel)
 void fraise_unsetup() {
     if(!is_initialized) return;
 
+    fraise_master_reset_polls();
     // Disable interrupt
     fraise_program_disable_tx_interrupt();
     fraise_program_disable_rx_interrupt();
@@ -421,6 +429,7 @@ void fraise_master_reset_polls() {
     for(int id = 0; id < MAX_FRUITS ; id++) {
         set_polled(id, false);
         set_detected(id, false);
+        set_detected_sent(id, false);
     }
     restore_interrupts(status);
 }
