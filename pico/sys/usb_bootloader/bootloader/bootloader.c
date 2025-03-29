@@ -20,7 +20,7 @@ extern int __fraise_app_start__, __fraise_app_length__;
 #define FLASH_ADDR_MIN ((uint32_t)&__fraise_app_start__)
 #define FLASH_ADDR_MAX (FLASH_ADDR_MIN + (uint32_t)&__fraise_app_length__)
 
-uint8_t lineBuf[256];
+uint8_t lineBuf[1024];
 uint8_t pageBuf[FLASH_PAGE_SIZE];
 uint32_t pgmSize;
 uint32_t address;
@@ -265,6 +265,11 @@ int main() {
             if((!had_usb/*stdio_usb_connected()*/) && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
         }
         else if(c == '\n') {
+            lineBuf[lineLen] = 0;
+            processLine();
+            lineLen = 0;
+        }
+        else if(c == '&') {
             lineBuf[lineLen] = 0;
             processLine();
             lineLen = 0;
