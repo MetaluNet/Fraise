@@ -29,7 +29,6 @@ uint32_t startAddress;
 uint16_t lastoffset;
 int lineLen;
 bool verbose = false;
-int ms_since_boot;
 uint8_t piedID = 1;
 
 static void jump_to_vtor(uint32_t vtor)
@@ -83,11 +82,11 @@ void programCurrentPage() {
         printf("e programCurrentPage address error! addr = %#10x\n", addr);
         return;
     }
-    uint32_t status = save_and_disable_interrupts();
 #ifndef DONT_WRITE
+    uint32_t status = save_and_disable_interrupts();
     flash_range_program((lastAddress & ~(FLASH_PAGE_SIZE - 1)) - XIP_BASE, pageBuf, FLASH_PAGE_SIZE);
-#endif
     restore_interrupts(status);
+#endif
 }
 
 void eraseSector(uint32_t addr) {
@@ -95,11 +94,11 @@ void eraseSector(uint32_t addr) {
         printf("e eraseSector address error! addr = %#10x\n", addr);
         return;
     }
-    uint32_t status = save_and_disable_interrupts();
 #ifndef DONT_WRITE
+    uint32_t status = save_and_disable_interrupts();
     flash_range_erase(addr - XIP_BASE, FLASH_SECTOR_SIZE);
-#endif
     restore_interrupts(status);
+#endif
 }
 
 void addDataByte(uint32_t writeAddress, uint8_t b) {
@@ -232,9 +231,17 @@ void processLine() {
         }
         printf("\n");
     }*/
-    else if(startsWith(lineBuf, "verbose")) verbose = true;
-    else if(startsWith(lineBuf, "noverbose")) verbose = false;
-    else if(startsWith(lineBuf, "getms")) printf("l boot to connected %ldms\n", ms_since_boot);
+    else if(startsWith(lineBuf, "verbose")) {
+        verbose = true;
+        printf("l verbose on\n");
+    }
+    else if(startsWith(lineBuf, "noverbose")) {
+        verbose = false;
+        printf("l verbose off\n");
+    }
+    else if(startsWith(lineBuf, "getms")) {
+        printf("l boot to connected %ldms\n", to_ms_since_boot(get_absolute_time()));
+    }
 }
 
 int main() {
@@ -257,24 +264,25 @@ int main() {
 
     while(true) {
         int c = getchar_timeout_us(100000);
-        if(stdio_usb_connected()) {
+        if(!had_usb && stdio_usb_connected()) {
             had_usb = true;
             gpio_put(LED_PIN, 0);
         }
         if(c == PICO_ERROR_TIMEOUT) {
-            if((!had_usb/*stdio_usb_connected()*/) && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
+            if((!had_usb) && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
+        } else {
+            if(c == '\n') {
+                lineBuf[lineLen] = 0;
+                processLine();
+                lineLen = 0;
+            }
+            else if(c == '&') {
+                lineBuf[lineLen] = 0;
+                processLine();
+                lineLen = 0;
+            }
+            else lineBuf[lineLen++] = (uint8_t) c;
         }
-        else if(c == '\n') {
-            lineBuf[lineLen] = 0;
-            processLine();
-            lineLen = 0;
-        }
-        else if(c == '&') {
-            lineBuf[lineLen] = 0;
-            processLine();
-            lineLen = 0;
-        }
-        else lineBuf[lineLen++] = (uint8_t) c;
     }
 }
 
