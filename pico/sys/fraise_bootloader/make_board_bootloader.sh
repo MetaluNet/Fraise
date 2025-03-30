@@ -8,5 +8,5 @@ if [ x$1 == x ] ; then
 fi
 
 $CMAKE -B build -S . -Dfraise_board=$1
-$CMAKE --build build
+$CMAKE --build build  --parallel 4
 
