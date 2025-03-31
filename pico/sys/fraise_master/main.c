@@ -99,7 +99,7 @@ void processLine() {
     if(lineBuf[0] == '#') processSysLine();
     else if(startsWith(lineBuf, "waitack")) printf("ack\n");
     else if(startsWith(lineBuf, "reboot")) {
-        sleep_ms(50); // wait for the host to disconnect the USB device
+        sleep_ms(100); // wait for the host to disconnect the USB device
         reboot();
     }
     else if(startsWith(lineBuf, "whoami")) {
