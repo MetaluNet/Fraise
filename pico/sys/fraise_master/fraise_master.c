@@ -482,7 +482,7 @@ void fraise_master_sendchars_broadcast(const char *data) {
 
 void fraise_master_service() {
     // Process incoming message
-    char buf[64];
+    char buf[256];
     int len;
     while((len = rxbuf_read_init())) {
         bool isChar = len > 127;
@@ -540,6 +540,7 @@ void fraise_print_status() {
 // Send a text message (must be a null-terminated string)
 bool fraise_puts(const char* msg) {
     printf("80%s\n", msg);
+    fraise_master_receivechars(0, msg, strlen(msg));
     return true;
 }
 
@@ -548,6 +549,7 @@ bool fraise_putbytes(const char* data, uint8_t len) {
     printf("00");
     for(int i = 0; i < len ; i++) printf("%02X", data[i]);
     putchar('\n');
+    fraise_master_receivebytes(0, data, len);
     return true;
 }
 
@@ -555,15 +557,16 @@ bool fraise_putbytes(const char* data, uint8_t len) {
 // virtual fruit stdout emulation
 
 void fraise_putchar(char c) {
-    static char line[64];
+    static char line[512];
     static int count = 0;
     if(c == '\n') {
         line[count] = 0;
         printf("80%s\n", line);
+        fraise_master_receivechars(0, line, strlen(line));
         count = 0;
         return;
     }
-    if(count < 64) line[count++] = c;
+    if(count < sizeof(line) - 1) line[count++] = c;
 }
 
 void fraise_printf(const char* fmt, ...) {
