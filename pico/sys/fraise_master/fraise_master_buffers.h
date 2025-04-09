@@ -6,6 +6,7 @@
 #ifndef _FRAISE_MASTER_BUFFER_H
 #define _FRAISE_MASTER_BUFFER_H
 
+int     txbuf_get_freespace();              // get free space in txbuf.
 bool    txbuf_write_init(int len);          // Init a new message of length len; returns false if not enough space in txbuf.
 void    txbuf_write_putc(char c);           // Add byte to the message.
 void    txbuf_write_finish();               // Validate the message.
@@ -27,6 +28,11 @@ char    rxbuf_read_getc();                  // Get next byte of the message.
 void    rxbuf_read_finish();                // Remove the message from the buffer.
 
 void    fraise_master_buffers_reset();
+
+// bootloader rx buffer:
+bool bldrx_put(char c);
+char bldrx_get();
+bool bldrx_available();
 
 #endif // _FRAISE_MASTER_BUFFER_H
 

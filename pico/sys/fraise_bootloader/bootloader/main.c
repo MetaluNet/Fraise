@@ -110,6 +110,12 @@ void fraiseLineReceived(char *data, uint8_t len) {
     else if(c == 'I') sendVersion();
     else if(c == 'A') run_app();
     else if(c == 'R') setName(data, len);
+    else if(c == 'W') {
+        DONT_WRITE = (data[1] == '0');
+        char buf[4] = "W1\n";
+        buf[1] = DONT_WRITE ? '0' : '1';
+        fraise_puts(buf);
+    }
     else if(c == ':' || c == '%') {
         if(isVerified) {
             int ret = processHexLine(data, len);

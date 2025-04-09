@@ -277,9 +277,11 @@ int main() {
                 lineLen = 0;
             }
             else if(c == '&') {
+                char tmp = lineBuf[lineLen];
                 lineBuf[lineLen] = 0;
                 processLine();
                 lineLen = 0;
+                lineBuf[lineLen] = tmp;
             }
             else lineBuf[lineLen++] = (uint8_t) c;
         }

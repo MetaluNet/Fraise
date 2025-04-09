@@ -37,7 +37,7 @@ bool fraise_master_bootload_push(const char *buf, int len) {
 
 bool fraise_master_bootload_pop_send() {
     uint8_t len = txbuf_read_init();
-    char buf[64];
+    char buf[256];
     int buflen = 0;
     if(len == 0) return false;
 
@@ -58,7 +58,7 @@ void fraise_master_bootload_getline(const char *lineBuf, int lineLen) {
         sleep_ms(1);
     }
     else if(usePicoBootloader && lineBuf[0] == ':') { // hex line
-        char buf[64] = {'%'};
+        char buf[256] = {'%'};
         uint8_t count = 1;
         uint8_t bufcount = 1;
         while(count < lineLen - 1) {
@@ -91,7 +91,10 @@ void fraise_master_bootload_service() {
                 waitAck = false;
                 nb_retries = 0;
                 txbuf_read_finish(); // remove the message from the buffer
-                if(txbuf_write_init(256)) {
+                //if(txbuf_write_init(256)) {
+                int free = txbuf_get_freespace();
+                //printf("l txbuf free %d\n", free);
+                if(free >= 256) {
                     printf("bX\n"); // if enough space in tx buf, request new lines.
                     //data_request_timeout = make_timeout_time_ms(100);
                 }
@@ -105,13 +108,14 @@ void fraise_master_bootload_service() {
             if(fraise_master_bootload_pop_send()) {
                 waitAck = true;
                 no_response_timeout = make_timeout_time_ms(100);
-            }
+            } else no_response_timeout = at_the_end_of_time;
         } else if(time_reached(no_response_timeout)) {
             if(++nb_retries > MAX_NB_RETRIES) {
                 printf("bE\n");
                 fraise_master_buffers_reset();
             } else printf("l retry %d\n", nb_retries);
             waitAck = false;
+            no_response_timeout = at_the_end_of_time;
         }
     }
 }

@@ -14,7 +14,7 @@
 #include "fraise_eeprom.h"
 #include "fraise_master.h"
 
-char lineBuf[256];
+char lineBuf[1024];
 uint8_t lineLen;
 uint8_t piedID = 1;
 
@@ -131,6 +131,13 @@ void stdioTask()
             lineBuf[lineLen] = 0;
             processLine();
             lineLen = 0;
+        }
+        else if(c == '&') { // inner line break
+            char tmp = lineBuf[lineLen];
+            lineBuf[lineLen] = 0;
+            processLine();
+            lineLen = 0;
+            lineBuf[lineLen] = tmp;
         }
         else lineBuf[lineLen++] = c;
     }

@@ -66,6 +66,7 @@ typedef enum {
     FMS_RECEIVE,
     FMS_SEND,
     FMS_WAITACK,
+    FMS_BOOTLOAD
 } fraise_master_state_t;
 
 static fraise_master_state_t state = FMS_POLL;
@@ -219,6 +220,17 @@ static void fraise_master_irq_handler(void) {
             fraise_add_alarm(WAIT_ANSWER_TIME);
         }
         return;
+    case FMS_BOOTLOAD:
+        while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
+            uint16_t c = fraise_program_getc();
+            if(pio_interrupt_get(pio, 4) || (c > 255)) {        // Framing error or bit9=1: discard.
+                pio_interrupt_clear(pio, 4);
+                pio_sm_clear_fifos(pio, sm);
+                return;
+            }
+            bldrx_put(c);
+        }
+        break;
     default:
         break;
     }
@@ -344,7 +356,8 @@ void fraise_master_bootload_start(const char *fruitname) {
     fraise_master_sendchars_broadcast(buffer);
     sleep_ms(10);
     waitAck = false;
-    fraise_program_disable_rx_interrupt();
+    state = FMS_BOOTLOAD;
+    //fraise_program_disable_rx_interrupt();
     fraise_program_disable_tx_interrupt();
     fraise_cancel_alarm();
     fraise_master_buffers_reset();
@@ -396,7 +409,7 @@ void fraise_master_bootload_send_broadcast(const char *buf, int len) { // e.g "F
     sleep_us(44);                                   // the current byte to be fully transferred.
 }
 
-bool fraise_master_get_raw_byte(char *w) {
+/*bool fraise_master_get_raw_byte(char *w) {
     *w = 0;
     if(pio_interrupt_get(pio, 4)) { // Framing error! Discard.
         pio_interrupt_clear(pio, 4);
@@ -408,7 +421,16 @@ bool fraise_master_get_raw_byte(char *w) {
     //*w = fraise_program_getc();
     *w = pio_sm_get_blocking(pio, sm) >> 23;
     return true;
+}*/
+
+bool fraise_master_get_raw_byte(char *w) {
+    *w = 0;
+    if(!bldrx_available()) return false;
+    *w = bldrx_get();
+    return true;
 }
+
+
 // -----------------------------
 
 void fraise_master_set_poll(uint8_t id, bool poll) {

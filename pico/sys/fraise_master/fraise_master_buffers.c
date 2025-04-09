@@ -34,6 +34,15 @@ static inline int txbuf_inc_head(int h) {
     return h;
 }
 
+
+int txbuf_get_freespace() {
+    int freespace = txbuf_read_head - txbuf_write_head;
+    if(freespace < 0) freespace += TXBUF_SIZE;
+    freespace -= 2;
+    if(freespace > 0) return freespace;
+    else return 0;
+}
+
 // ------ Write a message to the TX buffer: ------
 
 // Init a new message; returns false if txbuf is full.
@@ -181,5 +190,39 @@ void fraise_master_buffers_reset() {
     txbuf_read_head = 0;
 }
 
+// -----------------------------------------------------------------------------------
+// 
+// ------------------------------------------------------------------------------------
+// ------------ BOOTLOAD RX buffer ------------
 
+static char bldrx_buf[16];
+static int bldrx_in = 0;  // next write
+static int bldrx_out = 0; // next read
+
+bool bldrx_put(char c) {
+    int in_tmp = bldrx_in + 1;
+    if(in_tmp == sizeof(bldrx_buf)) in_tmp = 0;
+    if(in_tmp == bldrx_out) {
+        printf("l bldrx overflow!\n");
+        return false;
+    }
+    bldrx_buf[bldrx_in] = c;
+    bldrx_in = in_tmp;
+    return true;
+}
+
+char bldrx_get() {
+    if(bldrx_out == bldrx_in) {
+        printf("l pipe underflow!\n");
+        return 0;
+    }
+    char c = bldrx_buf[bldrx_out];
+    bldrx_out = bldrx_out + 1;
+    if(bldrx_out == sizeof(bldrx_buf)) bldrx_out = 0;
+    return c;
+}
+
+bool bldrx_available() {
+    return (bldrx_out != bldrx_in);
+}
 
