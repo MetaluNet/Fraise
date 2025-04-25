@@ -28,6 +28,12 @@ static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
             ((uint32_t) (b) << 8 );
 }
 
+static inline void u32_urgb(uint32_t rgb, uint8_t &r, uint8_t &g, uint8_t &b) {
+    r = rgb >> 24;
+    g = rgb >> 16;
+    b = rgb >> 8;
+}
+
 void ws2812_dma_transfer(uint32_t *pixels, int num);
 int ws2812_print_status();
 #ifdef __cplusplus
