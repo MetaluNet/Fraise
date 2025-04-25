@@ -7,6 +7,8 @@
 #include "pico/stdlib.h"
 #include "hardware/flash.h"
 #include "pico/sync.h"
+#include "pico/platform.h"
+#include "pico/multicore.h"
 #include "string.h"
 
 #include "fraise_eeprom.h"
@@ -28,6 +30,16 @@ extern const char __eeprom_start__;
 static const char *eeprom_const = &__eeprom_start__;
 static critical_section_t critsec;
 static bool initialized = false;
+
+void lockout_other_core() {
+	if(!multicore_lockout_victim_is_initialized(1 - get_core_num())) return;
+	multicore_lockout_start_blocking();
+}
+
+void unlockout_other_core() {
+	if(!multicore_lockout_victim_is_initialized(1 - get_core_num())) return;
+	multicore_lockout_end_blocking();
+}
 
 void eeprom_setup() {
 #pragma GCC diagnostic push
@@ -80,10 +92,12 @@ uint8_t eeprom_get_id() {
 
 void eeprom_commit() {
 	if(!initialized) return;
+	lockout_other_core();
 	critical_section_enter_blocking(&critsec);
 	flash_range_erase((intptr_t)eeprom_const - (intptr_t)XIP_BASE, 4096);
 	flash_range_program((intptr_t)eeprom_const - (intptr_t)XIP_BASE, (const uint8_t *)eeprom_live, EEPROM_SIZE);
 	critical_section_exit(&critsec);
+	unlockout_other_core();
 }
 
 // --- user utilities ---

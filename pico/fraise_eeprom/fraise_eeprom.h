@@ -34,6 +34,9 @@ extern "C" {
 */
 ///@{
 
+void lockout_other_core();		// lockout the other core if it has been initialized with multicore_lockout_victim_init()
+void unlockout_other_core();	// unlockout the other core
+
 /**
  * \brief User defined function where to declare the parameters.
  * \note User has to define this function, which must be a list of eeprom_declare_*() calls.
