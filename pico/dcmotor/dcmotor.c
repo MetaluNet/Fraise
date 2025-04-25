@@ -16,13 +16,13 @@
 void dcmotor_init(dcmotor_t *p, int pinA, int pinB, int pinPwm, int pinCurrent) {
     p->pinA = pinA;
     gpio_init(pinA);
+    gpio_put(p->pinA, 0);
     gpio_set_dir(pinA, GPIO_OUT);
-    //gpio_pull_up(pinA);
 
     p->pinB = pinB;
     gpio_init(pinB);
+    gpio_put(p->pinB, 0);
     gpio_set_dir(pinB, GPIO_OUT);
-    //gpio_pull_up(pinB);
 
     p->pinPwm = pinPwm;
     gpio_set_function(pinPwm, GPIO_FUNC_PWM);
@@ -31,13 +31,13 @@ void dcmotor_init(dcmotor_t *p, int pinA, int pinB, int pinPwm, int pinCurrent) 
     pwm_set_enabled(slice_num, true);
     pwm_set_gpio_level(pinPwm, 0);
 
-    adc_init();
     p->pinCurrent = pinCurrent;
-    adc_gpio_init(pinCurrent);
+    if(p->pinCurrent > 0) {
+        adc_init();
+        adc_gpio_init(pinCurrent);
+    }
 
     p->pwm = 0;
-    gpio_put(p->pinA, 0);
-    gpio_put(p->pinB, 0);
 }
 
 void dcmotor_set_pwm(dcmotor_t *p, int16_t pwm){
@@ -55,6 +55,8 @@ void dcmotor_set_pwm(dcmotor_t *p, int16_t pwm){
 }
 
 int dcmotor_get_current_mA(dcmotor_t *p) {
+    if(p->pinCurrent <= 0) return 0;
+
     adc_select_input(p->pinCurrent - 26);
     int adc = adc_read();
     // adc = vsense * 4096 / 3.3
