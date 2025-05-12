@@ -214,6 +214,8 @@ const audio_format_t *audio_pwm_setup(const audio_format_t *intended_audio_forma
 
     irq_add_shared_handler(DMA_IRQ_0 + PICO_AUDIO_PWM_DMA_IRQ, audio_pwm_dma_irq_handler, PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY);
 
+    float clkdiv = (125000000.0f / 136.0f / 16.0f) / (float)intended_audio_format->sample_freq;
+
     for(int ch = 0; ch < shared_state.channel_count; ch++)
     {
         if (!config)
@@ -232,7 +234,7 @@ const audio_format_t *audio_pwm_setup(const audio_format_t *intended_audio_forma
         // disable auto-pull for !OSRE (which doesn't work with auto-pull)
         static_assert(CYCLES_PER_SAMPLE <= 18, "");
         sm_config_set_out_shift(&sm_config, true, false, CMD_BITS + CYCLES_PER_SAMPLE);
-        sm_config_set_clkdiv(&sm_config, 2.393); // so SR = 24000 samples/sec
+        sm_config_set_clkdiv(&sm_config, clkdiv); // e.g: 2.393 -> SR = 24000 samples/sec
         pio_sm_init(audio_pio, sm, offset, &sm_config);
 
         pio_sm_set_consecutive_pindirs(audio_pio, sm, config->core.base_pin, 1, true);
