@@ -1,4 +1,4 @@
-#N canvas 377 28 514 597 10;
+#N canvas 175 25 514 597 10;
 #X declare -path ggee;
 #X declare -path comport;
 #X declare -path extra;
@@ -8,7 +8,7 @@
 #X obj 15 238 outlet;
 #X obj 15 193 r \$0-pied;
 #X obj 15 216 route actif;
-#N canvas 875 602 624 403 FromFraise 1;
+#N canvas 875 602 624 403 FromFraise 0;
 #X obj 110 73 tgl 15 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 40 273 route UsbFraise;
 #X obj 40 342 s \$0-version;
@@ -555,7 +555,7 @@
 #X connect 10 0 11 0;
 #X connect 12 0 4 0;
 #X restore 15 148 pd SetID;
-#X obj 21 72 cnv 10 120 10 empty \$0-devcan device:\ /dev/ttyACM0 2 7 1 10 #e8e828 #606060 0;
+#X obj 21 72 cnv 10 120 10 empty \$0-devcan device:\ /dev/ttyACM1 2 7 1 10 #e8e828 #606060 0;
 #N canvas 492 47 706 500 comport 0;
 #X msg 155 238 close;
 #X obj 155 128 sel 0 1, f 14;
@@ -773,7 +773,7 @@
 #X connect 61 0 62 0;
 #X connect 65 0 64 0;
 #X restore 15 107 pd comport;
-#X obj 21 61 cnv 10 80 10 empty \$0-piedvercan firmware:\ PicoPied\ v0.1 2 7 1 10 #e8e828 #606060 0;
+#X obj 21 61 cnv 10 80 10 empty \$0-piedvercan firmware:\ 2.1.5\ (SpareTimeLabs/SDCC) 2 7 1 10 #e8e828 #606060 0;
 #N canvas 203 19 390 270 \$0-utils 0;
 #X obj 4 3 cnv 16 370 260 empty empty Pieds\ detected: 20 12 0 14 #000000 #faff00 0;
 #X obj 245 6 bng 16 250 50 0 \$0-find_pieds-snd \$0-find_pieds-rcv (update) -60 8 0 12 #fcfcfc #000000 #fcfcfc;
@@ -1142,10 +1142,12 @@
 #X obj 266 117 s \$0-make-main-done;
 #X obj 68 42 route make_done make_cleaned make_main_done pico;
 #X obj 305 87 s \$0-pico-from-network;
+#X obj 240 162 bng 18 250 50 0 empty empty empty 0 -9 0 10 #fcfcfc #000000 #000000;
 #X connect 0 0 8 0;
 #X connect 2 0 1 0;
 #X connect 3 0 4 0;
 #X connect 6 0 7 0;
+#X connect 6 0 10 0;
 #X connect 8 0 2 0;
 #X connect 8 1 3 0;
 #X connect 8 2 6 0;
@@ -1169,8 +1171,8 @@
 #X connect 5 1 4 0;
 #X connect 5 2 1 0;
 #X restore 142 209 pd tosystem;
-#N canvas 113 27 449 457 Bootloader/Compiler 1;
-#N canvas 1170 25 725 517 enter-boot-quit 1;
+#N canvas 113 27 449 457 Bootloader/Compiler 0;
+#N canvas 1170 25 725 517 enter-boot-quit 0;
 #X msg 123 204 0;
 #X obj 123 225 s \$0-verified;
 #X msg 199 157 !F\$1;
@@ -1504,8 +1506,8 @@
 #X obj 118 171 ../../pic/sys/program \$0 \$1;
 #X floatatom 40 369 5 0 0 0 - - - 0;
 #X msg 345 341 0;
-#X msg 14 295 1;
 #X msg 144 417 set none;
+#X msg 14 295 0;
 #X connect 2 0 7 0;
 #X connect 3 0 4 0;
 #X connect 4 0 5 0;
@@ -1518,7 +1520,7 @@
 #X connect 11 1 10 0;
 #X connect 11 2 13 0;
 #X connect 11 3 32 0;
-#X connect 15 0 36 0;
+#X connect 15 0 37 0;
 #X connect 17 0 18 0;
 #X connect 18 0 19 0;
 #X connect 18 1 20 0;
@@ -1536,9 +1538,9 @@
 #X connect 30 0 27 0;
 #X connect 32 0 12 0;
 #X connect 35 0 28 0;
-#X connect 36 0 23 0;
-#X connect 36 0 34 0;
-#X connect 37 0 19 0;
+#X connect 36 0 19 0;
+#X connect 37 0 23 0;
+#X connect 37 0 34 0;
 #X restore 142 189 pd Bootloader/Compiler;
 #N canvas 105 513 1146 494 autoReconnect 0;
 #X obj 128 43 r \$0-on-snd;
@@ -2265,7 +2267,7 @@
 #X obj 333 191 cnv 13 70 13 empty \$0-piedIDcan piedID:\ 1 2 7 1 12 #c4fcc4 #404040 0;
 #X obj 20 46 tgl 15 0 \$0-on-snd \$0-on-rcv on 3 7 1 8 #fc2828 #fc2828 #fcfcfc 0 1;
 #X obj 20 30 inlet;
-#X obj 25 86 hsl 55 12 0 10000 0 0 \$0-inrate-slider \$0-inrate-slider in:7 0 6 0 10 #fcfcfc #7c7c7c #000000 0 1;
+#X obj 25 86 hsl 55 12 0 10000 0 0 \$0-inrate-slider \$0-inrate-slider in:3219 0 6 0 10 #fcfcfc #7c7c7c #000000 0 1;
 #X obj 88 86 hsl 55 12 0 10000 0 0 \$0-outrate-slider \$0-outrate-slider out:7 0 6 0 10 #fcfcfc #7c7c7c #000000 0 1;
 #X text 148 84 B/s;
 #X obj 163 391 r \$0-find_device_log;
