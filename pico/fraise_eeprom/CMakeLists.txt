@@ -11,6 +11,7 @@ target_include_directories(fraise_eeprom INTERFACE
 target_link_libraries(fraise_eeprom INTERFACE
 	pico_stdlib
 	pico_sync
+	pico_multicore
 	hardware_flash
 )
 
