@@ -1306,8 +1306,8 @@
 #X obj 638 36 r \$0-run_batch_as;
 #X obj 26 506 s \$0-run_batch_as;
 #X msg 26 482 symbol make;
-#X obj 244 510 s \$0-run_batch_as;
-#X msg 244 486 symbol make;
+#X obj 244 534 s \$0-run_batch_as;
+#X msg 244 510 symbol make;
 #X obj 53 73 r \$1-make-is-clean;
 #X obj 26 48 b;
 #X obj 436 79 text define \$0-modules;
@@ -1361,6 +1361,8 @@
 #X obj 1078 167 r \$1-make-init;
 #X obj 917 100 r \$1-make-init;
 #X text 1009 207 minus bootloader_size=32*64;
+#X obj 207 466 bng 18 250 50 0 empty empty empty 0 -9 0 10 #fcfcfc #000000 #000000;
+#X obj 244 487 del 100;
 #X connect 0 0 2 0;
 #X connect 1 0 3 0;
 #X connect 2 0 11 0;
@@ -1373,7 +1375,7 @@
 #X connect 11 0 1 0;
 #X connect 12 0 28 0;
 #X connect 12 1 29 0;
-#X connect 13 0 86 0;
+#X connect 13 0 141 0;
 #X connect 14 0 33 0;
 #X connect 15 0 16 0;
 #X connect 15 1 17 0;
@@ -1443,6 +1445,7 @@
 #X connect 82 0 69 0;
 #X connect 84 0 83 0;
 #X connect 86 0 85 0;
+#X connect 86 0 140 0;
 #X connect 87 0 54 1;
 #X connect 88 0 54 0;
 #X connect 90 0 89 0;
@@ -1490,3 +1493,4 @@
 #X connect 136 1 124 0;
 #X connect 137 0 127 0;
 #X connect 138 0 123 0;
+#X connect 141 0 86 0;
