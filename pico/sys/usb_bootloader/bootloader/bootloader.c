@@ -7,7 +7,13 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/flash.h"
+
+#if PICO_RP2040
 #include "RP2040.h"
+#else
+#include "RP2350.h"
+#endif
+
 #include "pico/time.h"
 #include "hardware/flash.h"
 #include "hardware/resets.h"
@@ -46,7 +52,7 @@ static void jump_to_vtor(uint32_t vtor)
     asm volatile("bx %0"::"r" (reset_vector));
 }
 
-static void disable_interrupts(void)
+static void fraise_disable_interrupts(void)
 {
     SysTick->CTRL &= ~1;
 
@@ -178,7 +184,7 @@ void processHexLine() {
 }
 
 void runapp() {
-    disable_interrupts();
+    fraise_disable_interrupts();
     reset_peripherals();
     jump_to_vtor(FLASH_ADDR_MIN);
     while(1);
@@ -269,7 +275,7 @@ int main() {
             gpio_put(LED_PIN, 0);
         }
         if(c == PICO_ERROR_TIMEOUT) {
-            if((!had_usb) && to_ms_since_boot(get_absolute_time()) > 2000) runapp();
+            if((!had_usb) && to_ms_since_boot(get_absolute_time()) > 3000) runapp();
         } else {
             if(c == '\n') {
                 lineBuf[lineLen] = 0;

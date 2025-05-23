@@ -1,18 +1,19 @@
 # to be invoked from ${projDir}/build with:
-# cmake -S . -B  . -Dfraise_path=path/to/Fraise -is_pied_fruit=[0/1]
+# cmake -S . -B . -Dfraise_path=path/to/Fraise -is_pied_fruit=[0/1]
 cmake_minimum_required(VERSION 3.13)
-
-message("fraise_path: '${fraise_path}'")
-include(${fraise_path}/pico/sys/find_tools.cmake)
 
 # get project dir and name:
 get_filename_component(projDir ${CMAKE_CURRENT_SOURCE_DIR}/.. REALPATH)
 get_filename_component(projName ${projDir} NAME)
 message("project directory name: '${projDir}'")
 message("project name: '${projName}'")
-project(${projName} C CXX ASM)
+
+message("fraise_path: '${fraise_path}'")
 
 include(${fraise_path}/pico/sys/find_board.cmake)
+include(${fraise_path}/pico/sys/find_tools.cmake)
+
+project(${projName} C CXX ASM)
 
 pico_sdk_init()
 

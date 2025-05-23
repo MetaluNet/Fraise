@@ -418,7 +418,7 @@ void fraise_master_bootload_send_broadcast(const char *buf, int len) { // e.g "F
         return false;
     }
     if(pio_sm_is_rx_fifo_empty(pio, sm)) return false;
-    //*w = fraise_program_getc();
+    // *w = fraise_program_getc();
     *w = pio_sm_get_blocking(pio, sm) >> 23;
     return true;
 }*/

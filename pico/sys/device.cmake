@@ -34,6 +34,9 @@ endif()
 set(boardDir ${boardDir} PARENT_SCOPE)
 
 message("board: '${fraise_board}' boardDir: '${boardDir}'")
+message("PICO_BOARD: ${PICO_BOARD}")
+message("PICO_PLATFORM: ${PICO_PLATFORM}")
+
 target_compile_options(${projName} PUBLIC "-I${boardDir}")
 
 # add system modules
@@ -44,7 +47,6 @@ add_subdirectory("${fraise_path}/pico/" modules)
 
 pico_add_extra_outputs(${projName})
 
-target_link_options(${projName} PUBLIC "-L${fraise_path}/pico/sys/")
 target_link_libraries(${projName} pico_stdlib)
 
 pico_enable_stdio_usb(${projName} 0)
@@ -55,15 +57,26 @@ if(DEFINED ENV{is_pied_fruit})
 endif()
 
 message("is_pied_fruit = ${is_pied_fruit}")
+
+# linking script:
+
+if(${PICO_PLATFORM} STREQUAL rp2350-arm-s)
+    set(ld_scripts_path ${fraise_path}/pico/sys/rp2350)
+else()
+    set(ld_scripts_path ${fraise_path}/pico/sys/rp2040)
+endif()
+message("ld_scripts_path: ${ld_scripts_path}")
+
+target_link_options(${projName} PUBLIC "-L${ld_scripts_path}")
+
 if(${is_pied_fruit} EQUAL 1)
-	pico_set_linker_script(${projName} "${fraise_path}/pico/sys/master_app.ld")
+	pico_set_linker_script(${projName} "${ld_scripts_path}/master_app.ld")
 	target_link_libraries(${projName} fraise fraise_master)
 	pico_enable_stdio_usb(${projName} 1)
 else()
-	pico_set_linker_script(${projName} "${fraise_path}/pico/sys/device_app.ld")
+	pico_set_linker_script(${projName} "${ld_scripts_path}/device_app.ld")
 	target_link_libraries(${projName} fraise fraise_device)
 endif()
-
 
 if(${is_pied_fruit} EQUAL 1)
 	set(target_file ${projName}-0.hex)

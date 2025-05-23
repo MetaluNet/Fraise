@@ -13,7 +13,11 @@
 #include "pico/async_context_threadsafe_background.h"
 #include "pico/async_context_poll.h"
 #include "hardware/pio.h"
+#if PICO_RP2040
 #include "RP2040.h"
+#else
+#include "RP2350.h"
+#endif
 #include "hardware/resets.h"
 #include "hardware/watchdog.h"
 #include "hardware/structs/watchdog.h"
@@ -167,7 +171,7 @@ static void fraise_irq(void) {
     }
 }
 
-static void disable_interrupts(void)
+static void fraise_disable_interrupts(void)
 {
 	SysTick->CTRL &= ~1;
 
@@ -199,7 +203,7 @@ extern int __fraise_bootloader_start__;
 void switch_to_bootloader()
 {
     fraise_unsetup();
-    disable_interrupts();
+    fraise_disable_interrupts();
     reset_peripherals();
     const uint32_t vtor = (uint32_t)&__fraise_bootloader_start__ /*XIP_BASE + (64 * 1024)*/;
     // Derived from the Leaf Labs Cortex-M3 bootloader.
@@ -435,7 +439,7 @@ void fraise_debug_print_next_txmessage(){
 }
 
 void fraise_print_status() {
-    printf("l fr psol %d %d %d %d\n", PIO_NUM(pio), sm, pgm_offset, fraise_program.length); // pio sm offset length
+    printf("l fr psol %d %d %d %d\n", (int)PIO_NUM(pio), sm, pgm_offset, fraise_program.length); // pio sm offset length
 }
 
 uint fraise_debug_get_irq_count() {

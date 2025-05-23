@@ -20,6 +20,14 @@ pico_enable_stdio_uart(bootloader 0)
 pico_set_float_implementation(bootloader none)
 pico_set_double_implementation(bootloader none)
 
-target_link_options(bootloader PUBLIC "-L${fraise_path}/pico/sys")
-pico_set_linker_script(bootloader ${fraise_path}/pico/sys/master_bootloader.ld)
+# linking script:
+
+if(${PICO_PLATFORM} STREQUAL "rp2350-arm-s")
+    set(ld_scripts_path ${fraise_path}/pico/sys/rp2350)
+else()
+    set(ld_scripts_path ${fraise_path}/pico/sys/rp2040)
+endif()
+
+target_link_options(bootloader PUBLIC "-L${ld_scripts_path}")
+pico_set_linker_script(bootloader ${ld_scripts_path}/master_bootloader.ld)
 

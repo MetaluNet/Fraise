@@ -8,7 +8,13 @@
 #include "hardware/gpio.h"
 #include "hardware/flash.h"
 #include "pico/time.h"
+
+#if PICO_RP2040
 #include "RP2040.h"
+#else
+#include "RP2350.h"
+#endif
+
 #include "hardware/flash.h"
 #include "hardware/resets.h"
 #include "hardware/sync.h"
@@ -47,7 +53,7 @@ uint32_t startAddress;
 uint16_t lastoffset;
 bool verbose = false;
 
-static void disable_interrupts(void)
+static void fraise_disable_interrupts(void)
 {
     SysTick->CTRL &= ~1;
 
@@ -73,7 +79,7 @@ void run_app()
     watchdog_hw->scratch[7] = (FRAISE_DRV_LEVEL << 15) + (FRAISE_RX_PIN << 10) + (FRAISE_TX_PIN << 5) + FRAISE_DRV_PIN;
 
     fraise_unsetup();
-    disable_interrupts();
+    fraise_disable_interrupts();
     reset_peripherals();
     const uint32_t vtor = FLASH_ADDR_MIN;
     // Derived from the Leaf Labs Cortex-M3 bootloader.
