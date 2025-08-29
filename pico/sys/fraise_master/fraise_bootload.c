@@ -94,7 +94,7 @@ void fraise_master_bootload_service() {
                 //if(txbuf_write_init(256)) {
                 int free = txbuf_get_freespace();
                 //printf("l txbuf free %d\n", free);
-                if(free >= 256) {
+                if(free > 512) { // keep at least two 4x64 lines free for security
                     printf("bX\n"); // if enough space in tx buf, request new lines.
                     //data_request_timeout = make_timeout_time_ms(100);
                 }
