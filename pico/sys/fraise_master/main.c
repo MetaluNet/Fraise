@@ -13,15 +13,42 @@
 #include "hardware/structs/watchdog.h"
 #include "fraise_eeprom.h"
 #include "fraise_master.h"
+#include "pico/multicore.h"
+
+#if PICO_RP2040
+#include "RP2040.h"
+#else
+#include "RP2350.h"
+#endif
 
 char lineBuf[1024];
 uint8_t lineLen;
 uint8_t piedID = 1;
 
-void reboot() {
-    hw_clear_bits(&watchdog_hw->ctrl, WATCHDOG_CTRL_ENABLE_BITS);
-    watchdog_reboot(0, 0, 0);
+static void fraise_disable_interrupts(void)
+{
+    SysTick->CTRL &= ~1;
 
+    NVIC->ICER[0] = 0xFFFFFFFF;
+    NVIC->ICPR[0] = 0xFFFFFFFF;
+}
+
+static void reset_peripherals(void)
+{
+    reset_block(~(
+        RESETS_RESET_IO_QSPI_BITS |
+        RESETS_RESET_PADS_QSPI_BITS |
+        RESETS_RESET_SYSCFG_BITS |
+        RESETS_RESET_PLL_SYS_BITS
+    ));
+}
+
+void reboot() {
+    sleep_ms(50); // wait for the host to disconnect the USB device
+    fraise_disable_interrupts();
+    multicore_reset_core1();
+    reset_peripherals();
+    watchdog_reboot(0, 0, 0);
     while (1) {
         tight_loop_contents();
     }
