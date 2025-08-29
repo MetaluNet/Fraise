@@ -53,7 +53,7 @@
 #X obj 492 105 s \$1-bootstoptimers;
 #X obj 212 394 r \$1-bootstoptimers;
 #X obj 160 175 r \$1-bootstoptimers;
-#N canvas 845 401 1205 953 sendfile 1;
+#N canvas 342 39 1205 953 sendfile 1;
 #X obj 32 67 bng 15 250 50 0 empty empty program 17 7 0 10 #fc8000 #000000 #000000;
 #X obj 70 641 t a b;
 #X obj 363 125 sel X, f 21;
@@ -402,6 +402,7 @@
 #X obj 242 481 del 20000;
 #X obj 183 371 r \$0-msgtimeout-stop;
 #X obj 183 417 b;
+#X obj 26 674 s \$1-bootstoptimers;
 #X connect 0 0 65 0;
 #X connect 1 0 21 0;
 #X connect 1 1 0 0;
@@ -426,6 +427,7 @@
 #X connect 11 0 22 0;
 #X connect 12 0 23 0;
 #X connect 12 0 38 0;
+#X connect 12 0 78 0;
 #X connect 12 1 14 0;
 #X connect 12 1 56 0;
 #X connect 12 1 70 0;
