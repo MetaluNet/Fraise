@@ -102,13 +102,13 @@ static alarm_id_t alarm_id;
 
 // IRQ called when the pio rx rx_fifo is not empty, or if the tx rx_fifo is not full.
 static void fraise_master_irq_handler(void) {
-    static uint8_t rx_checksum;
-    static uint8_t rx_bytes;
-    static uint8_t rx_msg_length;
-    static uint8_t tx_bytes_to_send;
-    static bool    rx_is_char;
-    static int last_txbuf_head;
-    static uint8_t tx_number_tries;
+    static uint8_t  rx_checksum;
+    static uint8_t  rx_bytes;
+    static uint8_t  rx_msg_length;
+    static uint8_t  tx_bytes_to_send;
+    static bool     rx_is_char;
+    static int      last_txbuf_head = -1;
+    static uint8_t  tx_number_tries;
 
     switch(state) {
     case FMS_POLL:
@@ -130,6 +130,8 @@ static void fraise_master_irq_handler(void) {
                 return;
             }
             last_txbuf_head = txbuf_read_get_head();
+            /*if(tx_number_tries > 0)
+                printf("l %d retry for fruit %02X head %d\n", tx_number_tries, destination_fruit & 127, last_txbuf_head);*/
             state = FMS_SEND;
             fraise_program_start_tx_with_interrupt(tx_bytes_to_send - 1);
             fraise_program_putc_blocking(destination_fruit | 256);   // set bit9
@@ -240,16 +242,17 @@ static void fraise_master_irq_handler(void) {
         while(!pio_sm_is_rx_fifo_empty(pio, sm)) fraise_program_getc(); // Flush RXFIFO
         fraise_program_putc(txbuf_read_getc());
         tx_bytes_to_send--;
-        if(tx_bytes_to_send == 0) {                         // The message has been fully pushed to TX FIFO:
-            fraise_program_disable_tx_interrupt();          // Stop triggering interrupt when tx rx_fifo not full;
-            if(destination_fruit != 0) {                    // If the massage isn't broadcast:
+        if(tx_bytes_to_send == 0) {                             // The message has been fully pushed to TX FIFO:
+            fraise_program_disable_tx_interrupt();              // Stop triggering interrupt when tx rx_fifo not full;
+            if(destination_fruit != 0) {                        // If the massage isn't broadcast:
                 fraise_add_alarm(WAIT_ANSWER_TIME);             // Arm the timeout alarm
                 state = FMS_WAITACK;                            // Set the state to wait for the Ack.
-            } else {                                        // If the message is broadcast, remove it from the buffer.
+            } else {                                            // If the message is broadcast, remove it from the buffer.
                 txbuf_read_finish();                            // remove it from the buffer,
                 state = FMS_POLL;                               // and restart the state machine
                 fraise_add_alarm(ONE_BYTE_TIME *                // after all bytes are sent; we need to add one to the fifo_level
-                                 (pio_sm_get_tx_fifo_level(pio, sm) + 1));   // to take account of the byte being transferred currently.
+                    (pio_sm_get_tx_fifo_level(pio, sm) + 1));   // to take account of the byte being transferred currently.
+                last_txbuf_head = -1;                           // forget last tx head
             }
         }
     }
