@@ -1,7 +1,7 @@
 #N canvas 844 468 844 471 10;
 #X obj 24 34 inlet;
 #X obj 460 79 fudiformat -u;
-#N canvas 542 50 863 571 bootload 1;
+#N canvas 542 50 863 571 bootload 0;
 #X obj 72 355 text get \$0-hex;
 #X obj 189 114 spigot;
 #X msg 72 159 0;
@@ -227,9 +227,12 @@
 #X obj 75 58 r __pied_\$2_usb_bootload__;
 #X obj 86 351 s __pied_\$2_usb_bootload__-progress;
 #X obj 166 219 r __pied_\$2_out__;
+#X obj 72 433 print fraise program \$2;
+#X msg 72 408 fruit0 successfully programmed;
 #X connect 0 0 19 0;
 #X connect 1 0 30 0;
 #X connect 2 0 27 0;
+#X connect 2 0 67 0;
 #X connect 2 1 57 0;
 #X connect 3 0 37 0;
 #X connect 4 0 37 0;
@@ -291,3 +294,4 @@
 #X connect 62 0 59 0;
 #X connect 63 0 19 0;
 #X connect 65 0 37 0;
+#X connect 67 0 66 0;
