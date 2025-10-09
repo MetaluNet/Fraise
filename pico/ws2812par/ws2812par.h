@@ -27,7 +27,7 @@ typedef struct {
     uint data_offset; // start at data_offset index, then read modulo(strip_length)
 } strip_t;
 
-bool ws2812par_setup(int pin, int nb_strips, int strip_length); // 'strip_length' is in bytes (maximum: MAX_NUM_PIXELS * 4)
+bool ws2812par_setup(int pin, int nb_strips, int strip_length, bool invert); // 'strip_length' is in bytes (maximum: MAX_NUM_PIXELS * 4)
 
 void ws2812par_process_strips(strip_t **strips); // strips data must be at least 'strip_length' long (in bytes)
 

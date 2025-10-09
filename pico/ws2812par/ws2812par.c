@@ -115,13 +115,18 @@ static void transform_strips(strip_t **strips, uint num_strips, value_bits_t *bi
 
 // ----------------- public functions ---------------
 
-bool ws2812par_setup(int pin, int nstrips, int length) {
+bool ws2812par_setup(int pin, int nstrips, int length, bool invert) {
     nb_strips = 0;
     if(length > MAX_NUM_PIXELS * 4) return false;
-    bool success = pio_claim_free_sm_and_add_program_for_gpio_range(&ws2812_parallel_program, &pio, &sm, &pgm_offset, pin, nstrips, true);
-    if(!success) return false;
-    ws2812_parallel_program_init(pio, sm, pgm_offset, pin, nstrips, 800000);
-
+    if(!invert) {
+        bool success = pio_claim_free_sm_and_add_program_for_gpio_range(&ws2812_parallel_program, &pio, &sm, &pgm_offset, pin, nstrips, true);
+        if(!success) return false;
+        ws2812_parallel_program_init(pio, sm, pgm_offset, pin, nstrips, 800000);
+    } else {
+        bool success = pio_claim_free_sm_and_add_program_for_gpio_range(&ws2812_parallel_inv_program, &pio, &sm, &pgm_offset, pin, nstrips, true);
+        if(!success) return false;
+        ws2812_parallel_inv_program_init(pio, sm, pgm_offset, pin, nstrips, 800000);
+    }
     sem_init(&reset_delay_complete_sem, 1, 1); // initially posted so we don't block first time
     dma_init(pio, sm);
     nb_strips = nstrips;

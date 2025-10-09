@@ -13,6 +13,8 @@
 
 #define WS2812_PIN_START 0
 
+const bool ws2812_invert = false; // set to 'true' if using inverted line buffers
+
 #ifndef NUM_PIXELS
 #define NUM_PIXELS 100
 #endif
@@ -164,7 +166,7 @@ void transfer()
 
 
 void setup() {
-    ws2812par_setup(WS2812_PIN_START, count_of(strips), NUM_PIXELS * 3);
+    ws2812par_setup(WS2812_PIN_START, count_of(strips), NUM_PIXELS * 3, ws2812_invert);
     process();
 }
 
